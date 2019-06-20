@@ -67,7 +67,7 @@ app.use('/computers', ComputerController)
 /////////////////////////////////////////////////////////////////////////   Socket.io /////////////////////////////////////////////////////////
 
 // Start listening
-server.listen(process.env.PORT || '7777');
+server.listen(process.env.PORT || '5555');
 // Setup socket.io
 socketIo.on('connection', socket => {
   const username = socket.handshake.query.username;
