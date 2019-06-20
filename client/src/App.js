@@ -45,12 +45,19 @@ class App extends Component {
   }
 
   getUserAuth = async () => {
+    try{
     let userAuth = await fetch('/users/level', { method: 'get' })
       .then(res => res.text())
+      .catch(err => console.log('session error : ' + err))
     let userName = await fetch('/users/username', { method: 'get' })
       .then(res => res.text())
-    console.log('session : ' + userAuth)
-    this.setState({ userAuth: userAuth, userName: userName })
+      .catch(err =>   console.log('session error : ' + err))
+      console.log('session : ' + userAuth)
+      this.setState({ userAuth: userAuth, userName: userName })
+    }
+    catch(err){
+      console.log('session error : ' + err)
+    }
 
     console.log('<App> isAuth : ' + this.state.userAuth)
   }
@@ -153,7 +160,8 @@ class App extends Component {
           text='wait ...'
         >
 
-          <div className="content">
+          <div className="content">  
+            <Route exact path="/" component={Home}></Route>
             <Route exact path="/Catalogue" component={Catalogue} />
             <Route exact path="/UserGestion" component={UserGestion} />
             <Route exact path="/CatalogueGestion" component={CatalogueUserGestion} />
@@ -162,7 +170,6 @@ class App extends Component {
             <Route exact path="/Panier" component={Panier} />
             <Route exact path="/Account" component={Account} />
             <Route exact path="/Chat" component={Chat} />
-            <Route exact path="/" component={Home}></Route>
             <Route exact path="/Login" render={() => <Login handleLogin={this.handleLogin} handleRegister={this.handleRegister} handleLoginGoogle={this.handleLoginGoogle} />} />
           </div>
 

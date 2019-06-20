@@ -52,7 +52,7 @@ class ChatApp extends React.Component {
 
     connectSocket = (account) => {
         // Connect to the server
-        this.socket = io('http://localhost:7777', { query: `username=${account.username}` }).connect();
+        this.socket = io('http://localhost:5555', { query: `username=${account.username}` }).connect();
 
         // Listen for messages from the server
         this.socket.on('server:message', message => {

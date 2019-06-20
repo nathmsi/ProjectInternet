@@ -39,6 +39,7 @@ class Formulaire extends Component {
         className='form'
         onSubmit={this.handleSubmit}>
         <textarea
+          placeholder={"Enter your message here"}
           value={this.state.message}
           onChange={this.handleChange}
           onKeyUp={this.handleKeyUp}
