@@ -6,12 +6,20 @@ express session back-end server
 socket.io
 mongodb database
 
+* change directory
 ```
 cd  /server
+```
 
+
+* install dependecy
+```
 npm install 
-npm start
+```
 
+* start server
+```
+npm start
 ```
 
 ## Client
