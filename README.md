@@ -8,7 +8,7 @@ mongodb database
 
 * change directory
 ```
-cd  /server
+cd  ./server
 ```
 
 
@@ -26,8 +26,18 @@ npm start
 project ineternet 
 React front-end
 
+* change directory
+```
+cd  ./client
+```
 
-cd /client
 
-npm install
+* install dependecy
+```
+npm install 
+```
+
+* start server
+```
 npm start
+```
