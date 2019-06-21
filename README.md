@@ -6,11 +6,13 @@ express session back-end server
 socket.io
 mongodb database
 
-cd /server
+```
+cd  /server
 
 npm install 
 npm start
 
+```
 
 ## Client
 project ineternet 
