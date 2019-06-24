@@ -3,9 +3,9 @@ import React from 'react'
 const User = ({ details, deleteUser, updateUserLevel }) => {
 
 
-    let panier = <></>
-    panier = Object.keys(details.panier)
-        .map(key => <Panier key={key} id={details.panier[key]} />)
+    // let panier = <></>
+    // panier = Object.keys(details.panier)
+    //     .map(key => <Panier key={key} id={details.panier[key]} />)
 
         let orders = <></>
         orders = Object.keys(details.orders)
@@ -24,7 +24,6 @@ const User = ({ details, deleteUser, updateUserLevel }) => {
                     address => <strong>{details.address}</strong> <br />
                     email => <strong>{details.email}</strong> <br />
                     panier =>  <br />
-                    {panier}
                     orders =>  <br />
                     {orders}
                 </ul>
@@ -47,12 +46,12 @@ const User = ({ details, deleteUser, updateUserLevel }) => {
     )
 }
 
-const Panier = ({ id }) => {
+// const Panier = ({ id }) => {
 
-    return (
-        <div className='container border '> Id computer : <strong> {id} </strong><br /></div>
-    )
-}
+//     return (
+//         <div className='container border '> Id computer : <strong> {id} </strong><br /></div>
+//     )
+// }
 
 const Order = ({total , index  }) => {
     return (

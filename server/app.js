@@ -10,6 +10,7 @@ const passport = require('passport')
 var cors = require('cors')
 var http =  require('http')
 var io =  require('socket.io')
+const pino = require('express-pino-logger')();
 
 
 ////////////////////////
@@ -40,9 +41,11 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-app.use(bodyParser.urlencoded({
-  extended: true
-}))
+// app.use(bodyParser.urlencoded({
+//   extended: true
+// }))
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(pino);
 
 app.use(session({
   secret: "Our little secret.",
@@ -74,7 +77,7 @@ socketIo.on('connection', socket => {
   console.log(`${username} connected`);
   socket.broadcast.emit('server:connection', username);
   socket.on('client:message', data => {
-    console.log(`${data.username} : ${data.message}`);
+    // console.log(`${data.username} : ${data.message}`);
     // message received from client, now broadcast it to everyone else
     socket.broadcast.emit('server:message', data);
   });

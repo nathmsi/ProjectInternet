@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import '../styles/Catalogue.css'
 import CircularProgress from '@material-ui/core/CircularProgress';
-import Card from './Card'
+import Card from './screen/Card'
 import Select from 'react-select';
 import LoadingOverlay from 'react-loading-overlay';
 

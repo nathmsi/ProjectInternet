@@ -16,6 +16,9 @@ var CryptoJS = require("crypto-js");
 
 
 
+
+///////////////////////////////////////////////     REGISTARATION   ////////////////////////////////////////////////////
+
 // CREATES A NEW USER REGISTER
 router.post('/register', function (req, res) {
 
@@ -66,6 +69,8 @@ router.get("/logout", function (req, res) {
     res.redirect("/")
 })
 
+
+///////////////////////////////////////////////     USER  CATEGORY  ////////////////////////////////////////////////////
 
 // GET LEVEL USER
 router.get("/level", function (req, res) {
@@ -263,6 +268,8 @@ router.post('/update', function (req, res) {
     }
 })
 
+
+// change PASSWORD
 router.post('/changepassword', function (req, res) {
 
     User.findOne({ _id: req.body.id }, (err, user) => {

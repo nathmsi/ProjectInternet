@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import CircularProgress from '@material-ui/core/CircularProgress';
 import LoadingOverlay from 'react-loading-overlay';
 import '../styles/Catalogue.css'
-import User from './User'
+import User from './screen/User'
 import { dbUsersList, dbDeleteUser, dbupdateUserLevel } from '../api/db'
 
 class UserGestion extends Component {

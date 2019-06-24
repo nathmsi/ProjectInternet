@@ -1,6 +1,4 @@
 import React, { Component } from "react";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
 import LoadingOverlay from 'react-loading-overlay';
 import {
   Route,
@@ -8,16 +6,22 @@ import {
   // BrowserRouter as Router
 } from "react-router-dom";
 
+
+
+import Header from "./components/Header";
+import Footer from "./components/screen/Footer";
 import Catalogue from "./components/Catalogue";
-import About from "./components/About";
-import Contact from "./components/Contact";
+import About from "./components/screen/About";
+import Contact from "./components/screen/Contact";
 import UserGestion from "./components/UserGestion";
 import Login from "./components/Login";
 import Panier from "./components/Panier";
 import Account from "./components/myAccount";
 import Chat from "./components/chat/Chat";
 import CatalogueUserGestion from './components/CatalogueGestion'
-import Home from "./components/Home";
+import Home from "./components/screen/Home";
+
+
 //api
 import {
   loginDatabase,
