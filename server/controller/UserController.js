@@ -4,7 +4,7 @@ var express = require('express');
 var router = express.Router();
 const passport = require('passport')
 var User = require('../model/User');
-
+var mongoose = require('mongoose')
 
 passport.use(User.createStrategy())
 
@@ -202,6 +202,29 @@ router.post('/orders/add', function (req, res) {
         res.send('notAuthorized')
     }
 });
+
+
+
+router.post('/orders/update', function (req, res) {
+    try {
+        let id = new mongoose.mongo.ObjectID(req.body.id)
+        if (req.isAuthenticated() && req.user.level === 'manager') {
+            let body = {
+                orders: req.body.orders
+            }
+            User.findByIdAndUpdate(id, body, { new: true }, function (err, user) {
+                if (err) return res.status(500).send("There was a problem updating the user.");
+                res.status(200).send(user);
+            });
+        } else {
+            res.send('notAuthorized')
+        }
+    }
+    catch (err) {
+        console.log(err)
+    }
+});
+
 
 //////////////////////////////////////////////////////////////////// User managment ///////////////////////////////////////////////////////////
 

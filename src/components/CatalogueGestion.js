@@ -109,7 +109,7 @@ class CatalogueGestion extends Component {
           text='Loading your content...'
         >
 
-          <div className='cards'>
+          <div className='cards computerUpdateList'>
             {addComputers}
             {updateComputers}
           </div>

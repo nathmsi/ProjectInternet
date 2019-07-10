@@ -20,7 +20,7 @@ class MyAcount extends Component {
     userAuth: 'basic',
     isLoading: true,
     isActive: false,
-    isGoogleAuth : false
+    isGoogleAuth: false
   }
 
   componentDidMount = async () => {
@@ -51,8 +51,9 @@ class MyAcount extends Component {
       orders: account.orders, id: account._id,
       address: account.address, phone: account.phone, email: account.email
     })
-    if (account.username === account.email) this.setState({ isGoogleAuth : true })
+    if (account.username === account.email) this.setState({ isGoogleAuth: true })
   }
+
 
   updateInputValueLevel = (event) => {
     const { value } = event.target
@@ -148,11 +149,7 @@ class MyAcount extends Component {
 
 
     if (this.state.isLoading === false && ((level === 'manager') || (level === 'client'))) {
-      let user , changepassword = <></>
-
-      let panier = <></>
-      panier = Object.keys(this.state.panier)
-        .map(key => <Panier key={key} id={this.state.panier[key]} />)
+      let user, changepassword = <></>
 
 
       let Orders = <></>
@@ -162,9 +159,9 @@ class MyAcount extends Component {
 
       let levelInput = <></>
       if (level === 'manager') {
-        levelInput = <div className="row border">
+        levelInput = <div className="row ">
           <div className="col-2">
-            <h3 className="input-group-addon">level </h3>
+            <h3 className="input-group-addon text-center text-light">level </h3>
           </div>
           <div className="col-10">
             <input type='text' value={level || ''} name='level' className="form-control" onChange={this.updateInputValueLevel} />
@@ -172,27 +169,28 @@ class MyAcount extends Component {
         </div>
       }
 
-      if(!this.state.isGoogleAuth){
-      user = <div className="row border">
-        <div className="col-2">
-          <h3 className="input-group-addon">username </h3>
+      if (!this.state.isGoogleAuth) {
+        user = <div className="row ">
+          <div className="col-2">
+            <h3 className="input-group-addon text-center text-light">username </h3>
+          </div>
+          <div className="col-10">
+            <input type='text' value={username || ''} name='username' className="form-control" onChange={this.updateInputValueUsername} />
+          </div>
         </div>
-        <div className="col-10">
-          <input type='text' value={username || ''} name='username' className="form-control" onChange={this.updateInputValueUsername} />
-        </div>
-      </div>
 
-      changepassword = <div className="row border">
-        <div className="col-2">
-          <h3 className="input-group-addon"> Change Password  </h3>
-        </div>
-        <div className="col-10">
-          <input type='password' value={oldpassword || ''} placeholder='old password' name='password' className="form-control" onChange={this.updateInputValueoldpassword} />
-          <input type='password' value={newpassword || ''} placeholder='new password' name='password' className="form-control" onChange={this.updateInputValuePassword} />
-          <input type='password' value={newpasswordC || ''} placeholder='confirm new password' name='password' className="form-control" onChange={this.updateInputValuePasswordC} />
-          <button className='btn btn-outline-secondary ' onClick={this.handleChangePassword} > Change password </button>
-        </div>
-      </div>
+        changepassword =
+          <div className="row ">
+            <div className="col-2">
+              <h3 className="input-group-addon text-center text-light"> Change Password  </h3>
+            </div>
+            <div className="col-10">
+              <input type='password' value={oldpassword || ''} placeholder='old password' name='password' className="form-control" onChange={this.updateInputValueoldpassword} />
+              <input type='password' value={newpassword || ''} placeholder='new password' name='password' className="form-control" onChange={this.updateInputValuePassword} />
+              <input type='password' value={newpasswordC || ''} placeholder='confirm new password' name='password' className="form-control" onChange={this.updateInputValuePasswordC} />
+              <button className='btn btn-success ' onClick={this.handleChangePassword} > Change password </button>
+            </div>
+          </div>
       }
 
       return (
@@ -201,54 +199,57 @@ class MyAcount extends Component {
           spinner
           text='Loading your content...'
         >
-          <div className="container border">
-            <p className="h4 text-center py-4">My account</p>
+          <div className=" bg-secondary">
+
+           <br />
+            <h1 className="text-center text-light">My account</h1>
 
             <div className="grey-text">
 
 
               {user}
               {levelInput}
-
-              <div className="row border">
+              <div className="row ">
                 <div className="col-2">
-                  <h3 className="input-group-addon"> phone </h3>
+                  <h3 className="input-group-addon text-center text-light"> phone </h3>
                 </div>
                 <div className="col-10">
                   <input type='text' value={phone || ''} name='phone' className="form-control" onChange={this.updateInputValuePhone} />
                 </div>
               </div>
 
-              <div className="row border">
+              <div className="row ">
                 <div className="col-2">
-                  <h3 className="input-group-addon"> address </h3>
+                  <h3 className="input-group-addon text-center text-light"> address </h3>
                 </div>
                 <div className="col-10">
                   <input type='text' value={address || ''} name='address' className="form-control" onChange={this.updateInputValueAdress} />
                 </div>
               </div>
 
-              <div className="row border">
+              <div className="row ">
                 <div className="col-2">
-                  <h3 className="input-group-addon"> email </h3>
+                  <h3 className="input-group-addon text-center text-light"> email </h3>
                 </div>
                 <div className="col-10">
                   <input type='email' value={email || ''} name='email' className="form-control" onChange={this.updateInputValueemail} />
                 </div>
               </div>
 
+              <br />
+
               {changepassword}
 
-
               <br />
 
-              <div className="row border">
+
+              <div className="row ">
                 <div className="col-2">
-                  <h3 className="input-group-addon">Panier </h3>
+                  <h3 className="input-group-addon text-center text-light">Shoping Cart </h3>
                 </div>
-                <div className="col-10">
-                  {panier}
-                  <button className='btn btn-outline-secondary ' onClick={this.deletePanier} > Delete Panier </button>
+                <div className="col-10 text-light">
+                  count element {this.state.panier.length} <br />
+                  <button className='btn btn-success text-center' onClick={this.deletePanier} > Delete Panier </button>
                 </div>
 
               </div>
@@ -259,22 +260,16 @@ class MyAcount extends Component {
               <br />
 
 
-              <div className="row border">
+              <div className="row ">
                 <div className="col-2">
-                  <h3 className="input-group-addon"> my last orders </h3>
+                  <h3 className="input-group-addon text-center text-light"> my last orders </h3>
                 </div>
                 <div className="col-10">
-                  {Orders}
+                  {Orders} 
                 </div>
               </div>
-
 
             </div>
-
-
-            <br />
-
-
             <div className="row ">
               <div className="col-2">
               </div>
@@ -284,8 +279,13 @@ class MyAcount extends Component {
                   onClick={() => { this.handleapplicate() }}
                 >Save</button>
               </div>
-            </div><br />  </div>
-          <br /><br />
+            </div>
+            <br /><br />
+          </div>
+
+
+
+
 
 
         </LoadingOverlay>
@@ -300,23 +300,15 @@ class MyAcount extends Component {
   };
 }
 
-const Panier = ({ id }) => {
 
+
+const Order = ({ index, total, deleteOrder }) => {
   return (
-    <div className='container border'>
-      Id computer : <strong> {id} </strong><br />
-    </div>
-  )
-}
-
-const Order = ({ id, index, total, deleteOrder }) => {
-
-
-  return (
-    <div className='container border '>
+    <div className='container border text-light'>
       Order {(parseInt(index) + 1)} <br />
       <strong> Total =>   {total} $ </strong>
-      <button className='btn btn-outline-secondary btn-sm' onClick={() => deleteOrder(index)} > - Delete </button>
+      <button className='btn btn-danger ' onClick={() => deleteOrder(index)} > - Delete </button>
+      <br />
     </div>
   )
 }

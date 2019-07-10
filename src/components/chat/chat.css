@@ -13,15 +13,7 @@ body, .box > *, textarea, input {
 /* ----------------------------
 	STRUCTURE
 ---------------------------- */
-html {
-  box-sizing: border-box;
-}
 
-body {
-	padding: 0;
-	margin: 0;
-	font-size: 20px;
-}
 .connexionBox {
 	background-color: #eceff1;
 	display: flex;

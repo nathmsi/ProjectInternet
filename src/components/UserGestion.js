@@ -72,7 +72,7 @@ class UserGestion extends Component {
           styles = {{background : 'red'}}
           text='Loading your content...'
         >
-        <div className='cards'>
+        <div className='cards computerUpdateList'>
             {users}
         </div>
 

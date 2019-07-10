@@ -89,6 +89,8 @@ class ChatApp extends React.Component {
 
     render() {
         const { userAuth, userOnline } = this.state
+        const groupSelect = this.props.groupSelect
+
         if (userAuth === 'manager' || userAuth === 'client') {
 
             const messages = Object
@@ -111,9 +113,14 @@ class ChatApp extends React.Component {
                     <UserOnline key={key} useronline={userOnline[key]} />
                 ))
 
+            const groupsUser = Object
+                .keys(groupSelect)
+                .map(key => (
+                    <p key={key}>{groupSelect[key]}</p>
+                ))
+
             return (
-                <div className='container '>
-                    <h2 className='text-center text-primary'>Chat Online </h2><br/>
+                <div className=''>
                     <div className="row">
                         <div className="col-8">
                             <div>
@@ -130,9 +137,16 @@ class ChatApp extends React.Component {
                                 addMessage={this.addMessage} />
                             <br />
                         </div>
-                        <div className="col-4">
-                            <div className='messages ' >
+                        <div className="col-2 container"><br/>
+                        <h4 className='text-center'>  Online </h4><br/>
+                            <div className='messages boder' >
                                 {onlineUser}
+                            </div>
+                        </div>
+                        <div className="col-2 container"><br/>
+                        <h4 className='text-center'>  Participants </h4><br/>
+                            <div className='messages boder' >
+                                {groupsUser}
                             </div>
                         </div>
                     </div>

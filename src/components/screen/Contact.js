@@ -3,7 +3,8 @@ import React from "react";
 const Contact = () =>{
     return (
       <section className="content">
-                <div className="container">
+                <br/> <br/> <br/>
+                <div className="">
                     <div className="row">
 
                         <div className="col-sm-4">

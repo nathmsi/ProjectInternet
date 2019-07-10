@@ -1,47 +1,14 @@
 
 
-const loginDatabase = async (user,password) => {
-
-    let response = ''
-
-    var details = {
-        'username': user,
-        'password': password
-    };
-    
-    var formBody = [];
-    for (var property in details) {
-      var encodedKey = encodeURIComponent(property);
-      var encodedValue = encodeURIComponent(details[property]);
-      formBody.push(encodedKey + "=" + encodedValue);
-    }
-    formBody = formBody.join("&");
-    
-    await fetch('/users/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-      },
-      body: formBody 
-    })
-    .then(res => res.text())
-    .then(res => response = res)
-    .catch(err => err);
-
-    return response
-}
-
-const registerDatabase = async (user,password,email,level) => {
+const loginDatabase = async (user, password) => {
 
   let response = ''
 
   var details = {
-      'username': user,
-      'password': password,
-      'level' : level,
-      'email' : email
+    'username': user,
+    'password': password
   };
-  
+
   var formBody = [];
   for (var property in details) {
     var encodedKey = encodeURIComponent(property);
@@ -49,7 +16,40 @@ const registerDatabase = async (user,password,email,level) => {
     formBody.push(encodedKey + "=" + encodedValue);
   }
   formBody = formBody.join("&");
-  
+
+  await fetch('/users/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+    },
+    body: formBody
+  })
+    .then(res => res.text())
+    .then(res => response = res)
+    .catch(err => err);
+
+  return response
+}
+
+const registerDatabase = async (user, password, email, level) => {
+
+  let response = ''
+
+  var details = {
+    'username': user,
+    'password': password,
+    'level': level,
+    'email': email
+  };
+
+  var formBody = [];
+  for (var property in details) {
+    var encodedKey = encodeURIComponent(property);
+    var encodedValue = encodeURIComponent(details[property]);
+    formBody.push(encodedKey + "=" + encodedValue);
+  }
+  formBody = formBody.join("&");
+
   await fetch('/users/register', {
     method: 'POST',
     headers: {
@@ -57,9 +57,9 @@ const registerDatabase = async (user,password,email,level) => {
     },
     body: formBody
   })
-  .then(res => res.text())
-  .then(res => response = res)
-  .catch(err => err);
+    .then(res => res.text())
+    .then(res => response = res)
+    .catch(err => err);
 
   return response
 }
@@ -69,23 +69,36 @@ const registerDatabase = async (user,password,email,level) => {
 const dbComputersList = async () => {
 
   let response = {}
- 
-   await fetch('/computers/', {method: 'get'})
-  .then(res => res.text())
-  .then(res => response = res)
-  .catch(err => err);
+
+  await fetch('/computers/', { method: 'get' })
+    .then(res => res.text())
+    .then(res => response = res)
+    .catch(err => err);
 
   return response
 }
+
+const dbGroupsList = async () => {
+
+  let response = {}
+
+  await fetch('/groups/', { method: 'get' })
+    .then(res => res.text())
+    .then(res => response = res)
+    .catch(err => err);
+
+  return response
+}
+
 
 const dbUsersList = async () => {
 
   let response = {}
- 
-   await fetch('/users/', {method: 'get'})
-  .then(res => res.text())
-  .then(res => response = res)
-  .catch(err => err);
+
+  await fetch('/users/', { method: 'get' })
+    .then(res => res.text())
+    .then(res => response = res)
+    .catch(err => err);
 
   return response
 }
@@ -93,22 +106,22 @@ const dbUsersList = async () => {
 
 
 
-const dbAddComputer = async (name, image, price,brand,cpu,sizeScreen,
-  OperatingSystem,capacity,MemorySize) => {
+const dbAddComputer = async (name, image, price, brand, cpu, sizeScreen,
+  OperatingSystem, capacity, MemorySize) => {
   let response = ''
 
   var details = {
-      'name': name,
-      'image': image,
-      'price': price,
-      'brand': brand,
-      'cpu': cpu,
-      'sizeScreen': sizeScreen,
-      'OperatingSystem': OperatingSystem,
-      'capacity': capacity,
-      'MemorySize': MemorySize,
+    'name': name,
+    'image': image,
+    'price': price,
+    'brand': brand,
+    'cpu': cpu,
+    'sizeScreen': sizeScreen,
+    'OperatingSystem': OperatingSystem,
+    'capacity': capacity,
+    'MemorySize': MemorySize,
   };
-  
+
   var formBody = [];
   for (var property in details) {
     var encodedKey = encodeURIComponent(property);
@@ -116,7 +129,7 @@ const dbAddComputer = async (name, image, price,brand,cpu,sizeScreen,
     formBody.push(encodedKey + "=" + encodedValue);
   }
   formBody = formBody.join("&");
-  
+
   await fetch('/computers/add', {
     method: 'POST',
     headers: {
@@ -124,30 +137,30 @@ const dbAddComputer = async (name, image, price,brand,cpu,sizeScreen,
     },
     body: formBody
   })
-  .then(res => res.text())
-  .then(res => response = res)
-  .catch(err => err);
+    .then(res => res.text())
+    .then(res => response = res)
+    .catch(err => err);
 
   return response
 
 }
-const dbUpdateComputer = async (id,name, image, price,brand,cpu,sizeScreen,
-  OperatingSystem,capacity,MemorySize) => {
+const dbUpdateComputer = async (id, name, image, price, brand, cpu, sizeScreen,
+  OperatingSystem, capacity, MemorySize) => {
   let response = ''
 
   var details = {
-      'id' : id,
-      'name': name,
-      'image': image,
-      'price': price,
-      'brand': brand,
-      'cpu': cpu,
-      'sizeScreen': sizeScreen,
-      'OperatingSystem': OperatingSystem,
-      'capacity': capacity,
-      'MemorySize': MemorySize,
+    'id': id,
+    'name': name,
+    'image': image,
+    'price': price,
+    'brand': brand,
+    'cpu': cpu,
+    'sizeScreen': sizeScreen,
+    'OperatingSystem': OperatingSystem,
+    'capacity': capacity,
+    'MemorySize': MemorySize,
   };
-  
+
   var formBody = [];
   for (var property in details) {
     var encodedKey = encodeURIComponent(property);
@@ -155,7 +168,7 @@ const dbUpdateComputer = async (id,name, image, price,brand,cpu,sizeScreen,
     formBody.push(encodedKey + "=" + encodedValue);
   }
   formBody = formBody.join("&");
-  
+
   await fetch('/computers/update', {
     method: 'POST',
     headers: {
@@ -163,9 +176,9 @@ const dbUpdateComputer = async (id,name, image, price,brand,cpu,sizeScreen,
     },
     body: formBody
   })
-  .then(res => res.text())
-  .then(res => response = res)
-  .catch(err => err);
+    .then(res => res.text())
+    .then(res => response = res)
+    .catch(err => err);
 
   return response
 
@@ -177,9 +190,9 @@ const dbDeleteUser = async (id) => {
   let response = ''
 
   var details = {
-      'id': id,
+    'id': id,
   };
-  
+
   var formBody = [];
   for (var property in details) {
     var encodedKey = encodeURIComponent(property);
@@ -187,7 +200,7 @@ const dbDeleteUser = async (id) => {
     formBody.push(encodedKey + "=" + encodedValue);
   }
   formBody = formBody.join("&");
-  
+
   await fetch('/users/delete', {
     method: 'POST',
     headers: {
@@ -195,9 +208,9 @@ const dbDeleteUser = async (id) => {
     },
     body: formBody
   })
-  .then(res => res.text())
-  .then(res => response = res)
-  .catch(err => err);
+    .then(res => res.text())
+    .then(res => response = res)
+    .catch(err => err);
 
   return response
 }
@@ -207,9 +220,9 @@ const dbAddPanier = async (id) => {
   let response = ''
 
   var details = {
-      'id': id
+    'id': id
   };
-  
+
   var formBody = [];
   for (var property in details) {
     var encodedKey = encodeURIComponent(property);
@@ -217,7 +230,7 @@ const dbAddPanier = async (id) => {
     formBody.push(encodedKey + "=" + encodedValue);
   }
   formBody = formBody.join("&");
-  
+
   await fetch('/users/panier/add', {
     method: 'POST',
     headers: {
@@ -225,9 +238,9 @@ const dbAddPanier = async (id) => {
     },
     body: formBody
   })
-  .then(res => res.text())
-  .then(res => response = res)
-  .catch(err => err);
+    .then(res => res.text())
+    .then(res => response = res)
+    .catch(err => err);
 
   return response
 }
@@ -237,9 +250,9 @@ const dbDeletePanier = async (id) => {
   let response = ''
 
   var details = {
-      'id': id
+    'id': id
   };
-  
+
   var formBody = [];
   for (var property in details) {
     var encodedKey = encodeURIComponent(property);
@@ -247,7 +260,7 @@ const dbDeletePanier = async (id) => {
     formBody.push(encodedKey + "=" + encodedValue);
   }
   formBody = formBody.join("&");
-  
+
   await fetch('/users/panier/delete', {
     method: 'POST',
     headers: {
@@ -255,9 +268,9 @@ const dbDeletePanier = async (id) => {
     },
     body: formBody
   })
-  .then(res => res.text())
-  .then(res => response = res)
-  .catch(err => err);
+    .then(res => res.text())
+    .then(res => response = res)
+    .catch(err => err);
 
   return response
 }
@@ -267,9 +280,9 @@ const dbDeleteOnePanier = async (id) => {
   let response = ''
 
   var details = {
-      'id': id
+    'id': id
   };
-  
+
   var formBody = [];
   for (var property in details) {
     var encodedKey = encodeURIComponent(property);
@@ -277,7 +290,7 @@ const dbDeleteOnePanier = async (id) => {
     formBody.push(encodedKey + "=" + encodedValue);
   }
   formBody = formBody.join("&");
-  
+
   await fetch('/users/panier/deleteOne', {
     method: 'POST',
     headers: {
@@ -285,9 +298,9 @@ const dbDeleteOnePanier = async (id) => {
     },
     body: formBody
   })
-  .then(res => res.text())
-  .then(res => response = res)
-  .catch(err => err);
+    .then(res => res.text())
+    .then(res => response = res)
+    .catch(err => err);
 
   return response
 }
@@ -298,9 +311,9 @@ const dbDeletecomputer = async (id) => {
   let response = ''
 
   var details = {
-      'id': id,
+    'id': id,
   };
-  
+
   var formBody = [];
   for (var property in details) {
     var encodedKey = encodeURIComponent(property);
@@ -308,7 +321,7 @@ const dbDeletecomputer = async (id) => {
     formBody.push(encodedKey + "=" + encodedValue);
   }
   formBody = formBody.join("&");
-  
+
   await fetch('/computers/delete', {
     method: 'POST',
     headers: {
@@ -316,21 +329,21 @@ const dbDeletecomputer = async (id) => {
     },
     body: formBody
   })
-  .then(res => res.text())
-  .then(res => response = res)
-  .catch(err => err);
+    .then(res => res.text())
+    .then(res => response = res)
+    .catch(err => err);
 
   return response
 }
-const dbupdateUserLevel = async (id , level) => {
+const dbupdateUserLevel = async (id, level) => {
 
   let response = ''
 
   var details = {
-      'id': id,
-      'level': level
+    'id': id,
+    'level': level
   };
-  
+
   var formBody = [];
   for (var property in details) {
     var encodedKey = encodeURIComponent(property);
@@ -338,7 +351,7 @@ const dbupdateUserLevel = async (id , level) => {
     formBody.push(encodedKey + "=" + encodedValue);
   }
   formBody = formBody.join("&");
-  
+
   await fetch('/users/level', {
     method: 'POST',
     headers: {
@@ -346,50 +359,38 @@ const dbupdateUserLevel = async (id , level) => {
     },
     body: formBody
   })
-  .then(res => res.text())
-  .then(res => response = res)
-  .catch(err => err);
+    .then(res => res.text())
+    .then(res => response = res)
+    .catch(err => err);
 
   return response
 }
 
-const dbAddOrder = async (order , total) => {
+const dbAddOrder = async (order, total) => {
 
   let response = ''
 
-  var details = {
-      'order': order,
-      'total' : total
-  };
-  
-  var formBody = [];
-  for (var property in details) {
-    var encodedKey = encodeURIComponent(property);
-    var encodedValue = encodeURIComponent(details[property]);
-    formBody.push(encodedKey + "=" + encodedValue);
-  }
-  formBody = formBody.join("&");
-  
   await fetch('/users/orders/add', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+      'Accept': 'application/json, text/plain, */*',
+      'Content-Type': 'application/json'
     },
-    body: formBody
-  })
-  .then(res => res.text())
-  .then(res => response = res)
-  .catch(err => err);
+    body: JSON.stringify({ order, total })
+  }).catch(err => err)
+    .then(res => res.text())
+    .then(res => response = res)
+    .catch(err => err);
 
   return response
 }
 
-export { 
-  loginDatabase ,
-  registerDatabase , 
-  dbUsersList , 
-  dbDeleteUser ,
-  dbAddPanier ,
+export {
+  loginDatabase,
+  registerDatabase,
+  dbUsersList,
+  dbDeleteUser,
+  dbAddPanier,
   dbDeletePanier,
   dbupdateUserLevel,
   dbComputersList,
@@ -397,6 +398,7 @@ export {
   dbAddComputer,
   dbUpdateComputer,
   dbDeleteOnePanier,
-  dbAddOrder
+  dbAddOrder,
+  dbGroupsList
 }
 

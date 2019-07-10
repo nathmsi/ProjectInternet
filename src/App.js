@@ -8,7 +8,7 @@ import {
 
 
 
-import Header from "./components/Header";
+import NavBar from "./components/NavBar";
 import Footer from "./components/screen/Footer";
 import Catalogue from "./components/Catalogue";
 import About from "./components/screen/About";
@@ -17,10 +17,10 @@ import UserGestion from "./components/UserGestion";
 import Login from "./components/Login";
 import Panier from "./components/Panier";
 import Account from "./components/myAccount";
-import Chat from "./components/chat/Chat";
+import Blog from "./components/chat/Blog";
 import CatalogueUserGestion from './components/CatalogueGestion'
 import Home from "./components/screen/Home";
-
+import OrderGestion from './components/OrderGestion'
 
 //api
 import {
@@ -40,7 +40,6 @@ class App extends Component {
     userName: '',
     password: '',
     isActive: true,
-    uid: null,
     isLoading: false,
   }
 
@@ -62,11 +61,8 @@ class App extends Component {
     catch(err){
       console.log('session error : ' + err)
     }
-
     console.log('<App> isAuth : ' + this.state.userAuth)
   }
-
-
 
 
   handleLogin = async (userName, pass) => {
@@ -82,27 +78,9 @@ class App extends Component {
     }
     this.setState({ isLoading: false })
     console.log('<App> isAuth : ' + this.state.userAuth)
-
   }
 
 
-  handleAuthGoogle = async authData => {
-    this.setState({ isLoading: true })
-    this.setState({ userName: authData.additionalUserInfo.profile.email, password: authData.user.uid })
-    let res = await loginDatabase(this.state.userName, this.state.password)
-
-    if (res === 'Unauthorized') {
-      this.handleRegister(this.state.userName, this.state.password, this.state.userName)
-    } else {
-      this.setState({ userAuth: res })
-      this.setState({ isLoading: false })
-      console.log('<App> isAuth : ' + this.state.userAuth)
-      this.props.history.push('/Catalogue')
-    }
-
-
-
-  }
 
   handleLoginGoogle = async () => {
     try {
@@ -110,7 +88,20 @@ class App extends Component {
       firebaseApp
         .auth()
         .signInWithPopup(authProvider)
-        .then(this.handleAuthGoogle)
+        .then(async authData => {
+          this.setState({ isLoading: true })
+          this.setState({ userName: authData.additionalUserInfo.profile.email, password: authData.user.uid })
+          let res = await loginDatabase(this.state.userName, this.state.password)
+      
+          if (res === 'Unauthorized') {
+            this.handleRegister(this.state.userName, this.state.password, this.state.userName)
+          } else {
+            this.setState({ userAuth: res })
+            this.setState({ isLoading: false })
+            console.log('<App> isAuth : ' + this.state.userAuth)
+            this.props.history.push('/Catalogue')
+          }
+        })
     }
     catch (err) {
       console.log(err)
@@ -134,7 +125,6 @@ class App extends Component {
 
 
 
-
   handleLogout = async () => {
     this.setState({ isLoading: true })
     await fetch('/users/logout', { method: 'get' }).catch(err => err)
@@ -149,42 +139,44 @@ class App extends Component {
     const { userAuth } = this.state
 
     return (
+      <LoadingOverlay
+          active={this.state.isLoading}
+          spinner
+          text='wait ...'
+        >
+      <div className="backgroungStyle" >
 
-      <div >
-        <Header
+        <NavBar
           handleLogout={this.handleLogout}
           userAuth={userAuth}
           handleLogin={this.handleLogin}
           userName={this.state.userName} />
 
         <hr className="style1" /><hr className="style1" /><hr className="style1" />
-        <LoadingOverlay
-          active={this.state.isLoading}
-          spinner
-          text='wait ...'
-        >
 
-          <div className="content">  
+        
+          <hr className="style1" />
+          <div className="content " >
             <Route exact path="/" component={Home}></Route>
             <Route exact path="/Catalogue" component={Catalogue} />
             <Route exact path="/UserGestion" component={UserGestion} />
+            <Route exact path="/OrderGestion" component={OrderGestion} />
             <Route exact path="/CatalogueGestion" component={CatalogueUserGestion} />
             <Route exact path="/About" component={About} />
             <Route exact path="/contact" component={Contact} />
             <Route exact path="/Panier" component={Panier} />
             <Route exact path="/Account" component={Account} />
-            <Route exact path="/Chat" component={Chat} />
+            <Route exact path="/Blog" component={Blog} />
             <Route exact path="/Login" render={() => <Login handleLogin={this.handleLogin} handleRegister={this.handleRegister} handleLoginGoogle={this.handleLoginGoogle} />} />
           </div>
 
 
-        </LoadingOverlay>
-
+      
         <Footer />
-
+       
 
       </div>
-
+      </LoadingOverlay>
 
 
     );

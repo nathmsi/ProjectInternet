@@ -8,8 +8,8 @@ var db = require('./db');
 const session = require('express-session')
 const passport = require('passport')
 var cors = require('cors')
-var http =  require('http')
-var io =  require('socket.io')
+var http = require('http')
+var io = require('socket.io')
 const pino = require('express-pino-logger')();
 
 
@@ -17,7 +17,7 @@ const pino = require('express-pino-logger')();
 var UserController = require('./controller/UserController');
 var indexRouter = require('./controller/indexController');
 var ComputerController = require('./controller/ComputerController');
-
+var GroupController = require('./controller/GroupController');
 
 // database connected
 db.connect()
@@ -65,7 +65,7 @@ app.use(passport.session())
 app.use('/', indexRouter)
 app.use('/users', UserController)
 app.use('/computers', ComputerController)
-
+app.use('/groups', GroupController)
 
 /////////////////////////////////////////////////////////////////////////   Socket.io /////////////////////////////////////////////////////////
 
@@ -81,24 +81,25 @@ socketIo.on('connection', socket => {
     // message received from client, now broadcast it to everyone else
     socket.broadcast.emit('server:message', data);
   });
+ 
   socket.on('disconnect', () => {
     console.log(`${username} disconnected`);
     socket.broadcast.emit('server:disconnect', username);
   });
-  
+
 });
 
 
 
 ///////////////////////////////////////////////////////////////////// catch 404 and forward to error handler   ////////////////////////////////////
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};

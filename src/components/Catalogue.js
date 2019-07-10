@@ -145,6 +145,8 @@ class Catalogue extends Component {
 
 
           <div className="container">
+          <hr className="style1"/>
+
             
             <div className="row">
               <div className="col-2">
@@ -185,12 +187,12 @@ class Catalogue extends Component {
             </div>
           </div>
 
-          <hr className="style1"></hr>
           <hr className="style1"/>
 
-          <div className='cards'>
+          <div className='cards computerList'>
             {computers}
           </div>
+
         </LoadingOverlay>
     );
 
