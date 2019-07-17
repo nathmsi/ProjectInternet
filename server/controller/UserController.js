@@ -5,14 +5,19 @@ var router = express.Router();
 const passport = require('passport')
 var User = require('../model/User');
 var mongoose = require('mongoose')
+var flash = require('express-flash');
+const dotenv = require('dotenv');
+dotenv.config();
 
+var nodemailer = require('nodemailer');
 passport.use(User.createStrategy())
 
 passport.serializeUser(User.serializeUser())
 passport.deserializeUser(User.deserializeUser())
 
+
+router.use(flash());
 // RSA
-var CryptoJS = require("crypto-js");
 
 
 
@@ -208,7 +213,7 @@ router.post('/orders/add', function (req, res) {
 router.post('/orders/update', function (req, res) {
     try {
         let id = new mongoose.mongo.ObjectID(req.body.id)
-        if (req.isAuthenticated() && req.user.level === 'manager') {
+        if (req.isAuthenticated() && (req.user.level === 'manager' || req.user.level === 'creator')) {
             let body = {
                 orders: req.body.orders
             }
@@ -231,7 +236,7 @@ router.post('/orders/update', function (req, res) {
 
 // GET ALL USERS
 router.get('/', function (req, res) {
-    if (req.isAuthenticated() && req.user.level === 'manager') {
+    if (req.isAuthenticated() && (req.user.level === 'manager' || req.user.level === 'creator')) {
         User.find({}, function (err, users) {
             if (err) return res.status(500).send("There was a problem finding the users.");
             res.status(200).send(users);
@@ -244,7 +249,7 @@ router.get('/', function (req, res) {
 
 // DELETE USERS BY ID
 router.post('/delete', function (req, res) {
-    if (req.isAuthenticated() && req.user.level === 'manager') {
+    if (req.isAuthenticated() && req.user.level === 'creator') {
         User.findByIdAndRemove(req.body.id, function (err, user) {
             if (err) return res.status(500).send("There was a problem deleting the user.");
             res.status(200).send("User " + req.body.id + " was deleted.");
@@ -256,7 +261,7 @@ router.post('/delete', function (req, res) {
 
 // SET LEVEL TO USER BY ID
 router.post('/level', function (req, res) {
-    if (req.isAuthenticated() && req.user.level === 'manager') {
+    if (req.isAuthenticated() && ( req.user.level === 'manager' || req.user.level === 'creator' )) {
         User.findById(req.body.id, function (err, user) {
             user.level = req.body.level
             user.save(function (err) {
@@ -271,7 +276,7 @@ router.post('/level', function (req, res) {
 
 // UPDATE USER 
 router.post('/update', function (req, res) {
-    if (req.isAuthenticated() && (req.user.level === 'manager' || req.user.level === 'client')) {
+    if (req.isAuthenticated() && (req.user.level === 'manager' || req.user.level === 'client' || req.user.level === 'creator')) {
         User.findById(req.body.id, function (err, user) {
             if (err) res.json({ success: false, message: 'Something went wrong!! Please try again after sometimes.' });
             user.username = req.body.username
@@ -294,30 +299,130 @@ router.post('/update', function (req, res) {
 
 // change PASSWORD
 router.post('/changepassword', function (req, res) {
-
-    User.findOne({ _id: req.body.id }, (err, user) => {
-        // Check if error connecting
-        if (err) {
-            res.json({ success: false, message: err }); // Return error
-        } else {
-            // Check if user was found in database
-            if (!user) {
-                res.json({ success: false, message: 'User not found' }); // Return error, user was not found in db
+    if (req.isAuthenticated() && (req.user.level === 'manager' || req.user.level === 'client' || req.user.level === 'creator')) {
+        User.findOne({ _id: req.body.id }, (err, user) => {
+            // Check if error connecting
+            if (err) {
+                res.json({ success: false, message: err }); // Return error
             } else {
-                user.changePassword(req.body.oldpassword, req.body.newpassword, function (err) {
-                    if (err) {
-                        if (err.name === 'IncorrectPasswordError') {
-                            res.json({ success: false, message: 'Incorrect password' }); // Return error
+                // Check if user was found in database
+                if (!user) {
+                    res.json({ success: false, message: 'User not found' }); // Return error, user was not found in db
+                } else {
+                    user.changePassword(req.body.oldpassword, req.body.newpassword, function (err) {
+                        if (err) {
+                            if (err.name === 'IncorrectPasswordError') {
+                                res.json({ success: false, message: 'Incorrect password' }); // Return error
+                            } else {
+                                res.json({ success: false, message: 'Something went wrong!! Please try again after sometimes.' });
+                            }
                         } else {
-                            res.json({ success: false, message: 'Something went wrong!! Please try again after sometimes.' });
+                            res.json({ success: true, message: 'Your password has been changed successfully' });
                         }
-                    } else {
-                        res.json({ success: true, message: 'Your password has been changed successfully' });
-                    }
-                })
+                    })
+                }
             }
-        }
-    });
+        });
+    } else {
+        res.send('notAuthorized')
+    }
 });
+
+router.post('/forgot', function(req, res, next) {
+        try{
+        User.findOne({ email : req.body.email , username: req.body.username }, function(err, user) {
+                if (!user) {
+                  console.log('error', 'Password reset token is invalid or has expired.')
+                }
+
+                user.resetPasswordToken = req.body.code
+        
+                user.save(function(err) {
+                    if (err) res.json({ success: false, message: 'Something went wrong!! Please try again after sometimes.' });
+                    else res.json({ success: true, message: 'User has been changed successfully' });
+                });
+        });
+        var transporter  = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+              user: 'nmsika@g.jct.ac.il',
+              pass:  process.env.KEY_GMAIL 
+            }
+        });
+          
+        var mailOptions = {
+          to: req.body.email ,
+          from: 'nmsika@g.jct.ac.il',
+          subject: 'Node.js Password Reset',
+          text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
+            'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
+            ' the code :    '  + req.body.code + '\n\n' +
+            'If you did not request this, please ignore this email and your password will remain unchanged.\n'
+        };
+        transporter.sendMail(mailOptions, function(error, info){
+            if (error) {
+              console.log(error);
+            } else {
+              console.log('Email sent: ' + info.response);
+            }
+          }); 
+        }catch(err){
+            console.log(err)
+        }
+});
+
+router.post('/newPassword', function(req, res) {
+    try{
+        
+            User.findOne({ email : req.body.email , username: req.body.username , resetPasswordToken : req.body.code }, (err, user) => {
+                // Check if error connecting
+                if (err) {
+                    res.json({ success: false, message: err }); // Return error
+                } else {
+                    // Check if user was found in database
+                    if (!user) {
+                        res.json({ success: false, message: 'User not found' }); // Return error, user was not found in db
+                    } else {
+                        user.password  = req.body.password 
+                        user.resetPasswordToken = ''
+
+                        console.log(process.env.KEY_GMAIL,process.argv,process.env)
+
+                        var transporter  = nodemailer.createTransport({
+                            service: 'gmail',
+                            auth: {
+                              user: 'nmsika@g.jct.ac.il',
+                              pass: process.env.KEY_GMAIL
+                            }
+                        });
+                          
+                        var mailOptions = {
+                          to: req.body.email ,
+                          from: 'nmsika@g.jct.ac.il',
+                          subject: 'Your password has been changed',
+                          text: 'Hello,\n\n' +
+                            'This is a confirmation that the password for your account ' + user.email + ' has just been changed.\n'
+                        };
+                        transporter.sendMail(mailOptions, function(error, info){
+                            if (error) {
+                              console.log(error);
+                            } else {
+                              console.log('Email sent: ' + info.response);
+                            }
+                          }); 
+        
+                        user.save(function(err) {
+                            if (err) res.json({ success: false, message: 'Something went wrong!! Please try again after sometimes.' });
+                            else res.json({ success: true, message: 'User has been changed successfully' });
+                        });
+                    }
+                }
+            });
+        
+        
+        }catch(err){
+            console.log(err)
+        }
+  });    
 
 module.exports = router;

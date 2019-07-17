@@ -32,7 +32,6 @@ class NavBar extends Component {
             header = <>
                 <li className="nav-item"><NavLink className="nav-link text-white  font-weight-bold" to="/Catalogue">Catalogue</NavLink></li>
                 <li className="nav-item"><NavLink className="nav-link text-white  font-weight-bold" to="/CatalogueGestion">CatalogueGestion</NavLink></li>
-                <li className="nav-item"><NavLink className="nav-link text-white  font-weight-bold" to="/UserGestion">UserGestion</NavLink></li>
                 <li className="nav-item"><NavLink className="nav-link text-white  font-weight-bold" to="/OrderGestion">OrderGestion</NavLink></li>
                 <li className="nav-item"><NavLink className="nav-link text-white  font-weight-bold" to="/Blog">Blog</NavLink></li>
                 <li className="nav-item"><NavLink className="nav-link text-white  font-weight-bold" to="/About">About</NavLink></li>
@@ -51,7 +50,20 @@ class NavBar extends Component {
             panier = <NavLink to="/Panier">  <button type="button" className="btn btn-outline-success my-2 my-sm-0">Shopping cart</button> </NavLink>
             account = <NavLink to="/Account">  <button type="button" className="btn btn-outline-success my-2 my-sm-0">Account</button> </NavLink>
             btn = <NavLink to="/Login">  <button type="button" onClick={() => handleLogout()} className="btn btn-outline-success my-2 my-sm-0">logout</button> </NavLink>
-        }
+        } else if (userAuth === 'creator') {
+            header = <>
+                <li className="nav-item"><NavLink className="nav-link text-white  font-weight-bold" to="/Catalogue">Catalogue</NavLink></li>
+                <li className="nav-item"><NavLink className="nav-link text-white  font-weight-bold" to="/CatalogueGestion">CatalogueGestion</NavLink></li>
+                <li className="nav-item"><NavLink className="nav-link text-white  font-weight-bold" to="/UserGestion">UserGestion</NavLink></li>
+                <li className="nav-item"><NavLink className="nav-link text-white  font-weight-bold" to="/OrderGestion">OrderGestion</NavLink></li>
+                <li className="nav-item"><NavLink className="nav-link text-white  font-weight-bold" to="/Blog">Blog</NavLink></li>
+                <li className="nav-item"><NavLink className="nav-link text-white  font-weight-bold" to="/About">About</NavLink></li>
+                <li className="nav-item"><NavLink className="nav-link text-white  font-weight-bold" to="/Contact">Contact</NavLink></li>
+            </>
+            panier = <NavLink to="/Panier">  <button type="button" className="btn btn-outline-success my-2 my-sm-0">Shopping cart</button> </NavLink>
+            account = <NavLink to="/Account">  <button type="button" className="btn btn-outline-success my-2 my-sm-0">Account</button> </NavLink>
+            btn = <NavLink to="/Login">  <button type="button" onClick={() => handleLogout()} className="btn btn-outline-success my-2 my-sm-0">logout</button> </NavLink>
+        } 
 
 
         return (         

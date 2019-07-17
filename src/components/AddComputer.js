@@ -46,10 +46,6 @@ export default class AddComputer extends Component {
                         value={this.state.name}
                         placeholder='Name of the computer'
                         onChange={this.handleChange} />
-                    <input name='image' type='text' className="form-control"
-                        value={this.state.image}
-                        placeholder={'Name of image'}
-                        onChange={this.handleChange} />
                     <input name='price' rows='2' className="form-control"
                         placeholder='The price'
                         value={this.state.price}

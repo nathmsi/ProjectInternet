@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import '../styles/Catalogue.css'
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { dbComputersList, dbDeletePanier, dbDeleteOnePanier, dbAddPanier, dbAddOrder } from "../api/db"
 
+import {  ServerAPI} from "../api/db"  
 
 
 
@@ -19,7 +19,7 @@ class Panier extends Component {
 
   async componentDidMount() {
     await this.getSession()
-    if (this.state.userAuth === 'manager' || this.state.userAuth === 'client') {
+    if (this.state.userAuth === 'manager' || this.state.userAuth === 'client' || this.state.userAuth === 'creator') {
       this.getData()
       this.getPanier()
       console.log('<UserGestion> isAuth : ' + this.state.userAuth)
@@ -32,26 +32,24 @@ class Panier extends Component {
   }
 
   getSession = async () => {
-    let userAuth = await fetch('/users/level', { method: 'get' })
-      .then(res => res.text())
+    let userAuth = await ServerAPI('/users/level', 'get' )
     this.setState({ userAuth: userAuth })
   }
 
   getData = async () => {
-    const computer = await dbComputersList()
+    const computer =  await ServerAPI('/computers/', 'get' )
     var mydata = JSON.parse(computer);
     this.setState({ computers: mydata })
   }
 
   getPanier = async () => {
-    let panier = []
-    await fetch('/users/panier/', { method: 'get' }).then(res => res.text()).then(res => panier = JSON.parse(res)).catch(err => err)
+    let panier = JSON.parse(await ServerAPI('/users/panier/', 'get' ))
     this.setState({ panier: panier })
   }
 
 
   removePanierElement = async key => {
-    await dbDeletePanier(key)
+    await ServerAPI('/users/panier/delete', 'POST' , { id : key } )
     this.getPanier()
   }
 
@@ -68,17 +66,17 @@ class Panier extends Component {
   }
 
   handleChangeCountRemove = async (id) => {
-    await dbDeleteOnePanier(id)
+    await ServerAPI('/users/panier/deleteOne', 'POST' , { id  } )
     this.getPanier()
   }
 
   handleChangeCountAdd = async (id) => {
-    await dbAddPanier(id)
+    await ServerAPI('/users/panier/add', 'POST' , { id  } )
     this.getPanier()
   }
 
   handleCheckorder = async (total) => {
-    await dbAddOrder([...this.state.panier], total)
+    await ServerAPI('/users/orders/add', 'POST' , { order : [...this.state.panier] , total  } )
     this.getPanier()
   }
 
@@ -98,7 +96,7 @@ class Panier extends Component {
   render() {
     const { computers, panier, userAuth } = this.state
 
-    if (this.state.isLoading === false && ((userAuth === 'manager') || (userAuth === 'client'))) {
+    if (this.state.isLoading === false && ((userAuth === 'manager') || (userAuth === 'client') || (userAuth === 'creator') )) {
 
 
 

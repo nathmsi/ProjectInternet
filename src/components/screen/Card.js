@@ -5,12 +5,15 @@ import React  from 'react'
 
 
 const requireImage = chemin => {
-        try {
-            return require(`../../img/${chemin}`)
-        } catch (err) {
-            return require(`../../img/default.jpg`)
-        }
-}
+    var parts = chemin.split('\\')
+    var lastSegment = parts.pop() || parts.pop()
+    try {
+      return require(`../../img/uploadsImage/${lastSegment}`)
+    } catch (err) {
+      return require(`../../img/uploadsImage/default-img.jpg`)
+    }
+  }
+
 
         
 

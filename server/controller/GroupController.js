@@ -10,7 +10,7 @@ var mongoose = require('mongoose')
 
 // get list Group
 router.get("/", function (req, res) {
-    if (req.isAuthenticated() && (req.user.level === 'client' || req.user.level === 'manager')) {
+    if (req.isAuthenticated() && (req.user.level === 'client' || req.user.level === 'manager' ||  req.user.level === 'creator')) {
         Group.find({}, function (err, Groups) {
             if (err) return res.status(500).send("There was a problem finding the Groups.");
             res.status(200).send(Groups);
@@ -22,7 +22,7 @@ router.get("/", function (req, res) {
 
 // add Group to list
 router.post('/add', function (req, res) {
-    if (req.isAuthenticated() && req.user.level === 'manager') {
+    if (req.isAuthenticated() && (req.user.level === 'manager' ||  req.user.level === 'creator')) {
         Group.create({
             name: req.body.name,
             participants: [],
@@ -41,7 +41,7 @@ router.post('/add', function (req, res) {
 
 // delete Group by id
 router.post('/delete', function (req, res) {
-    if (req.isAuthenticated() && req.user.level === 'manager') {
+    if (req.isAuthenticated() && (req.user.level === 'manager' ||  req.user.level === 'creator')) {
         let id = new mongoose.mongo.ObjectID(req.body.id)
         Group.findByIdAndRemove(id, function (err) {
             if (err) return res.status(500).send("There was a problem deleting the user.");
@@ -60,7 +60,7 @@ router.post('/participant/delete', function (req, res) {
     var index = participants.indexOf(req.body.name);
     if (index !== -1) participants.splice(index, 1);
 
-    if (req.isAuthenticated() && req.user.level === 'manager') {
+    if (req.isAuthenticated() && (req.user.level === 'manager' ||  req.user.level === 'creator' )) {
 
         let body = {
             participants: participants
@@ -87,7 +87,7 @@ router.post('/participant/add', function (req, res) {
     var index = request.indexOf(req.body.name);
     if (index !== -1) request.splice(index, 1);
 
-    if (req.isAuthenticated() && req.user.level === 'manager') {
+    if (req.isAuthenticated() && ( req.user.level === 'manager' ||  req.user.level === 'creator' )) {
 
         let body = {
             request ,
@@ -115,7 +115,7 @@ router.post('/request/add', function (req, res) {
     }
    
 
-    if (req.isAuthenticated() && ( req.user.level === 'client' ||  req.user.level === 'manager') ) {
+    if (req.isAuthenticated()  ) {
 
         let body = {
             request 
@@ -135,7 +135,7 @@ router.post('/request/add', function (req, res) {
 // update Group by id
 router.post('/update', function (req, res) {
     let id = new mongoose.mongo.ObjectID(req.body.id)
-    if (req.isAuthenticated() && req.user.level === 'manager') {
+    if (req.isAuthenticated() && (req.user.level === 'manager' ||  req.user.level === 'creator')) {
         let body = {
             name: "",
             participants: [],

@@ -5,8 +5,7 @@ import LoadingOverlay from 'react-loading-overlay';
 import AddComputer from './AddComputer'
 import UpdateComputer from "./UpdateComputer";
 
-import { dbComputersList, dbAddComputer, dbDeletecomputer, dbUpdateComputer } from "../api/db"
-
+import {  ServerAPI } from "../api/db"
 
 class CatalogueGestion extends Component {
 
@@ -18,7 +17,6 @@ class CatalogueGestion extends Component {
   state = {
     computers: {},
     userAuth: 'basic',
-    modal: false,
     isLoading: true,
     isActive: false
   }
@@ -26,10 +24,9 @@ class CatalogueGestion extends Component {
   async componentDidMount() {
     try {
       this._isMounted = true;
-      let userAuth = await fetch('/users/level', { method: 'get' })
-        .then(res => res.text())
+      let userAuth = await ServerAPI('/users/level', 'get' )
 
-      if (userAuth === 'manager') {
+      if (userAuth === 'manager' || userAuth === 'creator' ) {
         let myData = await this.getData()
         this._isMounted && this.setState({ isLoading: false, computers: myData, userAuth: userAuth })
         console.log('<CatalogueGestion> isAuth : ' + userAuth)
@@ -51,42 +48,53 @@ class CatalogueGestion extends Component {
   }
 
   getData = async () => {
-    const computers = await dbComputersList()
+    const computers = await ServerAPI('/computers/', 'get' )
     return JSON.parse(computers);
   }
 
   AddComputer = async computer => {
     this.setState({ isActive: true })
-    this.handleOpenModal()
-    await dbAddComputer(computer.name, computer.image, computer.price,
-      computer.brand, computer.cpu, computer.sizeScreen, computer.OperatingSystem,
-      computer.capacity, computer.MemorySize)
+    await ServerAPI('/computers/add', 'POST',{
+      name : computer.name, 
+      image : computer.image, 
+      price : computer.price,
+      brand : computer.brand, 
+      cpu : computer.cpu, 
+      sizeScreen : computer.sizeScreen, 
+      OperatingSystem : computer.OperatingSystem,
+      capacity : computer.capacity, 
+      MemorySize : computer.MemorySize
+    } )
+
     let myData = await this.getData()
     this.setState({ isActive: false, computers: myData })
   }
 
   removeComputers = async key => {
     this.setState({ isActive: true })
-    await dbDeletecomputer(key)
+    await ServerAPI('/computers/delete', 'POST' , { id : key })
     let myData = await this.getData()
     this.setState({ isActive: false, computers: myData })
   }
 
   updateComputers = async computer => {
     this.setState({ isActive: true })
-    await dbUpdateComputer(computer.id, computer.name, computer.image, computer.price,
-      computer.brand, computer.cpu, computer.sizeScreen, computer.OperatingSystem,
-      computer.capacity, computer.MemorySize)
+    await ServerAPI('/computers/update', 'POST',{
+      id : computer.id,
+      name : computer.name, 
+      image : computer.image, 
+      price : computer.price,
+      brand : computer.brand, 
+      cpu : computer.cpu, 
+      sizeScreen : computer.sizeScreen, 
+      OperatingSystem : computer.OperatingSystem,
+      capacity : computer.capacity, 
+      MemorySize : computer.MemorySize
+    } )
     let myData = await this.getData()
     this.setState({ isActive: false, computers: myData })
   }
 
-  handleCloseModal = () => {
-    this.setState({ modal: false });
-  };
-  handleOpenModal = () => {
-    this.setState({ modal: true });
-  };
 
 
 
@@ -95,7 +103,7 @@ class CatalogueGestion extends Component {
     let updateComputers = <></>
     let addComputers = <></>
 
-    if (userAuth === 'manager') {
+    if (userAuth === 'manager' || userAuth === 'creator' ) {
 
       updateComputers = Object.keys(computers)
         .map(key => <UpdateComputer key={key} id={key} removeComputers={this.removeComputers} updateComputers={this.updateComputers} computer={computers[key]} />)

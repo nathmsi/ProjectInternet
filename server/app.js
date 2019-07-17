@@ -8,16 +8,16 @@ var db = require('./db');
 const session = require('express-session')
 const passport = require('passport')
 var cors = require('cors')
-var http = require('http')
-var io = require('socket.io')
 const pino = require('express-pino-logger')();
 
 
 ////////////////////////
+var chatOnline = require('./chatOnline')
 var UserController = require('./controller/UserController');
 var indexRouter = require('./controller/indexController');
 var ComputerController = require('./controller/ComputerController');
 var GroupController = require('./controller/GroupController');
+var ImageController = require('./controller/ImageController');
 
 // database connected
 db.connect()
@@ -28,9 +28,6 @@ var app = express();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
-
-const server = http.createServer(app);
-const socketIo = io(server);
 
 
 app.use(cors())
@@ -66,29 +63,7 @@ app.use('/', indexRouter)
 app.use('/users', UserController)
 app.use('/computers', ComputerController)
 app.use('/groups', GroupController)
-
-/////////////////////////////////////////////////////////////////////////   Socket.io /////////////////////////////////////////////////////////
-
-// Start listening
-server.listen(process.env.PORT || '5555');
-// Setup socket.io
-socketIo.on('connection', socket => {
-  const username = socket.handshake.query.username;
-  console.log(`${username} connected`);
-  socket.broadcast.emit('server:connection', username);
-  socket.on('client:message', data => {
-    // console.log(`${data.username} : ${data.message}`);
-    // message received from client, now broadcast it to everyone else
-    socket.broadcast.emit('server:message', data);
-  });
- 
-  socket.on('disconnect', () => {
-    console.log(`${username} disconnected`);
-    socket.broadcast.emit('server:disconnect', username);
-  });
-
-});
-
+app.use('/image', ImageController)
 
 
 ///////////////////////////////////////////////////////////////////// catch 404 and forward to error handler   ////////////////////////////////////

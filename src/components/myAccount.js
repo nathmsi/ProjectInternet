@@ -1,7 +1,10 @@
 import React, { Component } from "react";
 import CircularProgress from '@material-ui/core/CircularProgress';
 import LoadingOverlay from 'react-loading-overlay';
+import axios from 'axios';
 
+
+import { ServerAPI } from "../api/db"
 
 class MyAcount extends Component {
 
@@ -20,12 +23,13 @@ class MyAcount extends Component {
     userAuth: 'basic',
     isLoading: true,
     isActive: false,
-    isGoogleAuth: false
+    isGoogleAuth: false,
+    mulertImage: ''
   }
 
   componentDidMount = async () => {
     await this.getSession()
-    if (this.state.userAuth === 'manager' || this.state.userAuth === 'client') {
+    if (this.state.userAuth === 'manager' || this.state.userAuth === 'client' || this.state.userAuth === 'creator') {
       this.getAccount()
       this.setState({ isLoading: false })
       console.log('<Myaccount> isAuth : ' + this.state.userAuth)
@@ -38,20 +42,25 @@ class MyAcount extends Component {
   }
 
   getSession = async () => {
-    let userAuth = await fetch('/users/level', { method: 'get' })
-      .then(res => res.text())
+    let userAuth = await ServerAPI('/users/level', 'get')
     this.setState({ userAuth: userAuth })
   }
 
   getAccount = async () => {
-    let account = []
-    await fetch('/users/account/', { method: 'get' }).then(res => res.text()).then(res => account = JSON.parse(res)).catch(err => err)
-    this.setState({
-      username: account.username, level: account.level, panier: account.panier,
-      orders: account.orders, id: account._id,
-      address: account.address, phone: account.phone, email: account.email
-    })
-    if (account.username === account.email) this.setState({ isGoogleAuth: true })
+    try {
+      let account = JSON.parse(await ServerAPI('/users/account/', 'get'))
+      this.setState({
+        username: account.username, level: account.level, panier: account.panier,
+        orders: account.orders, id: account._id,
+        address: account.address, phone: account.phone, email: account.email,
+        mulertImage: account.imageUser
+      })
+      if (account.username === account.email) this.setState({ isGoogleAuth: true })
+    }
+    catch (err) {
+      console.log(err)
+      this.props.history.push('/Login')
+    }
   }
 
 
@@ -95,18 +104,11 @@ class MyAcount extends Component {
   }
 
 
+
+
   handleapplicate = async () => {
     this.setState({ isActive: true })
-    let response = []
-    await fetch('/users/update', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json, text/plain, */*',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ ...this.state })
-    })
-      .then(res => res.text()).then(res => response = JSON.parse(res)).catch(err => err)
+    let response = JSON.parse(await ServerAPI('/users/update', 'POST', { ...this.state }))
     this.setState({ isActive: false })
     alert(response.message)
   }
@@ -114,16 +116,13 @@ class MyAcount extends Component {
   handleChangePassword = async () => {
     if (this.state.newpassword === this.state.newpasswordC) {
       this.setState({ isActive: true })
-      let response = []
-      await fetch('/users/changepassword', {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json, text/plain, */*',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ oldpassword: this.state.oldpassword, newpassword: this.state.newpassword, id: this.state.id })
-      })
-        .then(res => res.text()).then(res => response = JSON.parse(res)).catch(err => err)
+
+      let response = JSON.parse(await ServerAPI('/users/changepassword', 'POST', {
+        oldpassword: this.state.oldpassword,
+        newpassword: this.state.newpassword,
+        id: this.state.id
+      }))
+
       this.setState({ isActive: false, oldpassword: '', newpassword: '', newpasswordC: '' })
       alert(response.message)
     } else {
@@ -142,13 +141,53 @@ class MyAcount extends Component {
   }
 
 
+  requireImage(chemin) {
+    var parts = chemin.split('\\')
+    var lastSegment = parts.pop() || parts.pop()
+    try {
+      return require(`../img/uploadsImage/${lastSegment}`)
+    } catch (err) {
+      return require(`../img/uploadsImage/default-img.jpg`)
+    }
+  }
+
+  // function to upload image once it has been captured
+  uploadImage(e) {
+    let imageFormObj = new FormData();
+    let imageName = "multer-image-" + Date.now()
+
+    imageFormObj.append("imageName", imageName);
+    imageFormObj.append("imageData", e.target.files[0]);
+    imageFormObj.append("id", this.state.id);
+
+    let path = e.target.files[0].name
+
+    axios.post(`/image/uploadmulter`, imageFormObj)
+      .then((data) => {
+        if (data.data.success) {
+          //alert("Image has been successfully uploaded using multer");
+          this.setState({
+            multerImage: path
+          })
+        }
+      })
+      .catch((err) => {
+        alert("Error while uploading image using multer ");
+        console.log(err)
+      });
+
+  }
+
+
+
+
 
 
   render() {
     const { orders, username, level, phone, address, newpassword, newpasswordC, email, oldpassword } = this.state
 
 
-    if (this.state.isLoading === false && ((level === 'manager') || (level === 'client'))) {
+    if (this.state.isLoading === false && ((level === 'manager') || (level === 'client') || (level === 'creator'))) {
       let user, changepassword = <></>
 
 
@@ -170,6 +209,7 @@ class MyAcount extends Component {
       }
 
       if (!this.state.isGoogleAuth) {
+
         user = <div className="row ">
           <div className="col-2">
             <h3 className="input-group-addon text-center text-light">username </h3>
@@ -199,13 +239,24 @@ class MyAcount extends Component {
           spinner
           text='Loading your content...'
         >
-          <div className=" bg-secondary">
+          <div className="container bg-dark">
 
-           <br />
+            <br />
             <h1 className="text-center text-light">My account</h1>
 
             <div className="grey-text">
+            <br />
 
+            <div className="row">
+                <div className="col-4 text-center">
+                <img src={this.requireImage(this.state.mulertImage)} alt='upload-' width="300" height="300" className='process_image text-center' />
+                </div>
+                <div className="col-8 ">
+                <input type='file' className='process_upload-btn text-center text-light' onChange={(e) => this.uploadImage(e)} />
+                </div>
+             </div>
+
+              <br /><br />
 
               {user}
               {levelInput}
@@ -265,7 +316,7 @@ class MyAcount extends Component {
                   <h3 className="input-group-addon text-center text-light"> my last orders </h3>
                 </div>
                 <div className="col-10">
-                  {Orders} 
+                  {Orders}
                 </div>
               </div>
 

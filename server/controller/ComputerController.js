@@ -10,7 +10,7 @@ var mongoose = require('mongoose')
 
 // get list computer
 router.get("/", function (req, res) {
-    if (req.isAuthenticated() && (req.user.level === 'client' || req.user.level === 'manager')) {
+    if (req.isAuthenticated() && (req.user.level === 'client' || req.user.level === 'manager' || req.user.level === 'creator')) {
         Computer.find({}, function (err, Computers) {
             if (err) return res.status(500).send("There was a problem finding the Computers.");
             res.status(200).send(Computers);
@@ -22,7 +22,7 @@ router.get("/", function (req, res) {
 
 // add computer to list
 router.post('/add', function (req, res) {
-    if (req.isAuthenticated() && req.user.level === 'manager') {
+    if (req.isAuthenticated() && (req.user.level === 'manager' || req.user.level === 'creator')) {
         Computer.create({
             brand: req.body.brand,
             name: req.body.name,
@@ -46,7 +46,8 @@ router.post('/add', function (req, res) {
 
 // delete computer by id
 router.post('/delete', function (req, res) {
-    if (req.isAuthenticated() && req.user.level === 'manager') {
+    if (req.isAuthenticated() && ( req.user.level === 'manager' || req.user.level === 'creator' )) {
+       
     let id = new mongoose.mongo.ObjectID(req.body.id)
     Computer.findByIdAndRemove(id, function (err) {
         if (err) return res.status(500).send("There was a problem deleting the user.");
@@ -60,7 +61,7 @@ router.post('/delete', function (req, res) {
 // update computer by id
 router.post('/update', function (req, res) {
     let id = new mongoose.mongo.ObjectID(req.body.id)
-    if (req.isAuthenticated() &&  req.user.level === 'manager') {
+    if (req.isAuthenticated() &&  (req.user.level === 'manager' || req.user.level === 'creator' )) {
         let body = {
             brand: req.body.brand,
             name: req.body.name,

@@ -3,7 +3,8 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import LoadingOverlay from 'react-loading-overlay';
 import '../styles/Catalogue.css'
 import User from './screen/User'
-import { dbUsersList, dbDeleteUser, dbupdateUserLevel } from '../api/db'
+
+import {  ServerAPI} from "../api/db"
 
 class UserGestion extends Component {
 
@@ -17,11 +18,11 @@ class UserGestion extends Component {
 
 
   async componentDidMount() {
-    let userAuth = await fetch('/users/level', { method: 'get' })
-      .then(res => res.text())
+    let userAuth = await ServerAPI('/users/level', 'get' )
+    
     this.setState({ userAuth: userAuth })
 
-    if (userAuth === 'manager')
+    if (userAuth === 'creator')
     {
       this.getData()
       this.setState({ isLoading: false })
@@ -36,19 +37,19 @@ class UserGestion extends Component {
   }
 
   getData = async () => {
-    const users = await dbUsersList()
+    const users = await ServerAPI('/users/', 'get' )
     var mydata = JSON.parse(users)
     this.setState({ users: mydata })
   }
 
   deleteUser = async key => {
-    await dbDeleteUser(key)
+    await ServerAPI('/users/delete', 'POST' , { id : key} )
     this.getData()
   }
 
   updateUserLevel = async (key, level) => {
     this.setState({isActive : true})
-    await dbupdateUserLevel(key, level)
+    await ServerAPI('/users/level', 'POST' , { id : key , level} )
     this.getData()
     this.setState({isActive : false})
   }
@@ -60,7 +61,7 @@ class UserGestion extends Component {
       const { userAuth } = this.state
       let users = <div><p>Vous n'avez pas acces a cette page </p></div>
 
-      if (userAuth === 'manager') {
+      if (userAuth === 'creator') {
         users = Object.keys(this.state.users)
           .map(key => <User key={key} uid={key} details={this.state.users[key]} deleteUser={this.deleteUser} updateUserLevel={this.updateUserLevel} ></User>)
       }

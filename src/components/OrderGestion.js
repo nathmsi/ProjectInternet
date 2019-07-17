@@ -1,9 +1,12 @@
 import React, { Component } from "react";
 import CircularProgress from '@material-ui/core/CircularProgress';
 import '../styles/Catalogue.css'
-import { dbUsersList, dbupdateUserLevel } from '../api/db'
+
 import Select from 'react-select';
 import LoadingOverlay from 'react-loading-overlay';
+
+
+import {  ServerAPI} from "../api/db"
 
 class OrderGestion extends Component {
 
@@ -20,11 +23,11 @@ class OrderGestion extends Component {
 
 
     async componentDidMount() {
-        let userAuth = await fetch('/users/level', { method: 'get' })
-            .then(res => res.text())
+        let userAuth = await ServerAPI('/users/level', 'get' )
+
         this.setState({ userAuth: userAuth })
 
-        if (userAuth === 'manager') {
+        if (userAuth === 'manager' || userAuth === 'creator') {
             this.getData()
             this.setState({ isLoading: false })
             console.log('<UserGestion> isAuth : ' + userAuth)
@@ -38,7 +41,7 @@ class OrderGestion extends Component {
     }
 
     getData = async () => {
-        const users = await dbUsersList()
+        const users = await ServerAPI('/users/', 'get' )
         var mydata = JSON.parse(users)
         this.setState({ users: mydata })
         this.setOrders(mydata)
@@ -47,7 +50,10 @@ class OrderGestion extends Component {
 
     updateUser = async (key, level) => {
         this.setState({ isActive: true })
-        await dbupdateUserLevel(key, level)
+        await ServerAPI('/users/level', 'POST' ,{
+            'id': key,
+            'level': level
+          })
         this.getData()
         this.setState({ isActive: false })
     }
@@ -77,14 +83,10 @@ class OrderGestion extends Component {
                 id = element._id
         });
 
-        await fetch('/users/orders/update', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json, text/plain, */*',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ id, orders: order })
-        }).catch(err => err)
+        await ServerAPI('/users/orders/update', 'POST' ,
+            { id, orders: order }
+          )
+
 
         await this.getData()
 
@@ -99,7 +101,7 @@ class OrderGestion extends Component {
 
         const { isLoading, userAuth } = this.state
 
-        if (isLoading === false && userAuth === 'manager') {
+        if (isLoading === false && ( userAuth === 'manager' || userAuth === 'creator')) {
 
             const { orders, order, selectedOption } = this.state
 

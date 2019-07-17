@@ -5,7 +5,8 @@ import Card from './screen/Card'
 import Select from 'react-select';
 import LoadingOverlay from 'react-loading-overlay';
 
-import { dbComputersList, dbAddPanier, } from "../api/db"
+import {  ServerAPI} from "../api/db"
+
 
 class Catalogue extends Component {
 
@@ -26,11 +27,11 @@ class Catalogue extends Component {
 
   async componentWillMount() {
     try {
-      let userAuth = await fetch('/users/level', { method: 'get' })
-        .then(res => res.text())
 
-      if (userAuth === 'client' || userAuth === 'manager') {
-        const computers = JSON.parse(await dbComputersList())
+      let userAuth = await ServerAPI('/users/level', 'get' )
+
+      if (userAuth === 'client' || userAuth === 'manager' || userAuth === 'creator') {
+        const computers = JSON.parse(await  ServerAPI('/computers/', 'get' ))
         this.setState({ computers: computers, computersSelected: computers, isLoading: false , userAuth: userAuth })
         this.setBrand(this.state.computers)
         this.setMemorySize(this.state.computers)
@@ -74,7 +75,7 @@ class Catalogue extends Component {
 
   addPanier = async (id, goToPanier) => {
     this.setState({ isActive: true })
-    await dbAddPanier(id)
+    await ServerAPI('/users/panier/add', 'POST' ,{ id })
     this.setState({ isActive: false })
     if (goToPanier) this.props.history.push('/panier')
   }
@@ -128,7 +129,7 @@ class Catalogue extends Component {
 
   render() {
 
-    if (this.state.userAuth === 'manager' || this.state.userAuth === 'client') {
+    if (this.state.userAuth === 'manager' || this.state.userAuth === 'client' || this.state.userAuth === 'creator') {
 
       const { computersSelected, selectedOption_1, selectedOption_2, selectedOption_3, brands, memorySizes, screenSize } = this.state
       let computers = <></>

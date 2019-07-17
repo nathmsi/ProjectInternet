@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import Modal from './modal/ModalConfirmationUpdate';
 
+import axios from 'axios';
 
 class UpdateCar extends Component {
 
@@ -40,16 +40,18 @@ class UpdateCar extends Component {
 
 
     requireImage = chemin => {
+        var parts = chemin.split('\\')
+        var lastSegment = parts.pop() || parts.pop()
         try {
-            return require(`../img/${chemin}`)
+          return require(`../img/uploadsImage/${lastSegment}`)
         } catch (err) {
-            return require(`../img/default.jpg`)
+          return require(`../img/uploadsImage/default-img.jpg`)
         }
-    }
+      }
 
     updateComputers = () => {
-        const car = { ...this.state }
-        this.props.updateComputers(car)
+        const computer = { ...this.state }
+        this.props.updateComputers(computer)
     }
 
     handleChange = (e) => {
@@ -84,22 +86,34 @@ class UpdateCar extends Component {
         // this.updateCar()   
     }
 
-    openModalHandler = () => {
-        this.setState({
-            isShowing: true
-        });
-    }
+    // function to upload image once it has been captured
+  uploadImage(e) {
+    let imageFormObj = new FormData();
+    let imageName = "multer-image-" + Date.now()
 
-    closeModalHandler = () => {
-        this.setState({
-            isShowing: false
-        });
-    }
+    imageFormObj.append("imageName", imageName);
+    imageFormObj.append("imageData", e.target.files[0]);
+    imageFormObj.append("id", this.state.id);
 
-    updateComputersConfirmation = () =>{
-        this.closeModalHandler()
-        this.updateComputers()
-    }
+    let path = e.target.files[0].name
+
+    axios.post(`/image/uploadmulter/computer`, imageFormObj)
+      .then((data) => {
+        if (data.data.success) {
+          this.setState({
+            multerImage: path
+          })
+        }
+      })
+      .catch((err) => {
+        alert("Error while uploading image");
+        console.log(err)
+      });
+
+   }
+
+    
+
 
     render() {
 
@@ -122,8 +136,12 @@ class UpdateCar extends Component {
                     <img src={this.requireImage(image)} alt={name} width="400" height="200" />
                 </div>
 
-                
-
+                <div className="input-group"><div></div>
+                    <h4 className="input-group-addon">Upload image </h4>
+                    <input type='file' className='process_upload-btn text-center text-light' onChange={(e) => this.uploadImage(e)} />
+                </div>
+              
+               
                 <div className="input-group"><div></div>
                     <h4 className="input-group-addon">Name :</h4>
                     <input type='text' value={name} name='name' className="form-control"
@@ -176,18 +194,11 @@ class UpdateCar extends Component {
 
 
 
-                <button onClick={this.openModalHandler}
+                <button onClick={this.updateComputers}
                 className='btn btn-warning  btn-lg btn-block' ><font color="white">Updtate</font></button>
                 <button onClick={() => this.props.removeComputers(id)}
                 className='btn btn-danger btn-lg btn-block' ><font color="white">Delete</font></button>
 
-                <Modal
-                    className="modal"
-                    show={this.state.isShowing}
-                    close={this.closeModalHandler}
-                    updateComputersConfirmation = {this.updateComputersConfirmation}   
-                    > 
-                </Modal>
             </div>
         )
     }

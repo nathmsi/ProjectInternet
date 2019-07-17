@@ -7,6 +7,7 @@ const GroupSchema = new mongoose.Schema({
     name: String,
     participants : [],
     request : [],
+    onlines : [],
     messages : [],
     isAccept : Boolean
 })

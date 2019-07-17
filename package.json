@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@material-ui/core": "^3.9.3",
+    "axios": "^0.19.0",
     "bootstrap": "^4.3.1",
     "firebase": "^5.11.1",
     "hybrid-crypto-js": "^0.1.7",
@@ -19,7 +20,8 @@
     "react-scripts": "^2.1.8",
     "react-select": "^2.4.3",
     "react-transition-group": "^4.0.1",
-    "socket.io-client": "^2.2.0"
+    "socket.io-client": "^2.2.0",
+    "uws": "^10.148.1"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -40,30 +42,33 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "body-parser": "^1.18.3",
-    "express": "^4.16.3",
-    "express-pino-logger": "^4.0.0",
-    "node-env-run": "^3.0.2",
-    "nodemon": "^1.18.10",
-    "npm-run-all": "^4.1.5",
-    "pino-colada": "^1.4.4",
     "bcrypt": "^3.0.5",
+    "body-parser": "^1.18.3",
     "cookie-parser": "~1.4.3",
     "cors": "^2.8.5",
     "crypto-js": "^3.1.9-1",
     "debug": "~2.6.9",
     "dotenv": "^7.0.0",
     "ejs": "~2.5.7",
+    "express": "^4.17.1",
+    "express-flash": "0.0.2",
+    "express-pino-logger": "^4.0.0",
     "express-session": "^1.15.6",
     "http-errors": "~1.6.2",
     "jade": "^1.11.0",
     "mongoose": "^5.4.21",
     "mongoose-encryption": "^2.0.2",
     "morgan": "~1.9.0",
+    "multer": "^1.4.2",
+    "node-env-run": "^3.0.2",
     "node-rsa": "^1.0.5",
+    "nodemailer": "^6.3.0",
+    "nodemon": "^1.18.10",
+    "npm-run-all": "^4.1.5",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^5.0.1",
+    "pino-colada": "^1.4.4",
     "socket.io": "^2.2.0"
   }
 }
