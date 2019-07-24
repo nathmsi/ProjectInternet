@@ -133,7 +133,7 @@ class UpdateCar extends Component {
             <div className='card'>
                 <br/>
                 <div className='text-center'>
-                    <img src={this.requireImage(image)} alt={name} width="400" height="200" />
+                    <img src={this.requireImage(image)} alt={name} width="400" height="300" />
                 </div>
 
                 <div className="input-group"><div></div>

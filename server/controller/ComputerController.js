@@ -10,14 +10,10 @@ var mongoose = require('mongoose')
 
 // get list computer
 router.get("/", function (req, res) {
-    if (req.isAuthenticated() && (req.user.level === 'client' || req.user.level === 'manager' || req.user.level === 'creator')) {
         Computer.find({}, function (err, Computers) {
             if (err) return res.status(500).send("There was a problem finding the Computers.");
             res.status(200).send(Computers);
         });
-    } else {
-        res.send('notAuthorized')
-    }
 })
 
 // add computer to list

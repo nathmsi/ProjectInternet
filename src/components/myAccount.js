@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import CircularProgress from '@material-ui/core/CircularProgress';
 import LoadingOverlay from 'react-loading-overlay';
 import axios from 'axios';
 
@@ -22,21 +21,29 @@ class MyAcount extends Component {
     orders: [],
     userAuth: 'basic',
     isLoading: true,
-    isActive: false,
+    isActive: true,
     isGoogleAuth: false,
     mulertImage: ''
   }
 
   componentDidMount = async () => {
-    await this.getSession()
-    if (this.state.userAuth === 'manager' || this.state.userAuth === 'client' || this.state.userAuth === 'creator') {
-      this.getAccount()
-      this.setState({ isLoading: false })
-      console.log('<Myaccount> isAuth : ' + this.state.userAuth)
+    try {
+      await this.getSession()
+      if (this.state.userAuth === 'manager' || this.state.userAuth === 'client' || this.state.userAuth === 'creator') {
+        this.getAccount()
+        this.setState({ isActive: false })
+        console.log('<Myaccount> isAuth : ' + this.state.userAuth)
+      }
+      else {
+        this.setState({ userAuth: 'basic' })
+        console.log('<CatalogueGestion> isAuth : ' + this.state.userAuth)
+        this.setState({ isActive: false })
+        this.props.history.push('/Login')
+      }
     }
-    else {
-      this.setState({ userAuth: 'basic' })
-      console.log('<CatalogueGestion> isAuth : ' + this.state.userAuth)
+    catch (err) {
+      console.log(err)
+      this.setState({ isActive: false })
       this.props.history.push('/Login')
     }
   }
@@ -142,9 +149,9 @@ class MyAcount extends Component {
 
 
   requireImage(chemin) {
-    var parts = chemin.split('\\')
-    var lastSegment = parts.pop() || parts.pop()
     try {
+      var parts = chemin.split('\\')
+      var lastSegment = parts.pop() || parts.pop()
       return require(`../img/uploadsImage/${lastSegment}`)
     } catch (err) {
       return require(`../img/uploadsImage/default-img.jpg`)
@@ -185,22 +192,21 @@ class MyAcount extends Component {
 
   render() {
     const { orders, username, level, phone, address, newpassword, newpasswordC, email, oldpassword } = this.state
+    let user, changepassword = <></>
+    let Orders = <></>
+    let levelInput = <></>
+
+    if (((level === 'manager') || (level === 'client') || (level === 'creator'))) {
 
 
-    if (this.state.isLoading === false && ((level === 'manager') || (level === 'client') || (level === 'creator'))) {
-      let user, changepassword = <></>
-
-
-      let Orders = <></>
       Orders = Object.keys(orders)
         .map(key => <Order key={key} total={orders[key].total} index={key} id={orders[key].order} deleteOrder={this.deleteOrder} />)
 
 
-      let levelInput = <></>
       if (level === 'manager') {
-        levelInput = <div className="row ">
+        levelInput = <div className="row bg-white">
           <div className="col-2">
-            <h3 className="input-group-addon text-center text-light">level </h3>
+            <h3 className="input-group-addon text-center ">level </h3>
           </div>
           <div className="col-10">
             <input type='text' value={level || ''} name='level' className="form-control" onChange={this.updateInputValueLevel} />
@@ -210,9 +216,9 @@ class MyAcount extends Component {
 
       if (!this.state.isGoogleAuth) {
 
-        user = <div className="row ">
+        user = <div className="row bg-white">
           <div className="col-2">
-            <h3 className="input-group-addon text-center text-light">username </h3>
+            <h3 className="input-group-addon text-center ">username </h3>
           </div>
           <div className="col-10">
             <input type='text' value={username || ''} name='username' className="form-control" onChange={this.updateInputValueUsername} />
@@ -220,9 +226,9 @@ class MyAcount extends Component {
         </div>
 
         changepassword =
-          <div className="row ">
+          <div className="row bg-white">
             <div className="col-2">
-              <h3 className="input-group-addon text-center text-light"> Change Password  </h3>
+              <h3 className="input-group-addon text-center "> Change Password  </h3>
             </div>
             <div className="col-10">
               <input type='password' value={oldpassword || ''} placeholder='old password' name='password' className="form-control" onChange={this.updateInputValueoldpassword} />
@@ -232,130 +238,111 @@ class MyAcount extends Component {
             </div>
           </div>
       }
+    }
 
-      return (
-        <LoadingOverlay
-          active={this.state.isActive}
-          spinner
-          text='Loading your content...'
-        >
-          <div className="container bg-dark">
+    return (
+      <LoadingOverlay
+        active={this.state.isActive}
+        spinner
+        text='Loading your content...'
+      >
+        <div className="container">
 
-            <br />
-            <h1 className="text-center text-light">My account</h1>
+          <h1 className="text-center ">My account</h1>
 
-            <div className="grey-text">
+          <div className="grey-text">
             <br />
 
             <div className="row">
-                <div className="col-4 text-center">
-                <img src={this.requireImage(this.state.mulertImage)} alt='upload-' width="300" height="300" className='process_image text-center' />
-                </div>
-                <div className="col-8 ">
-                <input type='file' className='process_upload-btn text-center text-light' onChange={(e) => this.uploadImage(e)} />
-                </div>
-             </div>
-
-              <br /><br />
-
-              {user}
-              {levelInput}
-              <div className="row ">
-                <div className="col-2">
-                  <h3 className="input-group-addon text-center text-light"> phone </h3>
-                </div>
-                <div className="col-10">
-                  <input type='text' value={phone || ''} name='phone' className="form-control" onChange={this.updateInputValuePhone} />
-                </div>
+              <div className="col-4 text-center">
+                <img src={this.requireImage(this.state.mulertImage)} alt='upload-' width="300" height="300" className='process_image text-center rounded-circle' />
               </div>
-
-              <div className="row ">
-                <div className="col-2">
-                  <h3 className="input-group-addon text-center text-light"> address </h3>
-                </div>
-                <div className="col-10">
-                  <input type='text' value={address || ''} name='address' className="form-control" onChange={this.updateInputValueAdress} />
-                </div>
+              <div className="col-8 ">
+                <input type='file' className='process_upload-btn text-center ' onChange={(e) => this.uploadImage(e)} />
               </div>
-
-              <div className="row ">
-                <div className="col-2">
-                  <h3 className="input-group-addon text-center text-light"> email </h3>
-                </div>
-                <div className="col-10">
-                  <input type='email' value={email || ''} name='email' className="form-control" onChange={this.updateInputValueemail} />
-                </div>
-              </div>
-
-              <br />
-
-              {changepassword}
-
-              <br />
-
-
-              <div className="row ">
-                <div className="col-2">
-                  <h3 className="input-group-addon text-center text-light">Shoping Cart </h3>
-                </div>
-                <div className="col-10 text-light">
-                  count element {this.state.panier.length} <br />
-                  <button className='btn btn-success text-center' onClick={this.deletePanier} > Delete Panier </button>
-                </div>
-
-              </div>
-
-
-
-
-              <br />
-
-
-              <div className="row ">
-                <div className="col-2">
-                  <h3 className="input-group-addon text-center text-light"> my last orders </h3>
-                </div>
-                <div className="col-10">
-                  {Orders}
-                </div>
-              </div>
-
             </div>
-            <div className="row ">
+
+            <br /><br />
+
+            {user}
+            {levelInput}
+            <div className="row bg-white">
               <div className="col-2">
+                <h3 className="input-group-addon text-center "> phone </h3>
               </div>
               <div className="col-10">
-                <button
-                  className="btn btn-primary btn-lg btn-block"
-                  onClick={() => { this.handleapplicate() }}
-                >Save</button>
+                <input type='text' value={phone || ''} name='phone' className="form-control" onChange={this.updateInputValuePhone} />
               </div>
             </div>
-            <br /><br />
+
+            <div className="row bg-white">
+              <div className="col-2">
+                <h3 className="input-group-addon text-center "> address </h3>
+              </div>
+              <div className="col-10">
+                <input type='text' value={address || ''} name='address' className="form-control" onChange={this.updateInputValueAdress} />
+              </div>
+            </div>
+
+            <div className="row bg-white">
+              <div className="col-2">
+                <h3 className="input-group-addon text-center "> email </h3>
+              </div>
+              <div className="col-10">
+                <input type='email' value={email || ''} name='email' className="form-control" onChange={this.updateInputValueemail} />
+              </div>
+            </div>
+
+
+            {changepassword}
+
+            <div className="row bg-white">
+              <div className="col-2">
+                <h3 className="input-group-addon text-center ">Shoping Cart </h3>
+              </div>
+              <div className="col-10 bg-white">
+                count element {this.state.panier.length} <br />
+                <button className='btn btn-success text-center ' onClick={this.deletePanier} > Delete Panier </button>
+              </div>
+
+            </div>
+
+
+
+            <div className="row bg-white">
+              <div className="col-2">
+                <h3 className="input-group-addon text-center "> my last orders </h3>
+              </div>
+              <div className="col-10 AccountOrderScrool">
+                {Orders}
+              </div>
+            </div>
+
           </div>
-
-
-
-
-
-
-        </LoadingOverlay>
-      )
-    } else {
-      return (
-        <div className='text-center'>
-          <br /><br /><br /><br /><CircularProgress disableShrink />
+          <div className="row ">
+            <div className="col-2">
+            </div>
+            <div className="col-10">
+              <button
+                className="btn btn-primary btn-lg btn-block"
+                onClick={() => { this.handleapplicate() }}
+              >Save</button>
+            </div>
+          </div>
+          <br /><br />
         </div>
-      )
-    }
-  };
+
+      </LoadingOverlay>
+    )
+
+  }
 }
 
 
 
 const Order = ({ index, total, deleteOrder }) => {
   return (
-    <div className='container border text-light'>
+    <div className='container border bg-white'>
       Order {(parseInt(index) + 1)} <br />
       <strong> Total =>   {total} $ </strong>
       <button className='btn btn-danger ' onClick={() => deleteOrder(index)} > - Delete </button>

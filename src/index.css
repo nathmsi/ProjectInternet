@@ -74,3 +74,21 @@ ul.header li a {
 	overflow-y: scroll;
 	-webkit-overflow-scrolling:touch;
 }
+
+
+.OrderScrool {
+  flex: 1 1 100%;
+	align-self: flex-end;
+	max-height: calc(59VH - 300px);
+	overflow-y: scroll;
+	-webkit-overflow-scrolling:touch;
+}
+
+
+.AccountOrderScrool {
+  flex: 1 1 100%;
+	align-self: flex-end;
+	max-height: calc(40VH - 300px);
+	overflow-y: scroll;
+	-webkit-overflow-scrolling:touch;
+}

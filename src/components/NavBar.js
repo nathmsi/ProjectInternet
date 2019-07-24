@@ -24,6 +24,7 @@ class NavBar extends Component {
 
         if (userAuth === 'basic') {
             header = <>
+                <li className="nav-item"><NavLink className="nav-link text-white  font-weight-bold" to="/Catalogue">Catalogue</NavLink></li>
                 <li className="nav-item"><NavLink className="nav-link text-white  font-weight-bold" to="/About">About</NavLink></li>
                 <li className="nav-item"><NavLink className="nav-link text-white font-weight-bold" to="/Contact">Contact</NavLink></li>
             </>

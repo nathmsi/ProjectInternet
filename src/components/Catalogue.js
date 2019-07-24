@@ -1,11 +1,10 @@
 import React, { Component } from "react";
 import '../styles/Catalogue.css'
-import CircularProgress from '@material-ui/core/CircularProgress';
 import Card from './screen/Card'
 import Select from 'react-select';
 import LoadingOverlay from 'react-loading-overlay';
 
-import {  ServerAPI} from "../api/db"
+import { ServerAPI } from "../api/db"
 
 
 class Catalogue extends Component {
@@ -15,36 +14,29 @@ class Catalogue extends Component {
     computersSelected: {},
     userAuth: 'basic',
     modal: false,
-    isLoading: true,
     selectedOption_1: { value: "All", label: "All" },
     selectedOption_2: { value: "All", label: "All" },
     selectedOption_3: { value: "All", label: "All" },
     brands: [],
     memorySizes: [],
     screenSize: [],
-    isActive: false
+    isActive: true
   }
 
   async componentWillMount() {
     try {
-
-      let userAuth = await ServerAPI('/users/level', 'get' )
-
-      if (userAuth === 'client' || userAuth === 'manager' || userAuth === 'creator') {
-        const computers = JSON.parse(await  ServerAPI('/computers/', 'get' ))
-        this.setState({ computers: computers, computersSelected: computers, isLoading: false , userAuth: userAuth })
-        this.setBrand(this.state.computers)
-        this.setMemorySize(this.state.computers)
-        this.setScreenSize(this.state.computers)  
-        console.log('<Catalogue> isAuth : ' + userAuth)
-      } else{  
-        this._isMounted &&  this.setState({ userAuth: 'basic' })
-        console.log('<Catalogue> isAuth : ' + userAuth)
-        this.props.history.push('/Login') 
-      }
-    
+      const userAuth = await ServerAPI('/users/level', 'get')
+      const computers = JSON.parse(await ServerAPI('/computers/', 'get'))
+      this.setState({ computers: computers, computersSelected: computers, userAuth })
+      this.setBrand(this.state.computers)
+      this.setMemorySize(this.state.computers)
+      this.setScreenSize(this.state.computers)
+      console.log('<Catalogue> isAuth ')
+      this.setState({ isActive: false })
     } catch (err) {
       console.log('<Catalogue> err : ' + err)
+      this.setState({ isActive: false })
+      this.props.history.push('/login')
     }
   }
 
@@ -74,15 +66,20 @@ class Catalogue extends Component {
   }
 
   addPanier = async (id, goToPanier) => {
-    this.setState({ isActive: true })
-    await ServerAPI('/users/panier/add', 'POST' ,{ id })
-    this.setState({ isActive: false })
-    if (goToPanier) this.props.history.push('/panier')
+    const { userAuth } = this.state
+    if (userAuth === 'manager' || userAuth === 'creator' || userAuth === 'client') {
+      this.setState({ isActive: true })
+      await ServerAPI('/users/panier/add', 'POST', { id })
+      this.setState({ isActive: false })
+      if (goToPanier) this.props.history.push('/panier')
+    }else{
+      this.props.history.push('/login')
+    }
   }
 
   handleChangeBrand = async (selectedOption_1) => {
     const { selectedOption_2, selectedOption_3 } = this.state
-    this.setState({ selectedOption_1 });
+    this.setState({ selectedOption_1 })
     let computers = []
     this.state.computers.forEach(element => {
       if ((selectedOption_1.label === 'All' || element.brand === selectedOption_1.label) &&
@@ -129,82 +126,74 @@ class Catalogue extends Component {
 
   render() {
 
-    if (this.state.userAuth === 'manager' || this.state.userAuth === 'client' || this.state.userAuth === 'creator') {
 
-      const { computersSelected, selectedOption_1, selectedOption_2, selectedOption_3, brands, memorySizes, screenSize } = this.state
-      let computers = <></>
+    const { computersSelected, selectedOption_1, selectedOption_2, selectedOption_3, brands, memorySizes, screenSize } = this.state
+    let computers = <></>
 
-      computers = Object.keys(computersSelected)
-        .map(key => <Card key={key} details={computersSelected[key]} addPanier={this.addPanier} ></Card>)
+    computers = Object.keys(computersSelected)
+      .map(key => <Card key={key} details={computersSelected[key]} addPanier={this.addPanier} ></Card>)
 
-      return (
-        <LoadingOverlay
-          active={this.state.isActive}
-          spinner
-          text='Loading your content...'
-        >
+    return (
+      <LoadingOverlay
+        active={this.state.isActive}
+        spinner
+        text='Please wait a few time ...'
+      >
 
 
-          <div className="container">
-          <hr className="style1"/>
+        <div className="container">
+          <hr className="style1" />
 
-            
-            <div className="row">
-              <div className="col-2">
-                <h4 className="input-group-addon">Brand </h4>
-              </div>
-              <div className="col-10">
-                <Select
-                  value={selectedOption_1}
-                  onChange={this.handleChangeBrand}
-                  options={brands}
-                />
-              </div>
-            </div><br />
-            <div className="row">
-              <div className="col-2">
-                <h4 className="input-group-addon">Memory Size </h4>
-              </div>
-              <div className="col-10">
-                <Select
-                  value={selectedOption_2}
-                  onChange={this.handleChangememorySizes}
-                  options={memorySizes}
-                />
-              </div>
-            </div><br/>
-            <div className="row">
-              <div className="col-2">
-                <h4 className="input-group-addon">Screen Size </h4>
-              </div>
-              <div className="col-10">
-                <Select
-                  value={selectedOption_3}
-                  onChange={this.handleChangescreenSize}
-                  options={screenSize}
-                />
-              </div>
-             
+
+          <div className="row">
+            <div className="col-2">
+              <h4 className="input-group-addon">Brand </h4>
             </div>
+            <div className="col-10">
+              <Select
+                value={selectedOption_1}
+                onChange={this.handleChangeBrand}
+                options={brands}
+              />
+            </div>
+          </div><br />
+          <div className="row">
+            <div className="col-2">
+              <h4 className="input-group-addon">Memory Size </h4>
+            </div>
+            <div className="col-10">
+              <Select
+                value={selectedOption_2}
+                onChange={this.handleChangememorySizes}
+                options={memorySizes}
+              />
+            </div>
+          </div><br />
+          <div className="row">
+            <div className="col-2">
+              <h4 className="input-group-addon">Screen Size </h4>
+            </div>
+            <div className="col-10">
+              <Select
+                value={selectedOption_3}
+                onChange={this.handleChangescreenSize}
+                options={screenSize}
+              />
+            </div>
+
           </div>
+        </div>
 
-          <hr className="style1"/>
+        <hr className="style1" />
 
-          <div className='cards computerList'>
-            {computers}
-          </div>
+        <div className='cards computerList'>
+          {computers}
+        </div>
 
-        </LoadingOverlay>
+      </LoadingOverlay>
     );
 
-    } else {
-      return (
-        <div className='text-center'>
-          <p>Wait ... </p> 
-          <CircularProgress disableShrink />
-        </div>
-      )
-    }
+
   }
 
 

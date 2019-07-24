@@ -9,73 +9,120 @@ import {
     TransitionGroup
 } from 'react-transition-group'
 
+import Select from 'react-select';
+
+import LoadingOverlay from 'react-loading-overlay';
 
 class ChatApp extends React.Component {
 
+    state = {
+        usernames: [],
+        selectedUsername: { value: "All", label: "All" },
+        isLoading: false,
+    }
+
+    
 
 
     addMessage = message => {
+        this.setState({ isLoading: true })
         const messageObject = {
             username: message.username,
             message: message.message,
             date: Date.now(),
-            likes : [],
+            likes: [],
+            idUser: this.props.idUser,
         };
         this.props.sendMessage(messageObject)
+        this.setState({ isLoading: false })
     }
 
     isUser = username => username === this.props.username
+
+    handleChangeUsername = (selectedUsername) => {
+        this.setState({ isLoading: true })
+        this.setState({ selectedUsername });
+        this.setState({ isLoading: false })
+    }
+
+    
 
 
 
 
     render() {
 
-        const { userOnline, messages, groupParticipants, username } = this.props
+        const { userOnline , messages, groupParticipants, username } = this.props
+
+        const { selectedUsername } = this.state
+
+        var  groupParticipant  = this.props.groupParticipants
+        groupParticipant.unshift('All');
+        const brands = groupParticipant.map(element => ({ value: element, label: element }))
+
+        let FileterMessages = []
+        messages.forEach(element => {
+            if (element.username === selectedUsername.value || selectedUsername.value === 'All')
+                FileterMessages.push(element)
+        });
+
+
 
         const Listmessages = Object
-            .keys(messages)
+            .keys(FileterMessages)
             .map(key => (
-                    <CSSTransition
-                        timeout={200}
-                        classNames='fade'
-                        key={key}>
-                        <Message
-                            isUser={this.isUser}
-                            message={messages[key].message}
-                            username={messages[key].username}
-                            likes= {messages[key].likes}
-                            myUserNmae={this.props.username}
-                            date = {messages[key].date}
-                            handleLikeMessage={this.props.handleLikeMessage} />
-                    </CSSTransition>
-            ))
-
-        const onlineUser = Object
-            .keys(userOnline)
-            .map(key => (
-                <UserOnline key={key} useronline={userOnline[key]} />
+                <CSSTransition
+                    timeout={200}
+                    classNames='fade'
+                    key={key}>
+                    <Message
+                        isUser={this.isUser}
+                        myUserNmae={this.props.username}
+                        Mymessage={FileterMessages[key]}
+                        handleLikeMessage={this.props.handleLikeMessage} />
+                </CSSTransition>
             ))
 
 
+        var index = groupParticipants.indexOf('All');
+        if (index !== -1) groupParticipants.splice(index, 1);
 
         const groupsUser = Object
             .keys(groupParticipants)
             .map(key => (
-                <li key={key} className={`list-group-item d-flex justify-content-between align-items-center`}>
-                    {groupParticipants[key]}
-                </li>
+                <UserParticipants key={key} userOnline={userOnline} username={groupParticipants[key]} />
             ))
 
         return (
+            <LoadingOverlay
+                active={this.state.isLoading}
+                spinner
+                text='wait... '
+            >
             <div className=''>
                 <div className="row">
-                    <div className="col-8">
+                    <div className="col-9">
+                        <br />
+                        <div className="row">
+                            <div className="col-6">
+                                <h4 className="input-group-addon text-center "> Filter Username </h4>
+                            </div>
+                            <div className="col-6">
+                                <Select
+                                    value={selectedUsername}
+                                    onChange={this.handleChangeUsername}
+                                    options={brands}
+                                />
+                            </div>
+                        </div>
+                        <br />
                         <div>
                             <div className='messages border' >
                                 <TransitionGroup className='message'>
                                     {Listmessages}
                                 </TransitionGroup>
+                                <button onClick={this.props.getMoreMessage} type="button" className="btn btn-default btn-sm">
+                                    getMoreMessage </button>
                             </div>
                         </div>
 
@@ -85,34 +132,36 @@ class ChatApp extends React.Component {
                             addMessage={this.addMessage} />
                         <br />
                     </div>
-                    <div className="col-2 container"><br />
-                        <h4 className='text-center'>  Online </h4><br />
-                        <hr className="style1" />
-                        <div className='messages boder' >
-                            {onlineUser}
-                        </div>
-                    </div>
-                    <div className="col-2 container"><br />
+                    <div className="col-3"><br />
                         <h4 className='text-center'>  Participants </h4><br />
                         <hr className="style1" />
-                        <div className='messages boder' >
+                        <div className='' >
                             {groupsUser}
                         </div>
-                    </div>
+                    </div >
                 </div>
             </div>
+            </LoadingOverlay>
         );
     }
 
 }
 
 
-const UserOnline = ({ useronline }) => {
-    return (
-        <li className={`text-success list-group-item d-flex justify-content-between align-items-center`}>
-            {useronline}
-        </li>
-    )
+const UserParticipants = ({ userOnline, username }) => {
+    if (userOnline.includes(username) ) {
+        return (
+            <li className={`text-success list-group-item d-flex justify-content-between align-items-center text-center`}>
+                {username} [online]
+            </li>
+        )
+    } else {
+        return (
+            <li className={` list-group-item d-flex justify-content-between align-items-center text-center`}>
+                {username} [not-online]
+            </li>
+        )
+    }
 }
 
 

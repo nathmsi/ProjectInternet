@@ -1,11 +1,13 @@
 // UserController.js
-
 var express = require('express');
 var router = express.Router();
 const passport = require('passport')
 var User = require('../model/User');
 var mongoose = require('mongoose')
 var flash = require('express-flash');
+
+
+
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -195,7 +197,7 @@ router.get('/orders', function (req, res) {
 router.post('/orders/add', function (req, res) {
     if (req.isAuthenticated()) {
         User.findById(req.user.id, function (err, user) {
-            user.orders.push({ order: req.body.order, total: req.body.total })
+            user.orders.push({ order: req.body.order, total: req.body.total , date : req.body.date })
             user.panier = []
             user.save(function (err) {
                 if (err) console.log(err)
@@ -382,11 +384,12 @@ router.post('/newPassword', function(req, res) {
                     // Check if user was found in database
                     if (!user) {
                         res.json({ success: false, message: 'User not found' }); // Return error, user was not found in db
-                    } else {
-                        user.password  = req.body.password 
+                    } else { 
                         user.resetPasswordToken = ''
-
-                        console.log(process.env.KEY_GMAIL,process.argv,process.env)
+                        user.setPassword(req.body.password , (err) => {
+                            if (err) {
+                                res.json({ success: false, message: err }); // Return error
+                            } else {
 
                         var transporter  = nodemailer.createTransport({
                             service: 'gmail',
@@ -401,7 +404,8 @@ router.post('/newPassword', function(req, res) {
                           from: 'nmsika@g.jct.ac.il',
                           subject: 'Your password has been changed',
                           text: 'Hello,\n\n' +
-                            'This is a confirmation that the password for your account ' + user.email + ' has just been changed.\n'
+                            'This is a confirmation that the password for your account ' + user.email + ' has just been changed.\n'+
+                            'link to login ' + 'http://localhost:3000/Login'
                         };
                         transporter.sendMail(mailOptions, function(error, info){
                             if (error) {
@@ -415,11 +419,11 @@ router.post('/newPassword', function(req, res) {
                             if (err) res.json({ success: false, message: 'Something went wrong!! Please try again after sometimes.' });
                             else res.json({ success: true, message: 'User has been changed successfully' });
                         });
+
+                    }}) 
                     }
                 }
             });
-        
-        
         }catch(err){
             console.log(err)
         }

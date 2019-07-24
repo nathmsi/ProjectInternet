@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import '../styles/Catalogue.css'
-import CircularProgress from '@material-ui/core/CircularProgress';
 import LoadingOverlay from 'react-loading-overlay';
 import AddComputer from './AddComputer'
 import UpdateComputer from "./UpdateComputer";
@@ -17,15 +16,13 @@ class CatalogueGestion extends Component {
   state = {
     computers: {},
     userAuth: 'basic',
-    isLoading: true,
-    isActive: false
+    isActive: true
   }
 
   async componentDidMount() {
     try {
       this._isMounted = true;
       let userAuth = await ServerAPI('/users/level', 'get' )
-
       if (userAuth === 'manager' || userAuth === 'creator' ) {
         let myData = await this.getData()
         this._isMounted && this.setState({ isLoading: false, computers: myData, userAuth: userAuth })
@@ -36,9 +33,11 @@ class CatalogueGestion extends Component {
         console.log('<CatalogueGestion> isAuth : ' + userAuth)
         this.props.history.push('/Login')
       }
-
+      this.setState({ isActive: false })
 
     } catch (err) {
+      this.setState({ isActive: false })
+      this.props.history.push('/Login')
       console.log('<Catalogue> err : ' + err)
     }
   }
@@ -104,11 +103,11 @@ class CatalogueGestion extends Component {
     let addComputers = <></>
 
     if (userAuth === 'manager' || userAuth === 'creator' ) {
-
       updateComputers = Object.keys(computers)
         .map(key => <UpdateComputer key={key} id={key} removeComputers={this.removeComputers} updateComputers={this.updateComputers} computer={computers[key]} />)
 
       addComputers = <AddComputer AddComputer={this.AddComputer} />
+    }
 
       return (
         <LoadingOverlay
@@ -124,15 +123,8 @@ class CatalogueGestion extends Component {
 
         </LoadingOverlay>
       );
-    }
-    else {
-      return (
-        <div className='text-center'>
-          <p>Wait ...</p>
-          <CircularProgress disableShrink />
-        </div>
-      )
-    }
+    
+   
   }
 
 

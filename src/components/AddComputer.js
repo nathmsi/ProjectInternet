@@ -39,7 +39,7 @@ export default class AddComputer extends Component {
             <div className='card'>
                 <br />
                 <div className='text-center'>
-                    <img src={this.requireImage()} alt={'default'} width="400" height="200" />
+                    <img src={this.requireImage()} alt={'default'} width="400" height="400" />
                 </div>
                 <form className='' onSubmit={this.handleSubmit}>
                     <input name='name' type='text' className="form-control"

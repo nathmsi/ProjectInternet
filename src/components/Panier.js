@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import '../styles/Catalogue.css'
-import CircularProgress from '@material-ui/core/CircularProgress';
 
-import {  ServerAPI} from "../api/db"  
+import LoadingOverlay from 'react-loading-overlay';
+import { ServerAPI } from "../api/db"
 
 
 
@@ -18,46 +18,56 @@ class Panier extends Component {
   }
 
   async componentDidMount() {
-    await this.getSession()
-    if (this.state.userAuth === 'manager' || this.state.userAuth === 'client' || this.state.userAuth === 'creator') {
-      this.getData()
-      this.getPanier()
-      console.log('<UserGestion> isAuth : ' + this.state.userAuth)
-    } else {
-      this.setState({ userAuth: 'basic' })
-      console.log('<UserGestion> isAuth : ' + this.state.userAuth)
+    try {
+      await this.getSession()
+      if (this.state.userAuth === 'manager' || this.state.userAuth === 'client' || this.state.userAuth === 'creator') {
+        this.getData()
+        this.getPanier()
+        console.log('<UserGestion> isAuth : ' + this.state.userAuth)
+        this.setState({ isActive: false })
+      } else {
+        this.setState({ userAuth: 'basic' })
+        console.log('<UserGestion> isAuth : ' + this.state.userAuth)
+        this.props.history.push('/Login')
+      }
+      this.setState({ isLoading: false })
+    } catch (err) {
+      console.log(err)
       this.props.history.push('/Login')
     }
-    this.setState({ isLoading: false })
   }
 
   getSession = async () => {
-    let userAuth = await ServerAPI('/users/level', 'get' )
+    let userAuth = await ServerAPI('/users/level', 'get')
     this.setState({ userAuth: userAuth })
   }
 
   getData = async () => {
-    const computer =  await ServerAPI('/computers/', 'get' )
+    const computer = await ServerAPI('/computers/', 'get')
     var mydata = JSON.parse(computer);
     this.setState({ computers: mydata })
   }
 
   getPanier = async () => {
-    let panier = JSON.parse(await ServerAPI('/users/panier/', 'get' ))
+    let panier = JSON.parse(await ServerAPI('/users/panier/', 'get'))
     this.setState({ panier: panier })
   }
 
 
   removePanierElement = async key => {
-    await ServerAPI('/users/panier/delete', 'POST' , { id : key } )
+    this.setState({ isActive: true })
+    await ServerAPI('/users/panier/delete', 'POST', { id: key })
     this.getPanier()
+    this.setState({ isActive: false })
   }
 
-  requireImage = chemin => {
+  requireImage(chemin) {
     try {
-      return require(`../img/${chemin}`)
+      var parts = chemin.split('\\')
+      var lastSegment = parts.pop() || parts.pop()
+      return require(`../img/uploadsImage/${lastSegment}`)
     } catch (err) {
-      return require(`../img/default.jpg`)
+      return require(`../img/uploadsImage/default-img.jpg`)
     }
   }
 
@@ -66,18 +76,43 @@ class Panier extends Component {
   }
 
   handleChangeCountRemove = async (id) => {
-    await ServerAPI('/users/panier/deleteOne', 'POST' , { id  } )
+    this.setState({ isActive: true })
+    await ServerAPI('/users/panier/deleteOne', 'POST', { id })
     this.getPanier()
+    this.setState({ isActive: false })
   }
 
   handleChangeCountAdd = async (id) => {
-    await ServerAPI('/users/panier/add', 'POST' , { id  } )
+    this.setState({ isActive: true })
+    await ServerAPI('/users/panier/add', 'POST', { id })
     this.getPanier()
+    this.setState({ isActive: false })
   }
 
   handleCheckorder = async (total) => {
-    await ServerAPI('/users/orders/add', 'POST' , { order : [...this.state.panier] , total  } )
-    this.getPanier()
+    try {
+      this.setState({ isActive: true })
+      if (this.state.panier.length > 0) {
+        let date = new Date(Date.now())
+        let day = date.getDay()
+        let month = date.getMonth()
+        let years = date.getFullYear()
+        let hours = date.getHours()
+        let minutes = date.getMinutes()
+
+        await ServerAPI('/users/orders/add', 'POST', {
+          order: [...this.state.panier], total,
+          date: {
+            day, month, years, hours, minutes
+          }
+        })
+        this.getPanier()
+        this.setState({ isActive: false })
+      }
+    } catch (err) {
+      console.log(err)
+      this.setState({ isActive: false })
+    }
   }
 
 
@@ -95,13 +130,12 @@ class Panier extends Component {
 
   render() {
     const { computers, panier, userAuth } = this.state
+    let cards = []
+    let cards_ = <></>
+    let total = 0
+    let totalCount = <></>
 
-    if (this.state.isLoading === false && ((userAuth === 'manager') || (userAuth === 'client') || (userAuth === 'creator') )) {
-
-
-
-      let cards = []
-
+    if ((userAuth === 'manager') || (userAuth === 'client') || (userAuth === 'creator')) {
 
       Object.keys(computers)
         .forEach(key => {
@@ -111,45 +145,44 @@ class Panier extends Component {
           }
         })
 
-      let cards_ = Object.keys(cards)
+      cards_ = Object.keys(cards)
         .map(key => <Lignepanier key={key} car={cards[key]} handleChange={this.handleChange} requireImage={this.requireImage} removePanierElement={this.removePanierElement}
           handleChangeCountRemove={this.handleChangeCountRemove} handleChangeCountAdd={this.handleChangeCountAdd} />)
-
-      let total = 0
       Object.keys(cards).forEach(key => {
         total = total + parseInt(cards[key].price * cards[key].count)
       })
 
-      const totalCount = <Total total={total} handleCheckorder={this.handleCheckorder} history={this.goToCatalogue}></Total>
+      totalCount = <Total total={total} handleCheckorder={this.handleCheckorder} history={this.goToCatalogue}></Total>
+    }
 
 
-      return (
-       <div className='panierScrool bg-light'>
+    return (
+      <LoadingOverlay
+        active={this.state.isActive}
+        spinner
+        text='Loading your content...'
+      >
+        <div className='panierScrool bg-light'>
           <table className="table table-bordred table-striped  bg-light">
-              <thead>
-                <tr>
-                  <th align="center">image</th>
-                  <th align="center">Name</th>
-                  <th align="center">Price</th>
-                  <th align="center">Count</th>
-                  <th align="center">Subtotal</th>
-                  <th align="center">Delete</th>
-                </tr>
-              </thead>
-              <tbody>
-                {cards_} 
-                {totalCount}
-              </tbody>
+            <thead>
+              <tr>
+                <th align="center">image</th>
+                <th align="center">Name</th>
+                <th align="center">Price</th>
+                <th align="center">Count</th>
+                <th align="center">Subtotal</th>
+                <th align="center">Delete</th>
+              </tr>
+            </thead>
+            <tbody>
+              {cards_}
+              {totalCount}
+            </tbody>
           </table>
         </div>
-      );
-    } else {
-      return (
-        <div className='text-center'>
-          <br /><br /><br /><br /><CircularProgress disableShrink />
-        </div>
-      )
-    }
+      </LoadingOverlay>
+    );
+
   }
 }
 
@@ -185,19 +218,19 @@ const Lignepanier = ({ car, removePanierElement, requireImage, handleChangeCount
 const Total = ({ total, handleCheckorder, history }) => {
   return (
     <tr>
-     
-     <td align="left">  <button className="btn btn-warning btn-lg font-weight-bold" onClick={history}> Continue Shopping<i className="fa fa-angle-right"></i></button></td>
-      
-     <td align="left">  </td>
 
-     <td align="left">  </td>
+      <td align="left">  <button className="btn btn-warning btn-lg font-weight-bold" onClick={history}> Continue Shopping<i className="fa fa-angle-right"></i></button></td>
 
-     <td align="left">  </td>
+      <td align="left">  </td>
 
-     <td align="left">     <strong className="">TOTAL [ {total} $ ]</strong></td>
-       
-     <td align="left">     <button onClick={() => handleCheckorder(total)} className="btn btn-success btn-lg font-weight-bold">Checkout <i className="fa fa-angle-right"></i></button></td>
-        
+      <td align="left">  </td>
+
+      <td align="left">  </td>
+
+      <td align="left">     <strong className="">TOTAL [ {total} $ ]</strong></td>
+
+      <td align="left">     <button onClick={() => handleCheckorder(total)} className="btn btn-success btn-lg font-weight-bold">Checkout <i className="fa fa-angle-right"></i></button></td>
+
     </tr>
   )
 }

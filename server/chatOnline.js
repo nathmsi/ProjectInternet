@@ -3,11 +3,13 @@ var io = require('socket.io')
 var express = require('express');
 var router = express.Router();
 var Group = require('./model/Group');
+var User = require('./model/User');
 var mongoose = require('mongoose')
 
 
 const server = http.createServer(router);
 const socketIo = io(server);
+
 
 
 
@@ -19,12 +21,19 @@ socketIo.on('connection', async socket => {
     const username = socket.handshake.query.username;
     const groupName = socket.handshake.query.groupName
     const idGroup = socket.handshake.query.idGroup
+    var count = 1
 
     getGroupMessages = async (idGroup) => {
         try {
             let id = new mongoose.mongo.ObjectID(idGroup)
             let group = await Group.findOne({ _id: id })
-            return group.messages
+            let messages = [] 
+            messages = group.messages
+            if(messages.length > (15*count)){
+                messages = messages.slice(Math.max(messages.length - (15*count), 1))
+            }
+            console.log(count,messages.length)
+            return messages
         }
         catch (err) {
             console.log(err)
@@ -42,6 +51,18 @@ socketIo.on('connection', async socket => {
         catch (err) {
             console.log(err)
             return messages
+        }
+    }
+
+    getNameImageByUserId = async (id) => {
+        try {
+            let _id = new mongoose.mongo.ObjectID(id)
+            let user = await User.findOne({ _id })
+            return user.imageUser
+        }
+        catch (err) {
+            console.log(err)
+            return _id
         }
     }
 
@@ -66,6 +87,7 @@ socketIo.on('connection', async socket => {
     addMessageToGroup = async (idGroup, message) => {
         try {
             let messages = (await getGroupMessages(idGroup))
+            message.imageUser = await getNameImageByUserId(message.idUser)
             messages.push(message)
             let id = new mongoose.mongo.ObjectID(idGroup)
             let body = {
@@ -133,7 +155,7 @@ socketIo.on('connection', async socket => {
         let onlines = await getGroupOnlines(idGroup)
         let messages = await getGroupMessages(idGroup)
         socket.broadcast.emit('server:newuser/' + groupName, { onlines });  // broadcast to emit new user online 
-        socket.emit('server:connection/' + groupName, { onlines, messages: messages });
+        socket.emit('server:connection/' + groupName, { onlines , messages });
     }
     catch (err) {
         console.log(err)
@@ -159,6 +181,17 @@ socketIo.on('connection', async socket => {
             await likeMessageGroup(idGroup, data, username)
             let messages = await getGroupMessages(idGroup)
             socket.broadcast.emit('server:message/' + groupName, messages);
+            socket.emit('server:message/' + groupName, messages);
+        }
+        catch (err) {
+            console.log(err)
+        }
+    });
+
+    socket.on('client:getMoreMessage' + groupName, async () => {
+        try {
+            count++
+            let messages = await getGroupMessages(idGroup)
             socket.emit('server:message/' + groupName, messages);
         }
         catch (err) {
