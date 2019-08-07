@@ -1,10 +1,7 @@
 import React, { Component } from "react";
 import LoadingOverlay from 'react-loading-overlay';
 import { withRouter } from 'react-router-dom';
-
-
-
-
+import { withAlert } from 'react-alert'
 
 //firebase
 import firebase from 'firebase/app'
@@ -14,6 +11,7 @@ import { firebaseApp } from '../base'
 
 //api
 import { ServerAPI } from "../api/db"
+
 class Login extends Component {
 
 
@@ -28,6 +26,7 @@ class Login extends Component {
     codeConf: '',
     isLoading: false,
   }
+
 
   updateInputValuePassword = (event) => {
     const { value } = event.target
@@ -59,15 +58,27 @@ class Login extends Component {
   }
 
   forgotPassword = async () => {
-    this.setState({ isLoading: true })
+    try {
+      this.setState({ isLoading: true })
 
-    let code = Math.floor((Math.random() * 10000) + 999);
-    await ServerAPI('/users/forgot', 'POST', {
-      email: this.state.email,
-      code,
-      username: this.state.username
-    })
-    this.setState({ code: code.toString() , selected: 'confcode' ,  isLoading: false })
+      let code = Math.floor((Math.random() * 10000) + 999);
+      let response = JSON.parse(await ServerAPI('/users/forgot', 'POST', {
+        email: this.state.email,
+        code,
+        username: this.state.username
+      }))
+      //alert(response.message)
+      this.props.alert.show(response.message)
+      if (response.success === true) {
+        this.setState({ code: code.toString(), selected: 'confcode', isLoading: false })
+      } else {
+        this.setState({  isLoading: false })
+      }
+    } catch (err) {
+      console.log(err)
+      this.setState({ selected: 'login', isLoading: false })
+    }
+
   }
 
   checkcode = () => {
@@ -78,37 +89,51 @@ class Login extends Component {
       this.setState({ selected: 'changpassword' })
       this.setState({ isLoading: false })
     } else {
-      alert('wrong code ')
+      this.props.alert.error('wrong code ')
       this.setState({ isLoading: false })
     }
   }
 
   newpassword = async () => {
-    this.setState({ isLoading: true })
-    const { passwordU } = this.state
-    if (passwordU !== '') {
-      let result = JSON.parse(await ServerAPI('/users/newPassword', 'POST', {
-        email: this.state.email,
-        code: this.state.code,
-        username: this.state.username,
-        password: passwordU
-      }))
-      alert(result.message)
-      try {
-        if (result.success) {
-          this.setState({ selected: 'login' })
-          this.setState({ isLoading: false })
+    try {
+      this.setState({ isLoading: true })
+      const { passwordU, password } = this.state
+      if (passwordU !== '') {
+        if (password === passwordU) {
+          let result = JSON.parse(await ServerAPI('/users/newPassword', 'POST', {
+            email: this.state.email,
+            code: this.state.code,
+            username: this.state.username,
+            password: passwordU
+          }))
+          //alert(result.message)
+          this.props.alert.show('result')
+          this.props.alert.success(result.message)
+          try {
+            if (result.success) {
+              this.setState({ selected: 'login' })
+              this.setState({ isLoading: false })
+            } else {
+              //alert('wrong')
+              this.props.alert.error('wrong')
+              this.setState({ isLoading: false })
+            }
+          } catch (err) {
+            console.log(err)
+            this.setState({ isLoading: false })
+          }
         } else {
-          alert('wrong')
+          this.props.alert.error('confirmation password not matching')
           this.setState({ isLoading: false })
         }
-      } catch (err) {
-        console.log(err)
+      } else {
+        //alert('set new password')
+        this.props.alert.show('set new password')
         this.setState({ isLoading: false })
       }
-    } else {
-      alert('set new password')
-      this.setState({ isLoading: false })
+    } catch (err) {
+      console.log(err)
+      this.setState({ selected: 'login', isLoading: false })
     }
   }
 
@@ -116,6 +141,7 @@ class Login extends Component {
 
   ///////////// login //////////////////////////////
   handleLogin = async (userName, pass) => {
+    try {
     if (userName !== '' && pass !== '') {
       this.setState({ isLoading: true })
 
@@ -126,18 +152,27 @@ class Login extends Component {
       })
       console.log(res)
       if (res === 'notAuthorized' || res === 'Bad Request' || res === 'Unauthorized' || res === null) {
-        alert('this account not registered you need to registr before')
+        this.props.alert.error('this account not registered ')
+        this.props.alert.error('you need to registr before')
+        //alert('this account not registered you need to registr before')
         this.setState({ isLoading: false })
       } else {
+        this.props.alert.success('welcome ')
+        this.props.alert.success( userName)
         this.props.setUserAuthName(res, userName)
         this.setState({ isLoading: false })
         this.props.history.push('/Catalogue')
       }
 
     } else {
-      alert('missing username or password')
+      this.props.alert.error('missing username or password')
+      //alert('missing username or password')
       this.setState({ isLoading: false })
     }
+  } catch (err) {
+    console.log(err)
+    this.setState({ selected: 'login', isLoading: false })
+  }
   }
 
 
@@ -146,7 +181,7 @@ class Login extends Component {
     try {
       this.setState({ isLoading: true })
       const authProvider = new firebase.auth.GoogleAuthProvider()
-      firebaseApp
+      await firebaseApp
         .auth()
         .signInWithPopup(authProvider)
         .then(async authData => {
@@ -156,12 +191,16 @@ class Login extends Component {
             'password': authData.user.uid
           })
           if (res === 'Unauthorized') {
-            this.handleRegister(authData.additionalUserInfo.profile.email, authData.user.uid, authData.additionalUserInfo.profile.email)
+            this.handleRegister(authData.additionalUserInfo.profile.email, authData.user.uid, authData.additionalUserInfo.profile.email, authData.user.uid)
           } else {
             this.props.setUserAuthName(res, authData.additionalUserInfo.profile.email)
             this.setState({ isLoading: false })
             this.props.history.push('/Catalogue')
           }
+        })
+        .catch(err => {
+          this.setState({ isLoading: false })
+          console.log(err)
         })
     }
     catch (err) {
@@ -179,17 +218,21 @@ class Login extends Component {
         .signInWithPopup(authProvider)
         .then(async authData => {
           let res = await ServerAPI('/users/login', 'POST', {
-            'username': this.state.userName,
-            'password': this.state.password
+            'username': authData.additionalUserInfo.username,
+            'password': authData.credential.accessToken
           })
           if (res === 'Unauthorized') {
-            this.handleRegister(authData.additionalUserInfo.profile.email, authData.user.uid, authData.additionalUserInfo.profile.email)
+            this.handleRegister(authData.additionalUserInfo.username, authData.credential.accessToken, '', authData.credential.accessToken)
             this.setState({ isLoading: false })
           } else {
-            this.props.setUserAuthName(res, authData.additionalUserInfo.profile.email)
+            this.props.setUserAuthName(res, authData.additionalUserInfo.username)
             this.setState({ isLoading: false })
             this.props.history.push('/Catalogue')
           }
+        })
+        .catch(err => {
+          console.log(err)
+          this.setState({ isLoading: false })
         })
     }
     catch (err) {
@@ -198,59 +241,42 @@ class Login extends Component {
     }
   }
 
-  handleLoginGuitHub = async () => {
-    try {
-      this.setState({ isLoading: true })
-      const authProvider = new firebase.auth.GithubAuthProvider()
-      firebaseApp
-        .auth()
-        .signInWithPopup(authProvider)
-        .then(async authData => {
-          let res = await ServerAPI('/users/login', 'POST', {
-            'username': this.state.userName,
-            'password': this.state.password
-          })
-          if (res === 'Unauthorized') {
-            this.handleRegister(authData.additionalUserInfo.profile.email, authData.user.uid, authData.additionalUserInfo.profile.email)
-            this.setState({ isLoading: false })
-          } else {
-            this.props.setUserAuthName(res,authData.additionalUserInfo.profile.email)
-            this.setState({ isLoading: false })
-            this.props.history.push('/Catalogue')
-          }
-          this.setState({ isLoading: false })
-          console.log(authData)
-        })
-    }
-    catch (err) {
-      this.setState({ isLoading: false })
-      console.log(err)
-    }
-  }
+
 
   ///////////// register //////////////////////////////
-  handleRegister = async (userName, pass, email) => {
-    if (userName !== '' && pass !== '' && email !== '') {
-      this.setState({ isLoading: true })
-      let res = await ServerAPI('/users/register', 'POST', {
-        'username': userName,
-        'password': pass,
-        'level': 'client',
-        'email': email
-      })
+  handleRegister = async (userName, pass, email, passConf) => {
+    if (userName !== '' && pass !== '' && email !== '' && passConf !== '') {
+      if (passConf === pass) {
+        this.setState({ isLoading: true })
+        let res = await ServerAPI('/users/register', 'POST', {
+          'username': userName,
+          'password': pass,
+          'level': 'client',
+          'email': email
+        })
 
-      if (res === 'denied'){
-        alert('this account is already registered')
+        if (res === 'denied') {
+          this.props.alert.error('this account')
+          this.props.alert.error('already registered')
+          //alert('this account is already registered')
+          this.setState({ isLoading: false })
+        }
+        else {
+          this.props.setUserAuthName(res, userName)
+          this.setState({ isLoading: false })
+          this.props.history.push('/Catalogue')
+        }
+      } else {
+        //alert('problem password confirmation not matching')
+        this.props.alert.error('problem password ')
+        this.props.alert.error('password not correct ')
         this.setState({ isLoading: false })
       }
-      else {
-        this.props.setUserAuthName(res, userName)
-        this.setState({ isLoading: false })
-        this.props.history.push('/Catalogue')
-      }
 
-    } else{
-      alert('missing username or password or email')
+    } else {
+      this.props.alert.error('missing username ')
+      this.props.alert.error('password or email')
+      //alert('missing username , password or email')
       this.setState({ isLoading: false })
     }
   }
@@ -327,8 +353,6 @@ class Login extends Component {
                   <div className="col">
                   </div>
                   <div className="col">
-                  </div>
-                  <div className="col">
                     <button
                       className="btn btn-link"
                       onClick={() => this.setState({ selected: 'forgot' })}
@@ -342,11 +366,6 @@ class Login extends Component {
                   <div className="col">
                     <button className="btn btn-primary" type="button" onClick={this.handleLoginTwitter}>
                       Sign in with Twitter
-                    </button>
-                  </div>
-                  <div className="col">
-                    <button className="btn btn-dark" type="button" onClick={this.handleLoginGuitHub}>
-                      Sign in with GuitHub
                     </button>
                   </div>
                 </div>
@@ -492,7 +511,7 @@ class Login extends Component {
                     <h4 className="input-group-addon  text-center">new password </h4>
                   </div>
                   <div className="col-8">
-                    <input type='password' value={this.state.passwordU} name='usernameU' className="form-control" onChange={this.updateInputValuePasswordU} />
+                    <input type='password' value={this.state.password} name='usernameU' className="form-control" onChange={this.updateInputValuePassword} />
                   </div>
                 </div>
 
@@ -574,7 +593,7 @@ class Login extends Component {
                     <h4 className="input-group-addon  text-center">password </h4>
                   </div>
                   <div className="col-8">
-                    <input type='password' value={this.state.passwordU} name='usernameU' className="form-control" onChange={this.updateInputValuePasswordU} />
+                    <input type='password' value={this.state.password} name='usernameU' className="form-control" onChange={this.updateInputValuePassword} />
                   </div>
                 </div>
 
@@ -595,7 +614,7 @@ class Login extends Component {
                 <div className="col-8">
                   <button
                     className="btn btn-warning btn-lg btn-block"
-                    onClick={() => { this.handleRegister(this.state.usernameU, this.state.passwordU, this.state.email) }}
+                    onClick={() => { this.handleRegister(this.state.usernameU, this.state.passwordU, this.state.email, this.state.password) }}
                   >Register</button>
                 </div>
               </div>
@@ -622,4 +641,6 @@ class Login extends Component {
   };
 }
 
-export default withRouter(Login);
+export default withRouter(
+  withAlert()(Login)
+)

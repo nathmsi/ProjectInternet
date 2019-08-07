@@ -3,14 +3,14 @@ import React from 'react'
 const User = ({ details, deleteUser, updateUserLevel }) => {
 
 
-    // let panier = <></>
-    // panier = Object.keys(details.panier)
-    //     .map(key => <Panier key={key} id={details.panier[key]} />)
+    let panier = <></>
+    panier = Object.keys(details.panier)
+        .map(key => <Panier key={key} id={details.panier[key]} />)
 
-        let orders = <></>
-        orders = Object.keys(details.orders)
-          .map(key => <Order key={key} total={details.orders[key].total} index={key} id={details.orders[key].order}/>)
-  
+    let orders = <></>
+    orders = Object.keys(details.orders)
+        .map(key => <Order key={key} total={details.orders[key].total} index={key} id={details.orders[key].order} />)
+
 
     return (
 
@@ -23,9 +23,14 @@ const User = ({ details, deleteUser, updateUserLevel }) => {
                     phone => <strong>{details.phone}</strong> <br />
                     address => <strong>{details.address}</strong> <br />
                     email => <strong>{details.email}</strong> <br />
-                    panier =>  <br />
+                    panier => <br />
+                    <div className="AccountOrderScrool" >
+                        {panier}
+                    </div>
                     orders =>  <br />
-                    {orders}
+                    <div className="AccountOrderScrool" >
+                        {orders}
+                    </div>
                 </ul>
             </div>
             <div className='container'>
@@ -46,20 +51,20 @@ const User = ({ details, deleteUser, updateUserLevel }) => {
     )
 }
 
-// const Panier = ({ id }) => {
+const Panier = ({ id }) => {
 
-//     return (
-//         <div className='container border '> Id computer : <strong> {id} </strong><br /></div>
-//     )
-// }
-
-const Order = ({total , index  }) => {
     return (
-      <div className='container border '>
-        Order {(parseInt(index) + 1)} <br />
-        <strong> Total =>   {total} $ </strong>    
-     </div>
+        <div className='container border '> Id computer : <strong> {id} </strong><br /></div>
     )
-  }
+}
+
+const Order = ({ total, index }) => {
+    return (
+        <div className='container border '>
+            Order {(parseInt(index) + 1)} <br />
+            <strong> Total =>   {total} $ </strong>
+        </div>
+    )
+}
 
 export default User

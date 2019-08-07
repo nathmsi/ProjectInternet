@@ -58,7 +58,10 @@ router.post("/login", function (req, res) {
                 res.send("denied")
             } else {
                 passport.authenticate("local")(req, res, function (err) {
-                    if (err) console.log(err)
+                    if (err) {
+                        console.log(err)
+                        res.send("denied")
+                    }
                     res.status(200).send(req.user.level);
                 })
             }
@@ -197,7 +200,7 @@ router.get('/orders', function (req, res) {
 router.post('/orders/add', function (req, res) {
     if (req.isAuthenticated()) {
         User.findById(req.user.id, function (err, user) {
-            user.orders.push({ order: req.body.order, total: req.body.total , date : req.body.date })
+            user.orders.push({ order: req.body.order, total: req.body.total, date: req.body.date })
             user.panier = []
             user.save(function (err) {
                 if (err) console.log(err)
@@ -263,7 +266,7 @@ router.post('/delete', function (req, res) {
 
 // SET LEVEL TO USER BY ID
 router.post('/level', function (req, res) {
-    if (req.isAuthenticated() && ( req.user.level === 'manager' || req.user.level === 'creator' )) {
+    if (req.isAuthenticated() && (req.user.level === 'manager' || req.user.level === 'creator')) {
         User.findById(req.body.id, function (err, user) {
             user.level = req.body.level
             user.save(function (err) {
@@ -324,109 +327,118 @@ router.post('/changepassword', function (req, res) {
                     })
                 }
             }
-        });
+        })
     } else {
         res.send('notAuthorized')
     }
 });
 
-router.post('/forgot', function(req, res, next) {
-        try{
-        User.findOne({ email : req.body.email , username: req.body.username }, function(err, user) {
-                if (!user) {
-                  console.log('error', 'Password reset token is invalid or has expired.')
-                }
+router.post('/forgot', function (req, res, next) {
+    try {
+        User.findOne({ email: req.body.email, username: req.body.username }, function (err, user) {
+            if (!user) {
+                console.log('error', 'Password reset token is invalid or has expired.')
+                res.json({ success: false, message: 'Email : ' + req.body.email + ' is not your email' });
+            } else {
 
                 user.resetPasswordToken = req.body.code
-        
-                user.save(function(err) {
-                    if (err) res.json({ success: false, message: 'Something went wrong!! Please try again after sometimes.' });
-                    else res.json({ success: true, message: 'User has been changed successfully' });
-                });
-        });
-        var transporter  = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-              user: 'nmsika@g.jct.ac.il',
-              pass:  process.env.KEY_GMAIL 
-            }
-        });
-          
-        var mailOptions = {
-          to: req.body.email ,
-          from: 'nmsika@g.jct.ac.il',
-          subject: 'Node.js Password Reset',
-          text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
-            'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
-            ' the code :    '  + req.body.code + '\n\n' +
-            'If you did not request this, please ignore this email and your password will remain unchanged.\n'
-        };
-        transporter.sendMail(mailOptions, function(error, info){
-            if (error) {
-              console.log(error);
-            } else {
-              console.log('Email sent: ' + info.response);
-            }
-          }); 
-        }catch(err){
-            console.log(err)
-        }
-});
 
-router.post('/newPassword', function(req, res) {
-    try{
-        
-            User.findOne({ email : req.body.email , username: req.body.username , resetPasswordToken : req.body.code }, (err, user) => {
-                // Check if error connecting
-                if (err) {
-                    res.json({ success: false, message: err }); // Return error
-                } else {
-                    // Check if user was found in database
-                    if (!user) {
-                        res.json({ success: false, message: 'User not found' }); // Return error, user was not found in db
-                    } else { 
-                        user.resetPasswordToken = ''
-                        user.setPassword(req.body.password , (err) => {
-                            if (err) {
-                                res.json({ success: false, message: err }); // Return error
-                            } else {
+                user.save(function (err) {
+                    if (err) {
+                        console.log('error', 'Password reset token is invalid or has expired.')
+                        res.json({ success: false, message: 'Email : ' + req.body.email + ' is not your email' });
+                    }
+                    else {
 
-                        var transporter  = nodemailer.createTransport({
+                        var transporter = nodemailer.createTransport({
                             service: 'gmail',
                             auth: {
-                              user: 'nmsika@g.jct.ac.il',
-                              pass: process.env.KEY_GMAIL
+                                user: 'nmsika@g.jct.ac.il',
+                                pass: process.env.KEY_GMAIL
                             }
-                        });
-                          
-                        var mailOptions = {
-                          to: req.body.email ,
-                          from: 'nmsika@g.jct.ac.il',
-                          subject: 'Your password has been changed',
-                          text: 'Hello,\n\n' +
-                            'This is a confirmation that the password for your account ' + user.email + ' has just been changed.\n'+
-                            'link to login ' + 'http://localhost:3000/Login'
-                        };
-                        transporter.sendMail(mailOptions, function(error, info){
-                            if (error) {
-                              console.log(error);
-                            } else {
-                              console.log('Email sent: ' + info.response);
-                            }
-                          }); 
-        
-                        user.save(function(err) {
-                            if (err) res.json({ success: false, message: 'Something went wrong!! Please try again after sometimes.' });
-                            else res.json({ success: true, message: 'User has been changed successfully' });
                         });
 
-                    }}) 
+                        var mailOptions = {
+                            to: req.body.email,
+                            from: 'nmsika@g.jct.ac.il',
+                            subject: 'Node.js Password Reset',
+                            text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
+                                'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
+                                ' the code :    ' + req.body.code + '\n\n' +
+                                'If you did not request this, please ignore this email and your password will remain unchanged.\n'
+                        };
+                        transporter.sendMail(mailOptions, function (error, info) {
+                            if (error) {
+                                console.log(error);
+                            } else {
+                                console.log('Email sent: ' + info.response);
+                            }
+                        });
+                        res.json({ success : true , message: 'Verify your mail ' + req.body.email + ' , you have receive a code to confirmation' });
                     }
+                })
+            }
+        });
+    } catch (err) {
+        console.log(err)
+    }
+});
+
+router.post('/newPassword', function (req, res) {
+    try {
+
+        User.findOne({ email: req.body.email, username: req.body.username, resetPasswordToken: req.body.code }, (err, user) => {
+            // Check if error connecting
+            if (err) {
+                res.json({ success: false, message: err }); // Return error
+            } else {
+                // Check if user was found in database
+                if (!user) {
+                    res.json({ success: false, message: 'User not found' }); // Return error, user was not found in db
+                } else {
+                    user.resetPasswordToken = ''
+                    user.setPassword(req.body.password, (err) => {
+                        if (err) {
+                            res.json({ success: false, message: err }); // Return error
+                        } else {
+
+                            var transporter = nodemailer.createTransport({
+                                service: 'gmail',
+                                auth: {
+                                    user: 'nmsika@g.jct.ac.il',
+                                    pass: process.env.KEY_GMAIL
+                                }
+                            });
+
+                            var mailOptions = {
+                                to: req.body.email,
+                                from: 'nmsika@g.jct.ac.il',
+                                subject: 'Your password has been changed',
+                                text: 'Hello,\n\n' +
+                                    'This is a confirmation that the password for your account ' + user.email + ' has just been changed.\n' +
+                                    'link to login ' + 'http://localhost:3000/Login'
+                            };
+                            transporter.sendMail(mailOptions, function (error, info) {
+                                if (error) {
+                                    console.log(error);
+                                } else {
+                                    console.log('Email sent: ' + info.response);
+                                }
+                            });
+
+                            user.save(function (err) {
+                                if (err) res.json({ success: false, message: 'Something went wrong!! Please try again after sometimes.' });
+                                else res.json({ success: true, message: 'User has been changed successfully' });
+                            });
+
+                        }
+                    })
                 }
-            });
-        }catch(err){
-            console.log(err)
-        }
-  });    
+            }
+        });
+    } catch (err) {
+        console.log(err)
+    }
+});
 
 module.exports = router;

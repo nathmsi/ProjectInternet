@@ -17,6 +17,7 @@ class UpdateCar extends Component {
         capacity: '',
         MemorySize: '',
         isShowing: false,
+        count : ''
     }
 
     componentDidMount() {
@@ -33,6 +34,7 @@ class UpdateCar extends Component {
                 OperatingSystem: computer.OperatingSystem || '',
                 capacity: computer.capacity || '',
                 MemorySize: computer.MemorySize || '',
+                count : computer.count || '' , 
             }
         )
 
@@ -43,11 +45,11 @@ class UpdateCar extends Component {
         var parts = chemin.split('\\')
         var lastSegment = parts.pop() || parts.pop()
         try {
-          return require(`../img/uploadsImage/${lastSegment}`)
+            return require(`../img/uploadsImage/${lastSegment}`)
         } catch (err) {
-          return require(`../img/uploadsImage/default-img.jpg`)
+            return require(`../img/default.jpg`)
         }
-      }
+    }
 
     updateComputers = () => {
         const computer = { ...this.state }
@@ -87,32 +89,43 @@ class UpdateCar extends Component {
     }
 
     // function to upload image once it has been captured
-  uploadImage(e) {
-    let imageFormObj = new FormData();
-    let imageName = "multer-image-" + Date.now()
+    uploadImage(e) {
+        let imageFormObj = new FormData();
+        let imageName = "multer-image-" + Date.now()
 
-    imageFormObj.append("imageName", imageName);
-    imageFormObj.append("imageData", e.target.files[0]);
-    imageFormObj.append("id", this.state.id);
+        imageFormObj.append("imageName", imageName);
+        imageFormObj.append("imageData", e.target.files[0]);
+        imageFormObj.append("id", this.state.id);
 
-    let path = e.target.files[0].name
+        let path = e.target.files[0].name
 
-    axios.post(`/image/uploadmulter/computer`, imageFormObj)
-      .then((data) => {
-        if (data.data.success) {
-          this.setState({
-            multerImage: path
-          })
-        }
-      })
-      .catch((err) => {
-        alert("Error while uploading image");
-        console.log(err)
-      });
+        axios.post(`/image/uploadmulter/computer`, imageFormObj)
+            .then((data) => {
+                if (data.data.success) {
+                    this.setState({
+                        multerImage: path
+                    })
+                }
+            })
+            .catch((err) => {
+                alert("Error while uploading image");
+                console.log(err)
+         });
 
-   }
+    }
 
-    
+    handleChangeCountRemove = (id) =>{
+        this.props.handleChangeCountRemove(id)
+        let count = parseInt(this.state.count) - 1
+        this.setState({ count })
+    }
+
+    handleChangeCountAdd = (id) =>{
+        this.props.handleChangeCountAdd(id)
+        let count = parseInt(this.state.count) + 1
+        this.setState({ count  })
+    }
+
 
 
     render() {
@@ -128,20 +141,27 @@ class UpdateCar extends Component {
             OperatingSystem,
             capacity,
             MemorySize,
+            count
         } = this.state
         return (
             <div className='card'>
-                <br/>
+                <br />
                 <div className='text-center'>
                     <img src={this.requireImage(image)} alt={name} width="400" height="300" />
+                </div>
+
+                <div className="input-group"><div></div>
+                <button type="button" onClick={() => this.handleChangeCountRemove(id)} className="btn btn-secondary btn-outline-light btn-sm">-</button>
+                &nbsp;{count} &nbsp;
+                <button type="button" onClick={() => this.handleChangeCountAdd(id)} className="btn btn-secondary btn-outline-light btn-sm">+</button>
                 </div>
 
                 <div className="input-group"><div></div>
                     <h4 className="input-group-addon">Upload image </h4>
                     <input type='file' className='process_upload-btn text-center text-light' onChange={(e) => this.uploadImage(e)} />
                 </div>
-              
-               
+
+
                 <div className="input-group"><div></div>
                     <h4 className="input-group-addon">Name :</h4>
                     <input type='text' value={name} name='name' className="form-control"
@@ -195,9 +215,9 @@ class UpdateCar extends Component {
 
 
                 <button onClick={this.updateComputers}
-                className='btn btn-warning  btn-lg btn-block' ><font color="white">Updtate</font></button>
+                    className='btn btn-warning  btn-lg btn-block' ><font color="white">Updtate</font></button>
                 <button onClick={() => this.props.removeComputers(id)}
-                className='btn btn-danger btn-lg btn-block' ><font color="white">Delete</font></button>
+                    className='btn btn-danger btn-lg btn-block' ><font color="white">Delete</font></button>
 
             </div>
         )

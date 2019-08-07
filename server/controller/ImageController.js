@@ -16,6 +16,16 @@ const storage = multer.diskStorage({
     }
 });
 
+const storage_user = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './src/img/uploadsImage/user/');
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + file.originalname);
+    }
+});
+
+
 const fileFilter = (req, file, cb) => {
     if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
         cb(null, true);
@@ -33,6 +43,13 @@ const upload = multer({
     fileFilter: fileFilter
 });
 
+const upload_user = multer({
+    storage: storage_user,
+    limits: {
+        fileSize: 1024 * 1024 * 5
+    },
+    fileFilter: fileFilter
+});
 
 /* 
     stores image in uploads folder
@@ -40,7 +57,7 @@ const upload = multer({
     file
 */
 ImageRouter.route("/uploadmulter")
-    .post(upload.single('imageData'), (req, res, next) => {
+    .post(upload_user.single('imageData'), (req, res, next) => {
         if (req.isAuthenticated() && (req.user.level === 'manager' || req.user.level === 'creator')) {
             const newImage = new Image({
                 imageName: req.body.imageName,

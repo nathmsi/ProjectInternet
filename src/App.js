@@ -30,7 +30,7 @@ class App extends Component {
 
   state = {
     userAuth: 'basic',
-    userName: '',
+    userName: 'Visitor',
     password: '',
     isActive: true,
     isLoading: false,
@@ -60,9 +60,9 @@ class App extends Component {
 
 
   handleLogout = async () => {
-    this.setState({ isLoading: true })
-    await ServerAPI('/users/logout', 'get')
+    this.setState({ isLoading: true }) 
     this.setState({ userName: 'visitor', userAuth: 'basic' })
+    await ServerAPI('/users/logout', 'get')
     this.props.history.push('/Login')
     this.setState({ isLoading: false })
   }

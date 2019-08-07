@@ -12,8 +12,8 @@ const ComputerSchema = new mongoose.Schema({
     OperatingSystem: String,
     capacity: String ,
     MemorySize: String,
-    price : String
-    
+    price : String,
+    count : String
 })
 
 

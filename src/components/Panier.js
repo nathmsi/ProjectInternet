@@ -4,7 +4,7 @@ import '../styles/Catalogue.css'
 import LoadingOverlay from 'react-loading-overlay';
 import { ServerAPI } from "../api/db"
 
-
+import  Modal  from "./screen/modalDialog"
 
 class Panier extends Component {
 
@@ -14,7 +14,9 @@ class Panier extends Component {
     computers: {},
     userAuth: 'basic',
     panier: [],
-    isLoading: true
+    isLoading: true,
+    show : false ,
+    total : ''
   }
 
   async componentDidMount() {
@@ -67,13 +69,10 @@ class Panier extends Component {
       var lastSegment = parts.pop() || parts.pop()
       return require(`../img/uploadsImage/${lastSegment}`)
     } catch (err) {
-      return require(`../img/uploadsImage/default-img.jpg`)
+      return require(`../img/default.jpg`)
     }
   }
 
-  handleChange = (e, id) => {
-
-  }
 
   handleChangeCountRemove = async (id) => {
     this.setState({ isActive: true })
@@ -89,25 +88,40 @@ class Panier extends Component {
     this.setState({ isActive: false })
   }
 
-  handleCheckorder = async (total) => {
+  handleCheckorder =  (total) => {
+    this.setState({ 
+      total,
+      show : true
+    })
+  }
+
+  handlePurshase = async () =>{
     try {
-      this.setState({ isActive: true })
+      this.setState({ isActive: true , show : false })
+      let total = this.state.total
       if (this.state.panier.length > 0) {
-        let date = new Date(Date.now())
+        let date = new Date()
         let day = date.getDay()
         let month = date.getMonth()
         let years = date.getFullYear()
         let hours = date.getHours()
         let minutes = date.getMinutes()
 
+        this.state.panier.forEach(async id => {
+          await ServerAPI('/computers/stock/delete', 'POST', { id })
+        });
+
         await ServerAPI('/users/orders/add', 'POST', {
-          order: [...this.state.panier], total,
+          order: [...this.state.panier], total ,
           date: {
             day, month, years, hours, minutes
           }
         })
         this.getPanier()
         this.setState({ isActive: false })
+      }else{
+        this.setState({ isActive: false })
+        alert('your shopping cart is empty')
       }
     } catch (err) {
       console.log(err)
@@ -125,7 +139,8 @@ class Panier extends Component {
     this.props.history.push('/Catalogue')
   }
 
-
+  handleClose = () =>{  this.setState({ show : false }) }
+  handleOpen = () =>{  this.setState({ show : true }) }
 
 
   render() {
@@ -157,30 +172,31 @@ class Panier extends Component {
 
 
     return (
-      <LoadingOverlay
-        active={this.state.isActive}
-        spinner
-        text='Loading your content...'
-      >
-        <div className='panierScrool bg-light'>
-          <table className="table table-bordred table-striped  bg-light">
-            <thead>
-              <tr>
-                <th align="center">image</th>
-                <th align="center">Name</th>
-                <th align="center">Price</th>
-                <th align="center">Count</th>
-                <th align="center">Subtotal</th>
-                <th align="center">Delete</th>
-              </tr>
-            </thead>
-            <tbody>
-              {cards_}
-              {totalCount}
-            </tbody>
-          </table>
-        </div>
-      </LoadingOverlay>
+        <LoadingOverlay
+          active={this.state.isActive}
+          spinner
+          text='Loading your content...'
+        >
+          <div className='panierScrool bg-light'>
+            <table className="table table-bordred table-striped  bg-light">
+              <thead>
+                <tr>
+                  <th align="center">image</th>
+                  <th align="center">Name</th>
+                  <th align="center">Price</th>
+                  <th align="center">Count</th>
+                  <th align="center">Subtotal</th>
+                  <th align="center">Delete</th>
+                </tr>
+              </thead>
+              <tbody>
+                {cards_}
+                {totalCount}
+              </tbody>
+            </table>
+          </div>
+          < Modal show={this.state.show} handleClose={this.handleClose}  handleSubmit={this.handlePurshase} title={"Confirmation Checkout"} Body={"Total price is : " + this.state.total + ' $'}  />
+        </LoadingOverlay>
     );
 
   }

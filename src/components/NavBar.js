@@ -28,7 +28,7 @@ class NavBar extends Component {
                 <li className="nav-item"><NavLink className="nav-link text-white  font-weight-bold" to="/About">About</NavLink></li>
                 <li className="nav-item"><NavLink className="nav-link text-white font-weight-bold" to="/Contact">Contact</NavLink></li>
             </>
-            btn = <NavLink to="/Login"> <button type="button" className="btn btn-outline-success my-2 my-sm-0">login</button> </NavLink>
+            btn = <NavLink to="/Login"> <img src={this.requireImage('icon/login.png')} title={"login"} alt={'login'} width="40" height="30" />  </NavLink>
         } else if (userAuth === 'manager') {
             header = <>
                 <li className="nav-item"><NavLink className="nav-link text-white  font-weight-bold" to="/Catalogue">Catalogue</NavLink></li>
@@ -38,9 +38,9 @@ class NavBar extends Component {
                 <li className="nav-item"><NavLink className="nav-link text-white  font-weight-bold" to="/About">About</NavLink></li>
                 <li className="nav-item"><NavLink className="nav-link text-white  font-weight-bold" to="/Contact">Contact</NavLink></li>
             </>
-            panier = <NavLink to="/Panier">  <button type="button" className="btn btn-outline-success my-2 my-sm-0">Shopping cart</button> </NavLink>
-            account = <NavLink to="/Account">  <button type="button" className="btn btn-outline-success my-2 my-sm-0">Account</button> </NavLink>
-            btn = <NavLink to="/Login">  <button type="button" onClick={() => handleLogout()} className="btn btn-outline-success my-2 my-sm-0">logout</button> </NavLink>
+            panier = <NavLink to="/Panier">  <img src={this.requireImage('icon/shopping-cart.png')} title={"Shopping cart"} alt={'Shopping cart'} width="40" height="30" /> </NavLink>
+            account = <NavLink to="/Account">  <img src={this.requireImage('icon/account.png')} title={"account"} alt={'account'} width="40" height="30" />  </NavLink>
+            btn = <NavLink to="/Login">  <img src={this.requireImage('icon/logout.png')} onClick={() => handleLogout()} title={"login"}  alt={'login'} width="40" height="30" /> </NavLink>
         } else if (userAuth === 'client') {
             header = <>
                 <li className="nav-item"><NavLink className="nav-link text-white  font-weight-bold" to="/Catalogue">Catalogue</NavLink></li>
@@ -48,9 +48,9 @@ class NavBar extends Component {
                 <li className="nav-item"><NavLink className="nav-link text-white  font-weight-bold" to="/About">About</NavLink></li>
                 <li className="nav-item"><NavLink className="nav-link text-white  font-weight-bold" to="/Contact">Contact</NavLink></li>
             </>
-            panier = <NavLink to="/Panier">  <button type="button" className="btn btn-outline-success my-2 my-sm-0">Shopping cart</button> </NavLink>
-            account = <NavLink to="/Account">  <button type="button" className="btn btn-outline-success my-2 my-sm-0">Account</button> </NavLink>
-            btn = <NavLink to="/Login">  <button type="button" onClick={() => handleLogout()} className="btn btn-outline-success my-2 my-sm-0">logout</button> </NavLink>
+           panier = <NavLink to="/Panier">  <img src={this.requireImage('icon/shopping-cart.png')} title={"Shopping cart"} alt={'Shopping cart'} width="40" height="30" /> </NavLink>
+           account = <NavLink to="/Account">  <img src={this.requireImage('icon/account.png')} title={"account"} alt={'account'} width="40" height="30" />  </NavLink>
+           btn = <NavLink to="/Login">  <img src={this.requireImage('icon/logout.png')} onClick={() => handleLogout()}  title={"logout"} alt={'logout'} width="40" height="30" /> </NavLink>
         } else if (userAuth === 'creator') {
             header = <>
                 <li className="nav-item"><NavLink className="nav-link text-white  font-weight-bold" to="/Catalogue">Catalogue</NavLink></li>
@@ -61,9 +61,9 @@ class NavBar extends Component {
                 <li className="nav-item"><NavLink className="nav-link text-white  font-weight-bold" to="/About">About</NavLink></li>
                 <li className="nav-item"><NavLink className="nav-link text-white  font-weight-bold" to="/Contact">Contact</NavLink></li>
             </>
-            panier = <NavLink to="/Panier">  <button type="button" className="btn btn-outline-success my-2 my-sm-0">Shopping cart</button> </NavLink>
-            account = <NavLink to="/Account">  <button type="button" className="btn btn-outline-success my-2 my-sm-0">Account</button> </NavLink>
-            btn = <NavLink to="/Login">  <button type="button" onClick={() => handleLogout()} className="btn btn-outline-success my-2 my-sm-0">logout</button> </NavLink>
+         panier = <NavLink to="/Panier">  <img src={this.requireImage('icon/shopping-cart.png')} title={"Shopping cart"} alt={'Shopping cart'} width="40" height="30" /> </NavLink>
+         account = <NavLink to="/Account">  <img src={this.requireImage('icon/account.png')} title={"account"} alt={'account'} width="40" height="30" />  </NavLink>
+         btn = <NavLink to="/Login">  <img src={this.requireImage('icon/logout.png')} onClick={() => handleLogout()} title={"logout"} alt={'logout'} width="40" height="30" /> </NavLink>
         } 
 
 
@@ -79,11 +79,11 @@ class NavBar extends Component {
                         <ul className="navbar-nav mr-auto">
                             {header}
                         </ul>
-                        <div><font className='text-white '> welcome</font> <strong className='text-white '>{userName}</strong></div>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <div><font className='text-white '> welcome</font> &nbsp; <strong className='text-white text-bold'>{userName}</strong></div>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <div>
-                            {account}
-                            {panier}
+                            {account}&nbsp;
+                            {panier}&nbsp;
                             {btn}
                         </div>
                     </div>

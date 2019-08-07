@@ -10,7 +10,7 @@ const requireImage = chemin => {
     try {
       return require(`../../img/uploadsImage/${lastSegment}`)
     } catch (err) {
-      return require(`../../img/uploadsImage/default-img.jpg`)
+      return require(`../../img/default.jpg`)
     }
   }
 
@@ -18,6 +18,11 @@ const requireImage = chemin => {
         
 
 const  Card = ({details , addPanier})  =>{
+    let count = parseInt(details.count)
+    let stock = "Not Available"
+    if( count >= 1){
+       stock = "Available"
+    }
 
     return (
             <div className='card'>
@@ -37,11 +42,10 @@ const  Card = ({details , addPanier})  =>{
                         MemorySize  <strong>    {details.MemorySize} go</strong> <br />
                     </ol>
 
-                    <ul className='liste-agredients'>
-                        <br />Price   [<strong> {details.price} $</strong> ]
-                    </ul>
                     <button className='btn btn-outline-secondary btn-lg' onClick={() => addPanier(details._id)}>+ Add</button>&nbsp;&nbsp;&nbsp;&nbsp;
-                    <button className='btn btn-outline-success btn-lg' onClick={() => addPanier(details._id,true)}> + Go Shopping cart</button><br/><br/>
+                    <button className='btn btn-outline-success btn-lg' onClick={() => addPanier(details._id,true)}> + Go Shopping cart</button>&nbsp;&nbsp;&nbsp; ( {stock} )  &nbsp;
+                    <h4 className="font-weight-bold text-right"> {details.price} $  </h4>
+
                 </div>
 
             </div>

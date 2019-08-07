@@ -47,7 +47,8 @@ app.use(pino);
 app.use(session({
   secret: "Our little secret.",
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  cookie: { maxAge : 1000000 } // timout
 }))
 
 app.use(passport.initialize())

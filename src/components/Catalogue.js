@@ -3,6 +3,7 @@ import '../styles/Catalogue.css'
 import Card from './screen/Card'
 import Select from 'react-select';
 import LoadingOverlay from 'react-loading-overlay';
+import Modal from './screen/modalDialog'
 
 import { ServerAPI } from "../api/db"
 
@@ -20,7 +21,9 @@ class Catalogue extends Component {
     brands: [],
     memorySizes: [],
     screenSize: [],
-    isActive: true
+    isActive: true,
+    show : false,
+    idSelect : ''
   }
 
   async componentWillMount() {
@@ -67,11 +70,12 @@ class Catalogue extends Component {
 
   addPanier = async (id, goToPanier) => {
     const { userAuth } = this.state
-    if (userAuth === 'manager' || userAuth === 'creator' || userAuth === 'client') {
-      this.setState({ isActive: true })
-      await ServerAPI('/users/panier/add', 'POST', { id })
-      this.setState({ isActive: false })
-      if (goToPanier) this.props.history.push('/panier')
+    if (userAuth === 'manager' || userAuth === 'creator' || userAuth === 'client') { 
+      this.setState({
+      show : true,
+      idSelect : id ,
+      goToPanier 
+      })
     }else{
       this.props.history.push('/login')
     }
@@ -121,6 +125,21 @@ class Catalogue extends Component {
     this.setBrand(this.state.computers)
     this.setMemorySize(computers)
     this.setState({ computersSelected: computers })
+  }
+
+  handleClose = () =>{
+    this.setState({ show : false })
+  }
+
+  handlesubmitModal = async () =>{
+    this.setState({ isActive: true })
+    await ServerAPI('/users/panier/add', 'POST', { id : this.state.idSelect })
+    if (this.state.goToPanier) {
+      this.props.history.push('/panier')
+    }
+    else{
+      this.setState({ isActive: false , show : false})
+    }
   }
 
 
@@ -189,7 +208,7 @@ class Catalogue extends Component {
         <div className='cards computerList'>
           {computers}
         </div>
-
+        < Modal show={this.state.show} handleClose={this.handleClose}  handleSubmit={this.handlesubmitModal} title={"Confirmation add to shopping cart"} Body={""}  />
       </LoadingOverlay>
     );
 

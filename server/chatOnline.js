@@ -32,7 +32,7 @@ socketIo.on('connection', async socket => {
             if(messages.length > (15*count)){
                 messages = messages.slice(Math.max(messages.length - (15*count), 1))
             }
-            console.log(count,messages.length)
+            //console.log(count,messages.length)
             return messages
         }
         catch (err) {
@@ -87,7 +87,6 @@ socketIo.on('connection', async socket => {
     addMessageToGroup = async (idGroup, message) => {
         try {
             let messages = (await getGroupMessages(idGroup))
-            message.imageUser = await getNameImageByUserId(message.idUser)
             messages.push(message)
             let id = new mongoose.mongo.ObjectID(idGroup)
             let body = {
@@ -125,7 +124,7 @@ socketIo.on('connection', async socket => {
     likeMessageGroup = async (idGroup, Themessage, username ) => {
         let messages = await getGroupMessages(idGroup)
         messages.forEach(message => {
-            if (message.username === Themessage.username && message.date === Themessage.date) {
+            if ( message.id === Themessage.id) {
                 if (message.likes.includes(username)) {
                     var index_ = message.likes.indexOf(username);
                     if (index_ !== -1) message.likes.splice(index_, 1);
@@ -133,7 +132,7 @@ socketIo.on('connection', async socket => {
                     message.likes.push(username)
                 }
             }
-        });
+        })
         let id = new mongoose.mongo.ObjectID(idGroup)
         let body = {
             messages
@@ -168,7 +167,7 @@ socketIo.on('connection', async socket => {
         try {
             await addMessageToGroup(idGroup, data)
             let messages = await getGroupMessages(idGroup)
-            socket.broadcast.emit('server:message/' + groupName, messages);
+            socket.broadcast.emit('server:message/' + groupName, messages)
         }
         catch (err) {
             console.log(err)

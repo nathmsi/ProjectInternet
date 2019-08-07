@@ -6,7 +6,7 @@ const Home = ({ handleLogin }) => {
     <div className="container">
       <h1 className="text-center" >
         <hr className="style1" />
-        <strong>Welecome </strong>
+        <strong>Welcome </strong>
         <hr className="style1" />
       </h1>
       <h3 className="text-center" >
@@ -17,7 +17,7 @@ const Home = ({ handleLogin }) => {
         className="btn btn-outline-dark"
         onClick={handleLogin}
       >
-        <div className=" text-white ">
+        <div className=" text-black ">
            Login / Register
         </div>
       </button>

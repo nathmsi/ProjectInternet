@@ -27,11 +27,12 @@ class ChatApp extends React.Component {
     addMessage = message => {
         this.setState({ isLoading: true })
         const messageObject = {
-            username: message.username,
             message: message.message,
-            date: Date.now(),
+            id : new Date().valueOf(),
+            date : new Date(),
             likes: [],
             idUser: this.props.idUser,
+            usersname : this.props.username
         };
         this.props.sendMessage(messageObject)
         this.setState({ isLoading: false })

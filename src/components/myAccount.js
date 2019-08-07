@@ -152,9 +152,9 @@ class MyAcount extends Component {
     try {
       var parts = chemin.split('\\')
       var lastSegment = parts.pop() || parts.pop()
-      return require(`../img/uploadsImage/${lastSegment}`)
+      return require(`../img/uploadsImage/user/${lastSegment}`)
     } catch (err) {
-      return require(`../img/uploadsImage/default-img.jpg`)
+      return require(`../img/uploadsImage/user/default-img.jpg`)
     }
   }
 
@@ -191,19 +191,19 @@ class MyAcount extends Component {
 
 
   render() {
-    const { orders, username, level, phone, address, newpassword, newpasswordC, email, oldpassword } = this.state
+    const { orders, username, level, phone, address, newpassword, newpasswordC, email, oldpassword , userAuth } = this.state
     let user, changepassword = <></>
     let Orders = <></>
     let levelInput = <></>
 
-    if (((level === 'manager') || (level === 'client') || (level === 'creator'))) {
+    if (((userAuth === 'manager') || (userAuth === 'client') || (userAuth === 'creator'))) {
 
 
       Orders = Object.keys(orders)
         .map(key => <Order key={key} total={orders[key].total} index={key} id={orders[key].order} deleteOrder={this.deleteOrder} />)
 
 
-      if (level === 'manager') {
+      if (userAuth === 'manager') {
         levelInput = <div className="row bg-white">
           <div className="col-2">
             <h3 className="input-group-addon text-center ">level </h3>

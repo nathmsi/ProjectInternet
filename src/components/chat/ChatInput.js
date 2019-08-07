@@ -8,9 +8,9 @@ class Formulaire extends Component {
   }
 
   createMessage = () => {
-    const { addMessage,  length ,username } = this.props
+    const { addMessage,  length  } = this.props
     
-    addMessage({message : this.state.message , username: username})
+    addMessage({message : this.state.message })
 
     // Reset
     this.setState({ message: '', length })

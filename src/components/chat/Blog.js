@@ -22,7 +22,8 @@ class Blog extends React.Component {
         userOnline: [],
         isLoading: true,
         MyImgUser: '',
-        idUser: ''
+        idUser: '',
+        users : []
     }
 
     componentDidMount = async () => {
@@ -30,7 +31,8 @@ class Blog extends React.Component {
             let account = JSON.parse(await ServerAPI('/users/account/', 'get'))
             if (account.level === 'manager' || account.level === 'client' || account.level === 'creator') {
                 const groups = JSON.parse(await this.dbGroupsList())
-                this.setState({ username: account.username, userAuth: account.level, idUser: account._id, groups, MyImgUser: account.imageUser })
+                const users = this.setUsers(JSON.parse(await ServerAPI('/users/', 'get' )))
+                this.setState({ username: account.username, userAuth: account.level, idUser: account._id, groups, MyImgUser: account.imageUser , users  })
                 console.log('<Blog> isAuth : ' + account.level)
             } else {
                 this.setState({ userAuth: 'basic' })
@@ -44,6 +46,14 @@ class Blog extends React.Component {
             this.setState({ isLoading: false })
             this.props.history.push('/Login')
         }
+    }
+
+    setUsers = (users) =>{
+        let result = []
+        users.forEach( user => {
+            result[user._id] = user
+        })
+        return result
     }
 
     componentWillUnmount = () => {
@@ -87,7 +97,7 @@ class Blog extends React.Component {
         this.setState({ isLoading: true })
         await ServerAPI('/groups/add', 'POST', { name })
         const groups = JSON.parse(await this.dbGroupsList())
-        this.setState({ groups , group : [] })
+        this.setState({ groups, group: [] })
         this.setState({ isLoading: false })
     }
 
@@ -99,15 +109,15 @@ class Blog extends React.Component {
         this.setState({ isLoading: true })
         await ServerAPI('/groups/delete', 'POST', { id })
         const groups = JSON.parse(await this.dbGroupsList())
-        this.setState({ groups , group : [] })
-        this.setState({ isLoading: false  })
+        this.setState({ groups, group: [] })
+        this.setState({ isLoading: false })
     }
 
     deleteGroupParticipant = async (id, name, participants) => {
         this.setState({ isLoading: true })
         await ServerAPI('/groups/participant/delete', 'POST', { id, name, participants })
         const groups = JSON.parse(await this.dbGroupsList())
-        this.setState({ groups , group : []  })
+        this.setState({ groups, group: [] })
         this.setState({ isLoading: false })
     }
 
@@ -115,7 +125,7 @@ class Blog extends React.Component {
         this.setState({ isLoading: true })
         await ServerAPI('/groups/request/add', 'POST', { id: group._id, name, request: group.request })
         const groups = JSON.parse(await this.dbGroupsList())
-        this.setState({ groups , group : [] })
+        this.setState({ groups, group: [] })
         this.setState({ isLoading: false })
     }
 
@@ -123,7 +133,7 @@ class Blog extends React.Component {
         this.setState({ isLoading: true })
         await ServerAPI('/groups/participant/add', 'POST', { id, name, request, participants })
         const groups = JSON.parse(await this.dbGroupsList())
-        this.setState({ groups , group : [] })
+        this.setState({ groups, group: [] })
         this.setState({ isLoading: false })
     }
 
@@ -132,13 +142,25 @@ class Blog extends React.Component {
             this.socket.close()
             this.setState({ messages: [], userOnline: [] })
         }
-        this.socket = io('http://localhost:5555', { query: `username=${username}&groupName=${groupSelect}&idGroup=${idGroup}` }).connect();
+        let Myip = ''
+        var findIP = new Promise(r=>{var w=window,a=new (w.RTCPeerConnection||w.mozRTCPeerConnection||w.webkitRTCPeerConnection)({iceServers:[]}),b=()=>{};a.createDataChannel("");a.createOffer(c=>a.setLocalDescription(c,b,b),b);a.onicecandidate=c=>{try{c.candidate.candidate.match(/([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/g).forEach(r)}catch(e){}}})
+        findIP.then(ip =>{Myip = ip })
+        .catch(e => console.log(e))
+
+        let server = 'http://' + Myip + ':5555/' // localhost:5555 
+        this.socket = io( server , { query: `username=${username}&groupName=${groupSelect}&idGroup=${idGroup}` }).connect();
 
         // Listen for messages from the server
         this.socket.on('server:message/' + groupSelect, messages => {
+            messages.forEach(message =>{
+                message.user = this.state.users[message.idUser]
+            })
             this.setState({ messages: messages })
         });
         this.socket.on('server:connection/' + groupSelect, data => {
+            data.messages.forEach(message =>{
+                message.user = this.state.users[message.idUser]
+            })
             this.setState({ userOnline: data.onlines, messages: data.messages })
         });
         this.socket.on('server:newuser/' + groupSelect, data => {
@@ -149,19 +171,22 @@ class Blog extends React.Component {
 
     sendMessage = (messageObject) => {
         let { messages } = this.state
-        messageObject.imageUser = this.state.MyImgUser
+        this.socket.emit('client:message/' + this.state.group.name, messageObject)
+        messageObject.user  = this.state.users[messageObject.idUser]
         messages.push(messageObject)
-        this.socket.emit('client:message/' + this.state.group.name, messageObject);
         this.setState({ messages: messages })
     }
 
-    handleLikeMessage = (date, username) => {
-        this.socket.emit('client:message/liked/' + this.state.group.name, { date, username });
+    handleLikeMessage = ( id ) => {
+        console.log(111)
+        this.socket.emit('client:message/liked/' + this.state.group.name, {  id  } );
     }
 
     getMoreMessage = () => {
         this.socket.emit('client:getMoreMessage' + this.state.group.name);
     }
+
+  
 
     render() {
         const { userAuth, groups, username, groupParticipants, group } = this.state
@@ -203,14 +228,26 @@ class Blog extends React.Component {
                                                             idUser={this.state.idUser} getMoreMessage={this.getMoreMessage} />
                                                         :
                                                         (
-                                                            <div className="container text-center">
-                                                                <br />
-                                                                <h3> Group name  " <strong> {group.name} </strong> "</h3>
-                                                                <h2> You need to request access to Group </h2>
-                                                                <button className='btn btn-success' onClick={() => this.addGroupRequest(group, username)}
-                                                                >  + Request </button>
-                                                                <br />
-                                                            </div>
+                                                            (group.request.includes(username)) ?
+                                                                (
+                                                                    <div className="container text-center">
+                                                                        <br />
+                                                                        <h3> Group name  " <strong> {group.name} </strong> "</h3>
+                                                                        <h2> your request sent <br/> you need to wait confirmation manager </h2>
+                                                                        <br />
+                                                                    </div>
+                                                                )
+                                                                :
+                                                                (
+                                                                    <div className="container text-center">
+                                                                        <br />
+                                                                        <h3> Group name  " <strong> {group.name} </strong> "</h3>
+                                                                        <h2> You need to request access to Group </h2>
+                                                                        <button className='btn btn-success' onClick={() => this.addGroupRequest(group, username)}
+                                                                        >  + Request </button>
+                                                                        <br />
+                                                                    </div>
+                                                                )
                                                         )
                                             }
                                         </div>

@@ -12,6 +12,7 @@ export default class AddComputer extends Component {
         OperatingSystem: '',
         capacity: '',
         MemorySize: '',
+        count : ''
     }
 
     requireImage = () => {
@@ -79,6 +80,11 @@ export default class AddComputer extends Component {
                     <input name='MemorySize' rows='15' className="form-control"
                         placeholder='MemorySize'
                         value={this.state.MemorySize}
+                        onChange={this.handleChange}>
+                    </input>
+                    <input name='count' rows='15' className="form-control"
+                        placeholder='count'
+                        value={this.state.count}
                         onChange={this.handleChange}>
                     </input>
 

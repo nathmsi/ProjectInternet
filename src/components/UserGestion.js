@@ -1,65 +1,86 @@
-import React, { Component } from "react";
-import CircularProgress from '@material-ui/core/CircularProgress';
+import React, { Component } from "react"
 import LoadingOverlay from 'react-loading-overlay';
 import '../styles/Catalogue.css'
 import User from './screen/User'
 
-import {  ServerAPI} from "../api/db"
+import { withAlert } from 'react-alert'
+
+import { ServerAPI } from "../api/db"
 
 class UserGestion extends Component {
 
   state = {
     users: '',
     userAuth: 'basic',
+    myID: '',
     isLoading: true,
-    isActive: false
+    isActive: true,
+    username : ''
   }
 
 
 
   async componentDidMount() {
-    let userAuth = await ServerAPI('/users/level', 'get' )
-    
-    this.setState({ userAuth: userAuth })
-
-    if (userAuth === 'creator')
-    {
+    try{
+    let account = JSON.parse(await ServerAPI('/users/account/', 'get'))
+    if (account.level === 'creator') {
       this.getData()
-      this.setState({ isLoading: false })
-      console.log('<UserGestion> isAuth : ' + userAuth)
+      this.setState({ isLoading: false, userAuth: account.level, myID: account._id , username : account.username })
+      console.log('<UserGestion> isAuth : ' + account.level)
     }
-    else{  
-        this.setState({ userAuth: 'basic' })
-        console.log('<UserGestion> isAuth : ' + userAuth)
-        this.props.history.push('/Login') 
+    else {
+      this.setState({ userAuth: 'basic' })
+      console.log('<UserGestion> isAuth : ' + account.level)
+      this.props.history.push('/Login')
+    }
+    this.setState({ isActive: false })
+  }
+    catch(err){
+      console.log(err)
+      this.props.history.push('/Login')
     }
 
   }
 
   getData = async () => {
-    const users = await ServerAPI('/users/', 'get' )
+    const users = await ServerAPI('/users/', 'get')
     var mydata = JSON.parse(users)
     this.setState({ users: mydata })
   }
 
   deleteUser = async key => {
-    await ServerAPI('/users/delete', 'POST' , { id : key} )
-    this.getData()
+    this.setState({ isActive: true })
+    if (key !== this.state.myID) {
+      await ServerAPI('/users/delete', 'POST', { id: key })
+      this.getData()
+    } else {
+      this.props.alert.error(this.state.username + ' account')
+      this.props.alert.error('is your Account')
+      this.props.alert.error('cannot update ')
+    }
+    this.setState({ isActive: false })
   }
 
   updateUserLevel = async (key, level) => {
-    this.setState({isActive : true})
-    await ServerAPI('/users/level', 'POST' , { id : key , level} )
-    this.getData()
-    this.setState({isActive : false})
+    if (key !== this.state.myID) {
+      this.setState({ isActive: true })
+      await ServerAPI('/users/level', 'POST', { id: key, level })
+      this.getData()
+      this.setState({ isActive: false })
+    } else {
+      this.props.alert.error(this.state.username + ' account')
+      this.props.alert.error('is your Account')
+      this.props.alert.error('cannot update ')
+    }
   }
 
 
 
   render() {
-    if (this.state.isLoading === false) {
+
+
       const { userAuth } = this.state
-      let users = <div><p>Vous n'avez pas acces a cette page </p></div>
+      let users = <></>
 
       if (userAuth === 'creator') {
         users = Object.keys(this.state.users)
@@ -70,28 +91,14 @@ class UserGestion extends Component {
         <LoadingOverlay
           active={this.state.isActive}
           spinner
-          styles = {{background : 'red'}}
+          styles={{ background: 'red' }}
           text='Loading your content...'
         >
-        <div className='cards computerUpdateList'>
+          <div className='cards computerUpdateList'>
             {users}
-        </div>
-
-
+          </div>
         </LoadingOverlay>
-      );
-
-    } else {
-
-      return (
-        <div className='text-center'>
-           <p>Wait ...</p>
-          <CircularProgress disableShrink />
-        </div>
       )
-
-    }
-
 
   }
 
@@ -100,4 +107,4 @@ class UserGestion extends Component {
 
 
 
-export default UserGestion;
+export default withAlert()(UserGestion);
