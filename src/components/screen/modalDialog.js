@@ -1,4 +1,4 @@
-import React  from "react";
+import React from "react";
 
 import Modal from 'react-bootstrap/Modal'
 import ModalFooter from 'react-bootstrap/ModalFooter'
@@ -8,17 +8,18 @@ import ModalHeader from 'react-bootstrap/ModalHeader'
 
 import Button from 'react-bootstrap/Button'
 
-const modalDialog = ({ show , handleClose , handleSubmit , title  , Body   }) => {
+const modalDialog = ({ show, handleClose, handleSubmit, title, Body, children }) => {
     return (
         <Modal show={show} onHide={handleClose}
-        size="lg"
-        aria-labelledby="contained-modal-title-vcenter"
-        centered >
+            size="lg"
+            aria-labelledby="contained-modal-title-vcenter"
+            centered >
             <ModalHeader closeButton>
                 <ModalTitle> <h2>{title}</h2> </ModalTitle>
             </ModalHeader>
             <ModalBody>
-            <h3>{Body}</h3>
+                {Body}
+                {children}
             </ModalBody>
             <ModalFooter>
                 <Button variant="secondary" onClick={handleClose} >Close</Button>

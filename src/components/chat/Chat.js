@@ -32,7 +32,7 @@ class ChatApp extends React.Component {
             date : new Date(),
             likes: [],
             idUser: this.props.idUser,
-            usersname : this.props.username
+            username : this.props.username
         };
         this.props.sendMessage(messageObject)
         this.setState({ isLoading: false })
@@ -62,9 +62,9 @@ class ChatApp extends React.Component {
         const brands = groupParticipant.map(element => ({ value: element, label: element }))
 
         let FileterMessages = []
-        messages.forEach(element => {
-            if (element.username === selectedUsername.value || selectedUsername.value === 'All')
-                FileterMessages.push(element)
+        messages.forEach(message => {
+            if (message.username === selectedUsername.value || selectedUsername.value === 'All')
+                FileterMessages.push(message)
         });
 
 

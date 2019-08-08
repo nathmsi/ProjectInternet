@@ -4,7 +4,18 @@ import '../styles/Catalogue.css'
 import LoadingOverlay from 'react-loading-overlay';
 import { ServerAPI } from "../api/db"
 
-import  Modal  from "./screen/modalDialog"
+import Modal from "./screen/modalDialog"
+import PaypalButton from './payment/PaypalButton';
+
+
+const CLIENT = {
+  sandbox: process.env.REACT_APP_PAYPAL_CLIENT_ID_SANDBOX,
+  production: process.env.REACT_APP_PAYPAL_CLIENT_ID_PRODUCTION,
+};
+const ENV = process.env.NODE_ENV === 'production'
+  ? 'production'
+  : 'sandbox';
+
 
 class Panier extends Component {
 
@@ -15,8 +26,9 @@ class Panier extends Component {
     userAuth: 'basic',
     panier: [],
     isLoading: true,
-    show : false ,
-    total : ''
+    show: false,
+    total: '',
+    paymentActive : false
   }
 
   async componentDidMount() {
@@ -88,16 +100,17 @@ class Panier extends Component {
     this.setState({ isActive: false })
   }
 
-  handleCheckorder =  (total) => {
-    this.setState({ 
+  handleCheckorder = (total) => {
+    this.setState({
       total,
-      show : true
+      show: true,
+      paymentActive : true
     })
   }
 
-  handlePurshase = async () =>{
+  handlePurshase = async () => {
     try {
-      this.setState({ isActive: true , show : false })
+      this.setState({ isActive: true, show: false })
       let total = this.state.total
       if (this.state.panier.length > 0) {
         let date = new Date()
@@ -112,14 +125,14 @@ class Panier extends Component {
         });
 
         await ServerAPI('/users/orders/add', 'POST', {
-          order: [...this.state.panier], total ,
+          order: [...this.state.panier], total,
           date: {
             day, month, years, hours, minutes
           }
         })
         this.getPanier()
         this.setState({ isActive: false })
-      }else{
+      } else {
         this.setState({ isActive: false })
         alert('your shopping cart is empty')
       }
@@ -139,9 +152,36 @@ class Panier extends Component {
     this.props.history.push('/Catalogue')
   }
 
-  handleClose = () =>{  this.setState({ show : false }) }
-  handleOpen = () =>{  this.setState({ show : true }) }
+  handleClose = () => { this.setState({ show: false }) }
+  handleOpen = () => { this.setState({ show: true }) }
 
+
+  onSuccess = (payment) =>{
+    console.log('Successful payment!', payment);
+    this.setState({
+      show: false,
+      paymentActive : false
+    })
+  }
+    
+
+  onError = (error) =>{
+     console.log('Erroneous payment OR failed to load script!', error);
+     this.setState({
+      show: false,
+      paymentActive : false
+    })
+  }
+   
+
+  onCancel = (data) =>{
+    console.log('Cancelled payment!', data);
+    this.setState({
+      show: false,
+      paymentActive : false
+    })
+  }
+    
 
   render() {
     const { computers, panier, userAuth } = this.state
@@ -172,31 +212,56 @@ class Panier extends Component {
 
 
     return (
-        <LoadingOverlay
-          active={this.state.isActive}
-          spinner
-          text='Loading your content...'
-        >
-          <div className='panierScrool bg-light'>
-            <table className="table table-bordred table-striped  bg-light">
-              <thead>
-                <tr>
-                  <th align="center">image</th>
-                  <th align="center">Name</th>
-                  <th align="center">Price</th>
-                  <th align="center">Count</th>
-                  <th align="center">Subtotal</th>
-                  <th align="center">Delete</th>
-                </tr>
-              </thead>
-              <tbody>
-                {cards_}
-                {totalCount}
-              </tbody>
-            </table>
-          </div>
-          < Modal show={this.state.show} handleClose={this.handleClose}  handleSubmit={this.handlePurshase} title={"Confirmation Checkout"} Body={"Total price is : " + this.state.total + ' $'}  />
-        </LoadingOverlay>
+      <LoadingOverlay
+        active={this.state.isActive}
+        spinner
+        text='Loading your content...'
+      >
+        <div className='panierScrool bg-light'>
+          <table className="table table-bordred table-striped  bg-light">
+            <thead>
+              <tr>
+                <th align="center">image</th>
+                <th align="center">Name</th>
+                <th align="center">Price</th>
+                <th align="center">Count</th>
+                <th align="center">Subtotal</th>
+                <th align="center">Delete</th>
+              </tr>
+            </thead>
+            <tbody>
+              {cards_}
+              {totalCount}
+            </tbody>
+          </table>
+        </div>
+        {
+          !this.state.paymentActive ?
+            <></>
+            :
+            (
+              < Modal show={this.state.show} handleClose={this.handleClose} handleSubmit={this.handlePurshase}
+                // eslint-disable-next-line
+                title={"Confirmation Checkout" + "  Total price is : " + this.state.total + '$'}  >
+                <div>
+                  <PaypalButton
+                    client={CLIENT}
+                    env={ENV}
+                    commit={true}
+                    currency={'USD'}
+                    total={this.state.total}
+                    onSuccess={this.onSuccess}
+                    onError={this.onError}
+                    onCancel={this.onCancel}
+                  />
+                </div>
+              </Modal>
+            )
+
+        }
+
+
+      </LoadingOverlay>
     );
 
   }
@@ -254,4 +319,4 @@ const Total = ({ total, handleCheckorder, history }) => {
 
 
 
-export default Panier;
+export default (Panier)
