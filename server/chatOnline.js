@@ -46,7 +46,10 @@ socketIo.on('connection', async socket => {
         try {
             let id = new mongoose.mongo.ObjectID(idGroup)
             let group = await Group.findOne({ _id: id })
-            return group.onlines
+            if(group !== undefined)
+                return group.onlines
+            else
+                return []
         }
         catch (err) {
             console.log(err)

@@ -2,6 +2,7 @@ import React from "react";
 
 
 const Home = ({ handleLogin }) => {
+  document.title = 'Home / Car Sale'
   return (
     <div className="container">
       <h1 className="text-center" >

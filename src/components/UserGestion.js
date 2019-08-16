@@ -15,27 +15,28 @@ class UserGestion extends Component {
     myID: '',
     isLoading: true,
     isActive: true,
-    username : ''
+    username: ''
   }
 
 
 
   async componentDidMount() {
-    try{
-    let account = JSON.parse(await ServerAPI('/users/account/', 'get'))
-    if (account.level === 'creator') {
-      this.getData()
-      this.setState({ isLoading: false, userAuth: account.level, myID: account._id , username : account.username })
-      console.log('<UserGestion> isAuth : ' + account.level)
+    try {
+      document.title = 'UserGestion / Car Sale'
+      let account = JSON.parse(await ServerAPI('/users/account/', 'get'))
+      if (account.level === 'creator') {
+        this.getData()
+        this.setState({ isLoading: false, userAuth: account.level, myID: account._id, username: account.username })
+        console.log('<UserGestion> isAuth : ' + account.level)
+      }
+      else {
+        this.setState({ userAuth: 'basic' })
+        console.log('<UserGestion> isAuth : ' + account.level)
+        this.props.history.push('/Login')
+      }
+      this.setState({ isActive: false })
     }
-    else {
-      this.setState({ userAuth: 'basic' })
-      console.log('<UserGestion> isAuth : ' + account.level)
-      this.props.history.push('/Login')
-    }
-    this.setState({ isActive: false })
-  }
-    catch(err){
+    catch (err) {
       console.log(err)
       this.props.history.push('/Login')
     }
@@ -54,9 +55,7 @@ class UserGestion extends Component {
       await ServerAPI('/users/delete', 'POST', { id: key })
       this.getData()
     } else {
-      this.props.alert.error(this.state.username + ' account')
-      this.props.alert.error('is your Account')
-      this.props.alert.error('cannot update ')
+      this.props.alert.error(this.state.username + ' is your Account cannot update')
     }
     this.setState({ isActive: false })
   }
@@ -68,9 +67,7 @@ class UserGestion extends Component {
       this.getData()
       this.setState({ isActive: false })
     } else {
-      this.props.alert.error(this.state.username + ' account')
-      this.props.alert.error('is your Account')
-      this.props.alert.error('cannot update ')
+      this.props.alert.error(this.state.username + ' is your Account cannot update')
     }
   }
 
@@ -79,26 +76,28 @@ class UserGestion extends Component {
   render() {
 
 
-      const { userAuth } = this.state
-      let users = <></>
+    const { userAuth } = this.state
+    let users = <></>
 
-      if (userAuth === 'creator') {
-        users = Object.keys(this.state.users)
-          .map(key => <User key={key} uid={key} details={this.state.users[key]} deleteUser={this.deleteUser} updateUserLevel={this.updateUserLevel} ></User>)
-      }
+    if (userAuth === 'creator') {
+      users = Object.keys(this.state.users)
+        .map(key => <User key={key} uid={key} details={this.state.users[key]} deleteUser={this.deleteUser} updateUserLevel={this.updateUserLevel} ></User>)
+    }
 
-      return (
-        <LoadingOverlay
-          active={this.state.isActive}
-          spinner
-          styles={{ background: 'red' }}
-          text='Loading your content...'
-        >
-          <div className='cards computerUpdateList'>
-            {users}
-          </div>
-        </LoadingOverlay>
-      )
+    return (
+      <LoadingOverlay
+        active={this.state.isActive}
+        spinner
+        styles={{ background: 'red' }}
+        text={<h2 className='text-dark'>Please wait a few time ...</h2>}
+      >
+        
+            <div className='cards computerUpdateList'>
+              {users}
+            </div>
+          
+      </LoadingOverlay>
+    )
 
   }
 

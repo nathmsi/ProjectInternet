@@ -20,8 +20,10 @@ const requireImage = chemin => {
 const  Card = ({details , addPanier})  =>{
     let count = parseInt(details.count)
     let stock = "Not Available"
+    let inStock = false
     if( count >= 1){
        stock = "Available"
+       inStock = true
     }
 
     return (
@@ -42,8 +44,8 @@ const  Card = ({details , addPanier})  =>{
                         MemorySize  <strong>    {details.MemorySize} go</strong> <br />
                     </ol>
 
-                    <button className='btn btn-outline-secondary btn-lg' onClick={() => addPanier(details._id)}>+ Add</button>&nbsp;&nbsp;&nbsp;&nbsp;
-                    <button className='btn btn-outline-success btn-lg' onClick={() => addPanier(details._id,true)}> + Go Shopping cart</button>&nbsp;&nbsp;&nbsp; ( {stock} )  &nbsp;
+                    <button className='btn btn-outline-secondary btn-lg' onClick={() => addPanier(details._id,false,inStock)}>+ Add</button>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <button className='btn btn-outline-success btn-lg' onClick={() => addPanier(details._id,true,inStock)}> + Go Shopping cart</button>&nbsp;&nbsp;&nbsp; ( {stock} )  &nbsp;
                     <h4 className="font-weight-bold text-right"> {details.price} $  </h4>
 
                 </div>

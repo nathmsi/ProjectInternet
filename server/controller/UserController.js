@@ -374,7 +374,7 @@ router.post('/forgot', function (req, res, next) {
                                 console.log('Email sent: ' + info.response);
                             }
                         });
-                        res.json({ success : true , message: 'Verify your mail ' + req.body.email + ' , you have receive a code to confirmation' });
+                        res.json({ success: true, message: 'Verify your mail ' + req.body.email + ' , you have receive a code to confirmation' });
                     }
                 })
             }
@@ -441,4 +441,36 @@ router.post('/newPassword', function (req, res) {
     }
 });
 
+router.post('/contact', function (req, res) {
+    try {
+        var transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: 'nmsika@g.jct.ac.il',
+                pass: process.env.KEY_GMAIL
+            }
+        });
+
+        var mailOptions = {
+            to: req.body.email,
+            from: 'nmsika@g.jct.ac.il',
+            subject: 'Contact' + req.body.name,
+            text: 'Hello,\n\n' +
+                'we receive your message '  + '' + req.body.message +
+                'link to login ' + 'http://localhost:3000/'
+        };
+        transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+                console.log(error);
+                res.json({ success: false , message: 'error sent message' });
+            } else {
+                console.log('Email sent: ' + info.response);
+                res.json({ success: true, message: 'Message sent successfully' });
+            }
+        });
+
+    } catch (err) {
+        console.log(err)
+    }
+});
 module.exports = router;

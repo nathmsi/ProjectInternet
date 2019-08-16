@@ -6,6 +6,8 @@ import { ServerAPI } from "../api/db"
 
 import Modal from "./screen/modalDialog"
 import PaypalButton from './payment/PaypalButton';
+import { withRouter } from 'react-router-dom';
+import { withAlert } from 'react-alert'
 
 
 const CLIENT = {
@@ -27,16 +29,17 @@ class Panier extends Component {
     panier: [],
     isLoading: true,
     show: false,
-    total: '',
-    paymentActive : false
+    total: '0',
+    paymentActive: false
   }
 
   async componentDidMount() {
     try {
+      document.title = 'ShoppingCart / Car Sale'
       await this.getSession()
       if (this.state.userAuth === 'manager' || this.state.userAuth === 'client' || this.state.userAuth === 'creator') {
-        this.getData()
-        this.getPanier()
+        await this.getData()
+        await this.getPanier()
         console.log('<UserGestion> isAuth : ' + this.state.userAuth)
         this.setState({ isActive: false })
       } else {
@@ -44,7 +47,6 @@ class Panier extends Component {
         console.log('<UserGestion> isAuth : ' + this.state.userAuth)
         this.props.history.push('/Login')
       }
-      this.setState({ isLoading: false })
     } catch (err) {
       console.log(err)
       this.props.history.push('/Login')
@@ -101,11 +103,15 @@ class Panier extends Component {
   }
 
   handleCheckorder = (total) => {
-    this.setState({
-      total,
-      show: true,
-      paymentActive : true
-    })
+    if (this.state.panier.length > 0) {
+      this.setState({
+        total,
+        show: true,
+        paymentActive: true
+      })
+    } else {
+      this.props.alert.show('your shopping cart is empty please check your article')
+    }
   }
 
   handlePurshase = async () => {
@@ -130,11 +136,11 @@ class Panier extends Component {
             day, month, years, hours, minutes
           }
         })
-        this.getPanier()
+        await this.getPanier()
         this.setState({ isActive: false })
       } else {
         this.setState({ isActive: false })
-        alert('your shopping cart is empty')
+        this.props.alert.show('your shopping cart is empty please check your article')
       }
     } catch (err) {
       console.log(err)
@@ -156,32 +162,39 @@ class Panier extends Component {
   handleOpen = () => { this.setState({ show: true }) }
 
 
-  onSuccess = (payment) =>{
-    console.log('Successful payment!', payment);
+  onSuccess = (payment) => {
+    //console.log('Successful payment!', payment);
+    this.props.alert.success('Successful payment!')
     this.setState({
       show: false,
-      paymentActive : false
+      paymentActive: false
     })
   }
-    
 
-  onError = (error) =>{
-     console.log('Erroneous payment OR failed to load script!', error);
-     this.setState({
-      show: false,
-      paymentActive : false
-    })
-  }
-   
 
-  onCancel = (data) =>{
-    console.log('Cancelled payment!', data);
+  onError = (error) => {
+    this.props.alert.error('Erroneous payment OR failed to load script!')
+    //console.log('Erroneous payment OR failed to load script!', error);
     this.setState({
       show: false,
-      paymentActive : false
+      paymentActive: false
     })
   }
-    
+
+
+  onCancel = () => {
+    try {
+      this.props.alert.show('Cancelled payment!')
+      //console.log('Cancelled payment!', data);
+      this.setState({
+        show: false,
+        paymentActive: false
+      })
+    } catch (err) {
+      console.log('Cancelled payment! error : ', err);
+    }
+  }
+
 
   render() {
     const { computers, panier, userAuth } = this.state
@@ -215,50 +228,51 @@ class Panier extends Component {
       <LoadingOverlay
         active={this.state.isActive}
         spinner
-        text='Loading your content...'
+        text={<h2 className='text-dark'>Please wait a few time ...</h2>}
       >
-        <div className='panierScrool bg-light'>
-          <table className="table table-bordred table-striped  bg-light">
-            <thead>
-              <tr>
-                <th align="center">image</th>
-                <th align="center">Name</th>
-                <th align="center">Price</th>
-                <th align="center">Count</th>
-                <th align="center">Subtotal</th>
-                <th align="center">Delete</th>
-              </tr>
-            </thead>
-            <tbody>
-              {cards_}
-              {totalCount}
-            </tbody>
-          </table>
-        </div>
-        {
-          !this.state.paymentActive ?
-            <></>
-            :
-            (
-              < Modal show={this.state.show} handleClose={this.handleClose} handleSubmit={this.handlePurshase}
-                // eslint-disable-next-line
-                title={"Confirmation Checkout" + "  Total price is : " + this.state.total + '$'}  >
-                <div>
-                  <PaypalButton
-                    client={CLIENT}
-                    env={ENV}
-                    commit={true}
-                    currency={'USD'}
-                    total={this.state.total}
-                    onSuccess={this.onSuccess}
-                    onError={this.onError}
-                    onCancel={this.onCancel}
-                  />
-                </div>
-              </Modal>
-            )
+              <div className='panierScrool bg-light'>
+                <table className="table table-bordred table-striped  bg-light">
+                  <thead>
+                    <tr>
+                      <th align="center">image</th>
+                      <th align="center">Name</th>
+                      <th align="center">Price</th>
+                      <th align="center">Count</th>
+                      <th align="center">Subtotal</th>
+                      <th align="center">Delete</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {cards_}
+                    {totalCount}
+                  </tbody>
+                </table>
+              </div>
 
-        }
+
+              {
+                !this.state.paymentActive ?
+                  <></>
+                  :
+                  (
+                    < Modal show={this.state.show} handleClose={this.handleClose} handleSubmit={this.handlePurshase}
+                      // eslint-disable-next-line
+                      title={"Confirmation Checkout" + "  Total price is : " + this.state.total + '$'}  >
+                      <div>
+                        <PaypalButton
+                          client={CLIENT}
+                          env={ENV}
+                          commit={true}
+                          currency={'USD'}
+                          total={this.state.total}
+                          onSuccess={this.onSuccess}
+                          onError={this.onError}
+                          onCancel={this.onCancel}
+                        />
+                      </div>
+                    </Modal>
+                  )
+              }
 
 
       </LoadingOverlay>
@@ -319,4 +333,6 @@ const Total = ({ total, handleCheckorder, history }) => {
 
 
 
-export default (Panier)
+export default withRouter(
+  withAlert()(Panier)
+)

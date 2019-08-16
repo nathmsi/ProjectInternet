@@ -21,6 +21,7 @@ class CatalogueGestion extends Component {
 
   async componentDidMount() {
     try {
+      document.title = 'CatalogueGestion / Car Sale'
       this._isMounted = true;
       let userAuth = await ServerAPI('/users/level', 'get')
       if (userAuth === 'manager' || userAuth === 'creator') {
@@ -63,7 +64,7 @@ class CatalogueGestion extends Component {
       OperatingSystem: computer.OperatingSystem,
       capacity: computer.capacity,
       MemorySize: computer.MemorySize,
-      count : computer.count
+      count: computer.count
     })
 
     let myData = await this.getData()
@@ -140,13 +141,19 @@ class CatalogueGestion extends Component {
       <LoadingOverlay
         active={this.state.isActive}
         spinner
-        text='Loading your content...'
+        text={<h2 className='text-dark'>Please wait a few time ...</h2>}
       >
 
-        <div className='cards computerUpdateList'>
-          {addComputers}
-          {updateComputers}
-        </div>
+        {
+          this.state.isActive === false &&
+          (
+
+            <div className='cards computerUpdateList'>
+              {addComputers}
+              {updateComputers}
+            </div>
+          )
+        }
 
       </LoadingOverlay>
     );

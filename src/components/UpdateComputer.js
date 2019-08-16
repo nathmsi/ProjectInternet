@@ -153,8 +153,9 @@ class UpdateCar extends Component {
                 <div className="input-group"><div></div>
                 <button type="button" onClick={() => this.handleChangeCountRemove(id)} className="btn btn-secondary btn-outline-light btn-sm">-</button>
                 &nbsp;{count} &nbsp;
-                <button type="button" onClick={() => this.handleChangeCountAdd(id)} className="btn btn-secondary btn-outline-light btn-sm">+</button>
-                </div>
+                <button type="button" onClick={() => this.handleChangeCountAdd(id)} className="btn btn-secondary btn-outline-light btn-sm">+</button> 
+                &nbsp; Stock 
+                </div> 
 
                 <div className="input-group"><div></div>
                     <h4 className="input-group-addon">Upload image </h4>

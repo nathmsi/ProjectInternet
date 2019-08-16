@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 import LoadingOverlay from 'react-loading-overlay';
 import axios from 'axios';
-
+import { withRouter } from 'react-router-dom';
+import { withAlert } from 'react-alert'
 
 import { ServerAPI } from "../api/db"
 
@@ -28,15 +29,16 @@ class MyAcount extends Component {
 
   componentDidMount = async () => {
     try {
+      document.title = 'Myaccount / Car Sale'
       await this.getSession()
       if (this.state.userAuth === 'manager' || this.state.userAuth === 'client' || this.state.userAuth === 'creator') {
-        this.getAccount()
+        await this.getAccount()
         this.setState({ isActive: false })
         console.log('<Myaccount> isAuth : ' + this.state.userAuth)
       }
       else {
         this.setState({ userAuth: 'basic' })
-        console.log('<CatalogueGestion> isAuth : ' + this.state.userAuth)
+        console.log('<Myaccount> isAuth : ' + this.state.userAuth)
         this.setState({ isActive: false })
         this.props.history.push('/Login')
       }
@@ -117,7 +119,7 @@ class MyAcount extends Component {
     this.setState({ isActive: true })
     let response = JSON.parse(await ServerAPI('/users/update', 'POST', { ...this.state }))
     this.setState({ isActive: false })
-    alert(response.message)
+    this.props.alert.show(response.message)
   }
 
   handleChangePassword = async () => {
@@ -131,9 +133,9 @@ class MyAcount extends Component {
       }))
 
       this.setState({ isActive: false, oldpassword: '', newpassword: '', newpasswordC: '' })
-      alert(response.message)
+      this.props.alert.show(response.message)
     } else {
-      alert('not the same password')
+      this.props.alert.show('not the same password')
     }
   }
 
@@ -172,14 +174,13 @@ class MyAcount extends Component {
     axios.post(`/image/uploadmulter`, imageFormObj)
       .then((data) => {
         if (data.data.success) {
-          //alert("Image has been successfully uploaded using multer");
           this.setState({
             multerImage: path
           })
         }
       })
       .catch((err) => {
-        alert("Error while uploading image using multer ");
+        this.props.alert.error("Error while uploading image using multer ")
         console.log(err)
       });
 
@@ -191,7 +192,7 @@ class MyAcount extends Component {
 
 
   render() {
-    const { orders, username, level, phone, address, newpassword, newpasswordC, email, oldpassword , userAuth } = this.state
+    const { orders, username, level, phone, address, newpassword, newpasswordC, email, oldpassword, userAuth } = this.state
     let user, changepassword = <></>
     let Orders = <></>
     let levelInput = <></>
@@ -244,94 +245,98 @@ class MyAcount extends Component {
       <LoadingOverlay
         active={this.state.isActive}
         spinner
-        text='Loading your content...'
+        text={<h2 className='text-dark'>Please wait a few time ...</h2>}
       >
-        <div className="container">
+        {
+          this.state.isActive === false  &&
+          (
+              <div className="container">
 
-          <h1 className="text-center ">My account</h1>
+                <h1 className="text-center ">My account</h1>
 
-          <div className="grey-text">
-            <br />
+                <div className="grey-text">
+                  <br />
 
-            <div className="row">
-              <div className="col-4 text-center">
-                <img src={this.requireImage(this.state.mulertImage)} alt='upload-' width="300" height="300" className='process_image text-center rounded-circle' />
+                  <div className="row">
+                    <div className="col-4 text-center">
+                      <img src={this.requireImage(this.state.mulertImage)} alt='upload-' width="300" height="300" className='process_image text-center rounded-circle' />
+                    </div>
+                    <div className="col-8 ">
+                      <input type='file' className='process_upload-btn text-center ' onChange={(e) => this.uploadImage(e)} />
+                    </div>
+                  </div>
+
+                  <br /><br />
+
+                  {user}
+                  {levelInput}
+                  <div className="row bg-white">
+                    <div className="col-2">
+                      <h3 className="input-group-addon text-center "> phone </h3>
+                    </div>
+                    <div className="col-10">
+                      <input type='text' value={phone || ''} name='phone' className="form-control" onChange={this.updateInputValuePhone} />
+                    </div>
+                  </div>
+
+                  <div className="row bg-white">
+                    <div className="col-2">
+                      <h3 className="input-group-addon text-center "> address </h3>
+                    </div>
+                    <div className="col-10">
+                      <input type='text' value={address || ''} name='address' className="form-control" onChange={this.updateInputValueAdress} />
+                    </div>
+                  </div>
+
+                  <div className="row bg-white">
+                    <div className="col-2">
+                      <h3 className="input-group-addon text-center "> email </h3>
+                    </div>
+                    <div className="col-10">
+                      <input type='email' value={email || ''} name='email' className="form-control" onChange={this.updateInputValueemail} />
+                    </div>
+                  </div>
+
+
+                  {changepassword}
+
+                  <div className="row bg-white">
+                    <div className="col-2">
+                      <h3 className="input-group-addon text-center ">Shoping Cart </h3>
+                    </div>
+                    <div className="col-10 bg-white">
+                      count element {this.state.panier.length} <br />
+                      <button className='btn btn-success text-center ' onClick={this.deletePanier} > Delete Panier </button>
+                    </div>
+
+                  </div>
+
+
+
+                  <div className="row bg-white">
+                    <div className="col-2">
+                      <h3 className="input-group-addon text-center "> my last orders </h3>
+                    </div>
+                    <div className="col-10 AccountOrderScrool">
+                      {Orders}
+                    </div>
+                  </div>
+
+                </div>
+                <div className="row ">
+                  <div className="col-2">
+                  </div>
+                  <div className="col-10">
+                    <button
+                      className="btn btn-primary btn-lg btn-block"
+                      onClick={() => { this.handleapplicate() }}
+                    >Save</button>
+                  </div>
+                </div>
+                <br /><br />
               </div>
-              <div className="col-8 ">
-                <input type='file' className='process_upload-btn text-center ' onChange={(e) => this.uploadImage(e)} />
-              </div>
-            </div>
-
-            <br /><br />
-
-            {user}
-            {levelInput}
-            <div className="row bg-white">
-              <div className="col-2">
-                <h3 className="input-group-addon text-center "> phone </h3>
-              </div>
-              <div className="col-10">
-                <input type='text' value={phone || ''} name='phone' className="form-control" onChange={this.updateInputValuePhone} />
-              </div>
-            </div>
-
-            <div className="row bg-white">
-              <div className="col-2">
-                <h3 className="input-group-addon text-center "> address </h3>
-              </div>
-              <div className="col-10">
-                <input type='text' value={address || ''} name='address' className="form-control" onChange={this.updateInputValueAdress} />
-              </div>
-            </div>
-
-            <div className="row bg-white">
-              <div className="col-2">
-                <h3 className="input-group-addon text-center "> email </h3>
-              </div>
-              <div className="col-10">
-                <input type='email' value={email || ''} name='email' className="form-control" onChange={this.updateInputValueemail} />
-              </div>
-            </div>
-
-
-            {changepassword}
-
-            <div className="row bg-white">
-              <div className="col-2">
-                <h3 className="input-group-addon text-center ">Shoping Cart </h3>
-              </div>
-              <div className="col-10 bg-white">
-                count element {this.state.panier.length} <br />
-                <button className='btn btn-success text-center ' onClick={this.deletePanier} > Delete Panier </button>
-              </div>
-
-            </div>
-
-
-
-            <div className="row bg-white">
-              <div className="col-2">
-                <h3 className="input-group-addon text-center "> my last orders </h3>
-              </div>
-              <div className="col-10 AccountOrderScrool">
-                {Orders}
-              </div>
-            </div>
-
-          </div>
-          <div className="row ">
-            <div className="col-2">
-            </div>
-            <div className="col-10">
-              <button
-                className="btn btn-primary btn-lg btn-block"
-                onClick={() => { this.handleapplicate() }}
-              >Save</button>
-            </div>
-          </div>
-          <br /><br />
-        </div>
-
+            )
+        }
       </LoadingOverlay>
     )
 
@@ -352,4 +357,6 @@ const Order = ({ index, total, deleteOrder }) => {
 }
 
 
-export default MyAcount;
+export default withRouter(
+  withAlert()(MyAcount)
+)

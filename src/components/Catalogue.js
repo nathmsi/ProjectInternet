@@ -22,12 +22,13 @@ class Catalogue extends Component {
     memorySizes: [],
     screenSize: [],
     isActive: true,
-    show : false,
-    idSelect : ''
+    show: false,
+    idSelect: ''
   }
 
   async componentWillMount() {
     try {
+      document.title = 'Catalogue / Car Sale'
       const userAuth = await ServerAPI('/users/level', 'get')
       const computers = JSON.parse(await ServerAPI('/computers/', 'get'))
       this.setState({ computers: computers, computersSelected: computers, userAuth })
@@ -68,15 +69,19 @@ class Catalogue extends Component {
     this.setState({ screenSize: listscreenSize })
   }
 
-  addPanier = async (id, goToPanier) => {
+  addPanier = async (id, goToPanier, inStock) => {
     const { userAuth } = this.state
-    if (userAuth === 'manager' || userAuth === 'creator' || userAuth === 'client') { 
-      this.setState({
-      show : true,
-      idSelect : id ,
-      goToPanier 
-      })
-    }else{
+    if (userAuth === 'manager' || userAuth === 'creator' || userAuth === 'client') {
+      if (inStock === true) {
+        this.setState({
+          show: true,
+          idSelect: id,
+          goToPanier
+        })
+      } else {
+        alert('this object not available in stock')
+      }
+    } else {
       this.props.history.push('/login')
     }
   }
@@ -127,18 +132,18 @@ class Catalogue extends Component {
     this.setState({ computersSelected: computers })
   }
 
-  handleClose = () =>{
-    this.setState({ show : false })
+  handleClose = () => {
+    this.setState({ show: false })
   }
 
-  handlesubmitModal = async () =>{
+  handlesubmitModal = async () => {
     this.setState({ isActive: true })
-    await ServerAPI('/users/panier/add', 'POST', { id : this.state.idSelect })
+    await ServerAPI('/users/panier/add', 'POST', { id: this.state.idSelect })
     if (this.state.goToPanier) {
       this.props.history.push('/panier')
     }
-    else{
-      this.setState({ isActive: false , show : false})
+    else {
+      this.setState({ isActive: false, show: false })
     }
   }
 
@@ -156,59 +161,63 @@ class Catalogue extends Component {
       <LoadingOverlay
         active={this.state.isActive}
         spinner
-        text='Please wait a few time ...'
+        text={<h2 className='text-dark'>Please wait a few time ...</h2>}
       >
+        {
+          this.state.isActive === false &&
+          (
+            <>
+            <div className="container">
+              <hr className="style1" />
 
 
-        <div className="container">
-          <hr className="style1" />
+              <div className="row">
+                <div className="col-2">
+                  <h4 className="input-group-addon">Brand </h4>
+                </div>
+                <div className="col-10">
+                  <Select
+                    value={selectedOption_1}
+                    onChange={this.handleChangeBrand}
+                    options={brands}
+                  />
+                </div>
+              </div><br />
+              <div className="row">
+                <div className="col-2">
+                  <h4 className="input-group-addon">Memory Size </h4>
+                </div>
+                <div className="col-10">
+                  <Select
+                    value={selectedOption_2}
+                    onChange={this.handleChangememorySizes}
+                    options={memorySizes}
+                  />
+                </div>
+              </div><br />
+              <div className="row">
+                <div className="col-2">
+                  <h4 className="input-group-addon">Screen Size </h4>
+                </div>
+                <div className="col-10">
+                  <Select
+                    value={selectedOption_3}
+                    onChange={this.handleChangescreenSize}
+                    options={screenSize}
+                  />
+                </div>
 
-
-          <div className="row">
-            <div className="col-2">
-              <h4 className="input-group-addon">Brand </h4>
+              </div>
             </div>
-            <div className="col-10">
-              <Select
-                value={selectedOption_1}
-                onChange={this.handleChangeBrand}
-                options={brands}
-              />
-            </div>
-          </div><br />
-          <div className="row">
-            <div className="col-2">
-              <h4 className="input-group-addon">Memory Size </h4>
-            </div>
-            <div className="col-10">
-              <Select
-                value={selectedOption_2}
-                onChange={this.handleChangememorySizes}
-                options={memorySizes}
-              />
-            </div>
-          </div><br />
-          <div className="row">
-            <div className="col-2">
-              <h4 className="input-group-addon">Screen Size </h4>
-            </div>
-            <div className="col-10">
-              <Select
-                value={selectedOption_3}
-                onChange={this.handleChangescreenSize}
-                options={screenSize}
-              />
-            </div>
 
-          </div>
-        </div>
-
-        <hr className="style1" />
-
-        <div className='cards computerList'>
-          {computers}
-        </div>
-        < Modal show={this.state.show} handleClose={this.handleClose}  handleSubmit={this.handlesubmitModal} title={"Confirmation add to shopping cart"} Body={""}  />
+            <hr className="style1" />
+            <div className='cards computerList'>
+              {computers}
+            </div>
+            < Modal show={this.state.show} handleClose={this.handleClose} handleSubmit={this.handlesubmitModal} title={"Confirmation add to shopping cart"} Body={""} />
+            </>
+          )
+        }
       </LoadingOverlay>
     );
 

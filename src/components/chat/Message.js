@@ -25,7 +25,8 @@ const Message = ({  myUserNmae, Mymessage  , isUser,  handleLikeMessage  }) => {
     return (
       <p className='user-message'>
          <img src={requireImage(Mymessage.user.imageUser)} alt='upload-' width="50" height="50" className='process_image text-center rounded-circle' />
-         &nbsp; [{countLikes}] <br/>  {Mymessage.message}
+          &nbsp;  { countLikes>0?  <strong className='text-warning'> {countLikes} likes</strong>  : <></>}
+          <br/>  &nbsp; {Mymessage.message}
       </p>
     )
   } else {

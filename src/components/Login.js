@@ -27,6 +27,10 @@ class Login extends Component {
     isLoading: false,
   }
 
+  componentDidMount = ()=>{
+    document.title = 'Login / Car Sale'
+  }
+
 
   updateInputValuePassword = (event) => {
     const { value } = event.target
@@ -107,8 +111,7 @@ class Login extends Component {
             password: passwordU
           }))
           //alert(result.message)
-          this.props.alert.show('result')
-          this.props.alert.success(result.message)
+          this.props.alert.show('result ' + result.message)
           try {
             if (result.success) {
               this.setState({ selected: 'login' })
@@ -152,13 +155,12 @@ class Login extends Component {
       })
       console.log(res)
       if (res === 'notAuthorized' || res === 'Bad Request' || res === 'Unauthorized' || res === null) {
-        this.props.alert.error('this account not registered ')
-        this.props.alert.error('you need to registr before')
-        //alert('this account not registered you need to registr before')
+        this.props.alert.error('this account not registered you need to registr before')
         this.setState({ isLoading: false })
       } else {
-        this.props.alert.success('welcome ')
-        this.props.alert.success( userName)
+        this.props.alert.success('welcome ' + userName,{
+          timeout : 1200
+        })
         this.props.setUserAuthName(res, userName)
         this.setState({ isLoading: false })
         this.props.history.push('/Catalogue')
@@ -166,7 +168,6 @@ class Login extends Component {
 
     } else {
       this.props.alert.error('missing username or password')
-      //alert('missing username or password')
       this.setState({ isLoading: false })
     }
   } catch (err) {
@@ -193,6 +194,7 @@ class Login extends Component {
           if (res === 'Unauthorized') {
             this.handleRegister(authData.additionalUserInfo.profile.email, authData.user.uid, authData.additionalUserInfo.profile.email, authData.user.uid)
           } else {
+            this.props.alert.success('welcome ' + authData.additionalUserInfo.profile.email)
             this.props.setUserAuthName(res, authData.additionalUserInfo.profile.email)
             this.setState({ isLoading: false })
             this.props.history.push('/Catalogue')
@@ -225,6 +227,7 @@ class Login extends Component {
             this.handleRegister(authData.additionalUserInfo.username, authData.credential.accessToken, '', authData.credential.accessToken)
             this.setState({ isLoading: false })
           } else {
+            this.props.alert.success('welcome ' + authData.additionalUserInfo.username )
             this.props.setUserAuthName(res, authData.additionalUserInfo.username)
             this.setState({ isLoading: false })
             this.props.history.push('/Catalogue')
@@ -256,9 +259,7 @@ class Login extends Component {
         })
 
         if (res === 'denied') {
-          this.props.alert.error('this account')
-          this.props.alert.error('already registered')
-          //alert('this account is already registered')
+          this.props.alert.error('this account already registered')
           this.setState({ isLoading: false })
         }
         else {
@@ -267,16 +268,12 @@ class Login extends Component {
           this.props.history.push('/Catalogue')
         }
       } else {
-        //alert('problem password confirmation not matching')
-        this.props.alert.error('problem password ')
-        this.props.alert.error('password not correct ')
+        this.props.alert.error('problem password or username  not correct ')
         this.setState({ isLoading: false })
       }
 
     } else {
-      this.props.alert.error('missing username ')
-      this.props.alert.error('password or email')
-      //alert('missing username , password or email')
+      this.props.alert.error('missing username , password or email')
       this.setState({ isLoading: false })
     }
   }
@@ -295,7 +292,7 @@ class Login extends Component {
         <LoadingOverlay
           active={this.state.isLoading}
           spinner
-          text='wait ...'
+          text={<h2 className='text-dark'>Please wait a few time ...</h2>}
         >
           <div>
             <hr className="style1" />

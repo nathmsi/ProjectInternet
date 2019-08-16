@@ -3,7 +3,7 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app). Then an Express server was added in the `server` directory. The server is proxied via the `proxy` key in `package.json`.
 
-## Using this project
+
 
 Clone the project, change into the directory and install the dependencies.
 
@@ -15,16 +15,16 @@ npm install
 
 Create a `.env` file for environment variables in your server. 
 
-Firebase :
+### Firebase 
 REACT_APP_API_KEY=*******************************
 REACT_APP_AUTHDOMAIN=*******************************
 REACT_APP_DATABASEURL=*******************************
 
-paypal : 
+### paypal 
 REACT_APP_PAYPAL_CLIENT_ID_SANDBOX=*******************************
 REACT_APP_PAYPAL_CLIENT_ID_PRODUCTION=*******************************
 
-gmail: 
+###  gmail
 KEY_GMAIL=*******************************
 
 

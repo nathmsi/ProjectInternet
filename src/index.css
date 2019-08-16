@@ -1,11 +1,12 @@
 
 
 body {
-  background-image: url("https://mdbootstrap.com/img/Photos/Horizontal/Nature/full page/img(11).jpg");
+  background-image: url('./img/frontSite.jpg');
   height: 100vh;
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
+  overflow-y: scroll;
 }
 
 h1, h2, p, ul, li {
@@ -84,6 +85,14 @@ ul.header li a {
 	-webkit-overflow-scrolling:touch;
 }
 
+.GroupGestionScroll {
+  flex: 1 1 100%;
+	align-self: flex-end;
+	max-height: calc(35VH - 300px);
+	overflow-y: scroll;
+	-webkit-overflow-scrolling:touch;
+}
+
 
 .AccountOrderScrool {
   flex: 1 1 100%;
@@ -91,4 +100,17 @@ ul.header li a {
 	max-height: calc(40VH - 300px);
 	overflow-y: scroll;
 	-webkit-overflow-scrolling:touch;
+}
+
+hr.message-inner-separator
+{
+    clear: both;
+    margin-top: 10px;
+    margin-bottom: 13px;
+    border: 0;
+    height: 1px;
+    background-image: -webkit-linear-gradient(left,rgba(0, 0, 0, 0),rgba(0, 0, 0, 0.15),rgba(0, 0, 0, 0));
+    background-image: -moz-linear-gradient(left,rgba(0,0,0,0),rgba(0,0,0,0.15),rgba(0,0,0,0));
+    background-image: -ms-linear-gradient(left,rgba(0,0,0,0),rgba(0,0,0,0.15),rgba(0,0,0,0));
+    background-image: -o-linear-gradient(left,rgba(0,0,0,0),rgba(0,0,0,0.15),rgba(0,0,0,0));
 }

@@ -3,7 +3,7 @@ import React, { Component } from "react";
 import {
   Route,
   withRouter,
-  // BrowserRouter as Router
+  Switch
 } from "react-router-dom";
 
 
@@ -21,6 +21,7 @@ import Blog from "./components/chat/Blog";
 import CatalogueUserGestion from './components/CatalogueGestion'
 import Home from "./components/screen/Home";
 import OrderGestion from './components/OrderGestion'
+import NotFound from './components/screen/NotFound'
 
 //api
 import { ServerAPI } from "./api/db"
@@ -45,8 +46,8 @@ class App extends Component {
       let userAuth = await ServerAPI('/users/level', 'get')
       let userName = await ServerAPI('/users/username', 'get')
       if (userAuth === 'manager' || userAuth === 'client' || userAuth === 'creator') {
-      console.log('session : ' + userAuth)
-      this.setState({ userAuth: userAuth, userName: userName })
+        console.log('session : ' + userAuth)
+        this.setState({ userAuth: userAuth, userName: userName })
       }
     }
     catch (err) {
@@ -56,42 +57,34 @@ class App extends Component {
   }
 
 
-  
-
 
   handleLogout = async () => {
-    this.setState({ isLoading: true }) 
+    this.setState({ isLoading: true })
     this.setState({ userName: 'visitor', userAuth: 'basic' })
     await ServerAPI('/users/logout', 'get')
     this.props.history.push('/Login')
     this.setState({ isLoading: false })
   }
 
-  setUserAuthName = (userAuth , userName) =>{
-    this.setState( { userAuth , userName } )
+  setUserAuthName = (userAuth, userName) => {
+    this.setState({ userAuth, userName })
   }
 
-  handleLogin = () =>{
+  handleLogin = () => {
     this.props.history.push('/Login')
   }
 
 
-
-
-
   render() {
-    const { userAuth , userName} = this.state
 
-    return ( 
-        <div className="backgroungStyle" >
-          <NavBar
-            handleLogout={this.handleLogout}
-            userAuth = {userAuth}
-            userName={userName} />
-          <hr className="style1" /><hr className="style1" /><hr className="style1" />
-          <hr className="style1" />
-          <div className="content " >
-            <Route exact path="/" render={() => <Home  handleLogin={this.handleLogin}  />}/>
+    const { userAuth, userName } = this.state
+
+    return (
+      <div className="backgroungStyle" >
+        <NavBar handleLogout={this.handleLogout} userAuth={userAuth} userName={userName} />
+        <div className="content" >
+          <Switch>
+            <Route exact path="/" render={() => <Home handleLogin={this.handleLogin} />} />
             <Route exact path="/Catalogue" component={Catalogue} />
             <Route exact path="/UserGestion" component={UserGestion} />
             <Route exact path="/OrderGestion" component={OrderGestion} />
@@ -101,11 +94,14 @@ class App extends Component {
             <Route exact path="/Panier" component={Panier} />
             <Route exact path="/Account" component={Account} />
             <Route exact path="/Blog" component={Blog} />
-            <Route exact path="/Login" render={() => <Login  setUserAuthName={this.setUserAuthName}  />} />
-          </div>
-          <Footer />
+            <Route exact path="/Login" render={() => <Login setUserAuthName={this.setUserAuthName} />} />
+            <Route component={NotFound} />
+          </Switch>
         </div>
-    );
+        <Footer />
+      </div>
+    )
+
   }
 }
 

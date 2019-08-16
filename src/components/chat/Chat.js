@@ -21,18 +21,18 @@ class ChatApp extends React.Component {
         isLoading: false,
     }
 
-    
+
 
 
     addMessage = message => {
         this.setState({ isLoading: true })
         const messageObject = {
             message: message.message,
-            id : new Date().valueOf(),
-            date : new Date(),
+            id: new Date().valueOf(),
+            date: new Date(),
             likes: [],
             idUser: this.props.idUser,
-            username : this.props.username
+            username: this.props.username
         };
         this.props.sendMessage(messageObject)
         this.setState({ isLoading: false })
@@ -46,18 +46,18 @@ class ChatApp extends React.Component {
         this.setState({ isLoading: false })
     }
 
-    
+
 
 
 
 
     render() {
 
-        const { userOnline , messages, groupParticipants, username } = this.props
+        const { userOnline, messages, groupParticipants, username } = this.props
 
         const { selectedUsername } = this.state
 
-        var  groupParticipant  = this.props.groupParticipants
+        var groupParticipant = this.props.groupParticipants
         groupParticipant.unshift('All');
         const brands = groupParticipant.map(element => ({ value: element, label: element }))
 
@@ -100,48 +100,53 @@ class ChatApp extends React.Component {
                 spinner
                 text='wait... '
             >
-            <div className=''>
-                <div className="row">
-                    <div className="col-9">
-                        <br />
-                        <div className="row">
-                            <div className="col-6">
-                                <h4 className="input-group-addon text-center "> Filter Username </h4>
+                <div className=''>
+                    <div className="row">
+                        <div className="col-9">
+                            <br />
+                            <div className="row">
+                                <div className="col-6">
+                                    <h4 className="input-group-addon text-center "> Filter Username </h4>
+                                </div>
+                                <div className="col-6">
+                                    <Select
+                                        value={selectedUsername}
+                                        onChange={this.handleChangeUsername}
+                                        options={brands}
+                                    />
+                                </div>
                             </div>
-                            <div className="col-6">
-                                <Select
-                                    value={selectedUsername}
-                                    onChange={this.handleChangeUsername}
-                                    options={brands}
-                                />
+                            <br />
+                            <div>
+                                <div className='messages border' >
+                                    <TransitionGroup className='message'>
+                                        {Listmessages}
+                                    </TransitionGroup>
+                                    {
+                                        messages.length > 10 ?
+                                            <button onClick={this.props.getMoreMessage} type="button" className="btn btn-default btn-sm">
+                                                getMoreMessage </button>
+                                            :
+                                            <></>
+                                    }
+                                </div>
                             </div>
-                        </div>
-                        <br />
-                        <div>
-                            <div className='messages border' >
-                                <TransitionGroup className='message'>
-                                    {Listmessages}
-                                </TransitionGroup>
-                                <button onClick={this.props.getMoreMessage} type="button" className="btn btn-default btn-sm">
-                                    getMoreMessage </button>
-                            </div>
-                        </div>
 
-                        <ChatInput
-                            length={140}
-                            username={username}
-                            addMessage={this.addMessage} />
-                        <br />
-                    </div>
-                    <div className="col-3"><br />
-                        <h4 className='text-center'>  Participants </h4><br />
-                        <hr className="style1" />
-                        <div className='' >
-                            {groupsUser}
+                            <ChatInput
+                                length={140}
+                                username={username}
+                                addMessage={this.addMessage} />
+                            <br />
                         </div>
-                    </div >
+                        <div className="col-3"><br />
+                            <h4 className='text-center'>  Participants </h4><br />
+                            <hr className="style1" />
+                            <div className='' >
+                                {groupsUser}
+                            </div>
+                        </div >
+                    </div>
                 </div>
-            </div>
             </LoadingOverlay>
         );
     }
@@ -150,7 +155,7 @@ class ChatApp extends React.Component {
 
 
 const UserParticipants = ({ userOnline, username }) => {
-    if (userOnline.includes(username) ) {
+    if (userOnline.includes(username)) {
         return (
             <li className={`text-success list-group-item d-flex justify-content-between align-items-center text-center`}>
                 {username} [online]

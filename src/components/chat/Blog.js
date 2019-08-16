@@ -23,16 +23,22 @@ class Blog extends React.Component {
         isLoading: true,
         MyImgUser: '',
         idUser: '',
-        users : []
+        users: [],
+        chatSelected: true
     }
 
     componentDidMount = async () => {
         try {
+            document.title = 'Blog / Car Sale'
             let account = JSON.parse(await ServerAPI('/users/account/', 'get'))
             if (account.level === 'manager' || account.level === 'client' || account.level === 'creator') {
                 const groups = JSON.parse(await this.dbGroupsList())
-                const users = this.setUsers(JSON.parse(await ServerAPI('/users/', 'get' )))
-                this.setState({ username: account.username, userAuth: account.level, idUser: account._id, groups, MyImgUser: account.imageUser , users  })
+                groups.forEach(element => {
+                    element.participantsSelect = false
+                    element.requestSelect = false
+                });
+                const users = this.setUsers(JSON.parse(await ServerAPI('/users/', 'get')))
+                this.setState({ username: account.username, userAuth: account.level, idUser: account._id, groups, MyImgUser: account.imageUser, users })
                 console.log('<Blog> isAuth : ' + account.level)
             } else {
                 this.setState({ userAuth: 'basic' })
@@ -48,9 +54,9 @@ class Blog extends React.Component {
         }
     }
 
-    setUsers = (users) =>{
+    setUsers = (users) => {
         let result = []
-        users.forEach( user => {
+        users.forEach(user => {
             result[user._id] = user
         })
         return result
@@ -106,7 +112,11 @@ class Blog extends React.Component {
     }
 
     deleteGroup = async (id) => {
-        this.setState({ isLoading: true })
+        this.setState({ isLoading: true  })
+        if (this.socket !== null) {
+            this.socket.close()
+            this.setState({ messages: [], userOnline: [] ,  group : [] })
+        }
         await ServerAPI('/groups/delete', 'POST', { id })
         const groups = JSON.parse(await this.dbGroupsList())
         this.setState({ groups, group: [] })
@@ -143,22 +153,22 @@ class Blog extends React.Component {
             this.setState({ messages: [], userOnline: [] })
         }
         let Myip = ''
-        var findIP = new Promise(r=>{var w=window,a=new (w.RTCPeerConnection||w.mozRTCPeerConnection||w.webkitRTCPeerConnection)({iceServers:[]}),b=()=>{};a.createDataChannel("");a.createOffer(c=>a.setLocalDescription(c,b,b),b);a.onicecandidate=c=>{try{c.candidate.candidate.match(/([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/g).forEach(r)}catch(e){}}})
-        findIP.then(ip =>{Myip = ip })
-        .catch(e => console.log(e))
+        var findIP = new Promise(r => { var w = window, a = new (w.RTCPeerConnection || w.mozRTCPeerConnection || w.webkitRTCPeerConnection)({ iceServers: [] }), b = () => { }; a.createDataChannel(""); a.createOffer(c => a.setLocalDescription(c, b, b), b); a.onicecandidate = c => { try { c.candidate.candidate.match(/([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/g).forEach(r) } catch (e) { } } })
+        findIP.then(ip => { Myip = ip })
+            .catch(e => console.log(e))
 
         let server = 'http://' + Myip + ':5555/' // localhost:5555 
-        this.socket = io( server , { query: `username=${username}&groupName=${groupSelect}&idGroup=${idGroup}` }).connect();
+        this.socket = io(server, { query: `username=${username}&groupName=${groupSelect}&idGroup=${idGroup}` }).connect();
 
         // Listen for messages from the server
         this.socket.on('server:message/' + groupSelect, messages => {
-            messages.forEach(message =>{
+            messages.forEach(message => {
                 message.user = this.state.users[message.idUser]
             })
             this.setState({ messages: messages })
         });
         this.socket.on('server:connection/' + groupSelect, data => {
-            data.messages.forEach(message =>{
+            data.messages.forEach(message => {
                 message.user = this.state.users[message.idUser]
             })
             this.setState({ userOnline: data.onlines, messages: data.messages })
@@ -172,21 +182,25 @@ class Blog extends React.Component {
     sendMessage = (messageObject) => {
         let { messages } = this.state
         this.socket.emit('client:message/' + this.state.group.name, messageObject)
-        messageObject.user  = this.state.users[messageObject.idUser]
+        messageObject.user = this.state.users[messageObject.idUser]
         messages.push(messageObject)
         this.setState({ messages: messages })
     }
 
-    handleLikeMessage = ( id ) => {
+    handleLikeMessage = (id) => {
         console.log(111)
-        this.socket.emit('client:message/liked/' + this.state.group.name, {  id  } );
+        this.socket.emit('client:message/liked/' + this.state.group.name, { id });
     }
 
     getMoreMessage = () => {
         this.socket.emit('client:getMoreMessage' + this.state.group.name);
     }
 
-  
+    ChatSelected = () => {
+        this.setState({ chatSelected: !this.state.chatSelected })
+    }
+
+
 
     render() {
         const { userAuth, groups, username, groupParticipants, group } = this.state
@@ -199,65 +213,81 @@ class Blog extends React.Component {
             <LoadingOverlay
                 active={this.state.isLoading}
                 spinner
-                text='wait a few time to access '
+                text={<h2 className='text-dark'>Please wait a few time ...</h2>}
             >
                 {
-                    (flag === true) ?
+                    (flag === true && this.state.isLoading === false ) ?
                         (
                             <div className="row">
-                                <div className="col-2">
+                                <div className="col-3  container bg-light">
+                                    <br />
+                                    <div className="rounded-pill bg-primary text-white text-center">
+                                        <h3> Select Group </h3>
+                                    </div>
+                                    <br />
                                     <Groups groups={groups} groupSelected={this.groupSelected} />
+                                    <br />
                                 </div>
-                                <div className="col-10">
+                                <div className="col-9">
                                     <div className="row">
-                                        <div className="col-7 border bg-light">
-                                            {
-                                                (group.length === 0) ?
-                                                    (
-                                                        <div className="container text-center">
-                                                            <br />
-                                                            <h2> Select Group </h2>
-                                                            <br />
-                                                        </div>
-                                                    )
-                                                    :
-                                                    (groupParticipants !== null && groupParticipants.includes(username)) ?
-                                                        <Chat messages={this.state.messages} userOnline={this.state.userOnline}
-                                                            username={this.state.username} groupParticipants={groupParticipants}
-                                                            sendMessage={this.sendMessage} handleLikeMessage={this.handleLikeMessage}
-                                                            idUser={this.state.idUser} getMoreMessage={this.getMoreMessage} />
-                                                        :
-                                                        (
-                                                            (group.request.includes(username)) ?
+                                        <div className="col-12 border bg-light">
+                                            <br />
+                                            <div className="rounded-pill bg-primary text-white text-center">
+                                                <h3  onClick={this.ChatSelected}> Chat  &nbsp;  {this.state.chatSelected === true ? (<>-</>) : (<>+</>)} </h3>
+                                            </div>
+                                            {this.state.chatSelected === true &&
+                                                (
+                                                    <>
+                                                        {
+                                                            (group.length === 0) ?
                                                                 (
                                                                     <div className="container text-center">
                                                                         <br />
-                                                                        <h3> Group name  " <strong> {group.name} </strong> "</h3>
-                                                                        <h2> your request sent <br/> you need to wait confirmation manager </h2>
+                                                                        <h2> Select your Group </h2>
                                                                         <br />
                                                                     </div>
                                                                 )
                                                                 :
-                                                                (
-                                                                    <div className="container text-center">
-                                                                        <br />
-                                                                        <h3> Group name  " <strong> {group.name} </strong> "</h3>
-                                                                        <h2> You need to request access to Group </h2>
-                                                                        <button className='btn btn-success' onClick={() => this.addGroupRequest(group, username)}
-                                                                        >  + Request </button>
-                                                                        <br />
-                                                                    </div>
-                                                                )
-                                                        )
-                                            }
-                                        </div>
-                                        <div className="col-5">
+                                                                (groupParticipants !== null && groupParticipants.includes(username)) ?
+                                                                    <Chat messages={this.state.messages} userOnline={this.state.userOnline}
+                                                                        username={this.state.username} groupParticipants={groupParticipants}
+                                                                        sendMessage={this.sendMessage} handleLikeMessage={this.handleLikeMessage}
+                                                                        idUser={this.state.idUser} getMoreMessage={this.getMoreMessage} />
+                                                                    :
+                                                                    (
+                                                                        (group.request.includes(username)) ?
+                                                                            (
+                                                                                <div className="container text-center">
+                                                                                    <br />
+                                                                                    <h3> Group name  " <strong> {group.name} </strong> "</h3>
+                                                                                    <h2> your request sent <br /> you need to wait confirmation manager </h2>
+                                                                                    <br />
+                                                                                </div>
+                                                                            )
+                                                                            :
+                                                                            (
+                                                                                <div className="container text-center">
+                                                                                    <br />
+                                                                                    <h3> Group name  " <strong> {group.name} </strong> "</h3>
+                                                                                    <h2> You need to request access to Group </h2>
+                                                                                    <button className='btn btn-success' onClick={() => this.addGroupRequest(group, username)}
+                                                                                    >  + Request </button>
+                                                                                    <br />
+                                                                                </div>
+                                                                            )
+                                                                    )
+                                                        }
+                                                    </>
+                                                )}
                                             {(userAuth === 'manager' || userAuth === 'creator') ?
                                                 <GroupGestion addGroup={this.addGroup} deleteGroupParticipant={this.deleteGroupParticipant} deleteGroup={this.deleteGroup}
                                                     addGroupParticipant={this.addGroupParticipant} groups={groups} /> :
                                                 <></>
                                             }
                                         </div>
+                                        {/* <div className="col-5">
+                                            
+                                        </div> */}
                                     </div>
                                 </div>
 
