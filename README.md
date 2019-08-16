@@ -13,7 +13,20 @@ cd ProjectInternet
 npm install
 ```
 
-Create a `.env` file for environment variables in your server.
+Create a `.env` file for environment variables in your server. 
+
+Firebase :
+REACT_APP_API_KEY=*******************************
+REACT_APP_AUTHDOMAIN=*******************************
+REACT_APP_DATABASEURL=*******************************
+
+paypal : 
+REACT_APP_PAYPAL_CLIENT_ID_SANDBOX=*******************************
+REACT_APP_PAYPAL_CLIENT_ID_PRODUCTION=*******************************
+
+gmail: 
+KEY_GMAIL=*******************************
+
 
 You can start the server on its own with the command:
 
