@@ -27,8 +27,24 @@ class Login extends Component {
     isLoading: false,
   }
 
-  componentDidMount = ()=>{
+  componentDidMount = async ()=>{
     document.title = 'Login / Car Sale'
+    await this.getUserAuth()
+  }
+
+  getUserAuth = async () => {
+    try {
+      let userAuth = await ServerAPI('/users/level', 'get')
+      let userName = await ServerAPI('/users/username', 'get')
+      if (userAuth === 'manager' || userAuth === 'client' || userAuth === 'creator') {
+        console.log('session Login  : ' + userAuth)
+        this.props.alert.show('You are already login ' + userName)
+        this.props.pathTo('/Catalogue')
+      }
+    }
+    catch (err) {
+      console.log('session error : ' + err)
+    }
   }
 
 

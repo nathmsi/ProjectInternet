@@ -1,7 +1,8 @@
 import React from "react";
 
 
-const Home = ({ handleLogin }) => {
+const Home = ({ isLogin, pathTo }) => {
+  let ifLogin = isLogin()
   document.title = 'Home / Car Sale'
   return (
     <div className="container">
@@ -14,14 +15,26 @@ const Home = ({ handleLogin }) => {
         It's Nice to Meet You!
         </h3>
       <hr className="style1" />
-      <button
-        className="btn btn-outline-dark"
-        onClick={handleLogin}
-      >
-        <div className=" text-black ">
-           Login / Register
-        </div>
-      </button>
+      {
+        ifLogin === true ?
+          (
+            <button
+              className="btn btn-outline-dark"
+              onClick={() => pathTo('/Catalogue')}
+            >
+              Catalogue
+            </button>
+          )
+          :
+          (
+            <button
+              className="btn btn-outline-dark"
+              onClick={() => pathTo('/Login')}
+            >
+              Login / Register
+            </button>
+          )
+      }
     </div>
   )
 }

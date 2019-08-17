@@ -70,8 +70,17 @@ class App extends Component {
     this.setState({ userAuth, userName })
   }
 
-  handleLogin = () => {
-    this.props.history.push('/Login')
+  pathTo = (path) => {
+    this.props.history.push(path)
+  }
+
+  isLogin = () =>{
+    const { userAuth } = this.state
+    if (userAuth === 'manager' || userAuth === 'client' || userAuth === 'creator') {
+      return true
+    }else{
+      return false
+    }
   }
 
 
@@ -84,7 +93,7 @@ class App extends Component {
         <NavBar handleLogout={this.handleLogout} userAuth={userAuth} userName={userName} />
         <div className="content" >
           <Switch>
-            <Route exact path="/" render={() => <Home handleLogin={this.handleLogin} />} />
+            <Route exact path="/" render={() => <Home pathTo={this.pathTo} isLogin={this.isLogin}/>} />
             <Route exact path="/Catalogue" component={Catalogue} />
             <Route exact path="/UserGestion" component={UserGestion} />
             <Route exact path="/OrderGestion" component={OrderGestion} />
@@ -94,7 +103,7 @@ class App extends Component {
             <Route exact path="/Panier" component={Panier} />
             <Route exact path="/Account" component={Account} />
             <Route exact path="/Blog" component={Blog} />
-            <Route exact path="/Login" render={() => <Login setUserAuthName={this.setUserAuthName} />} />
+            <Route exact path="/Login" render={() => <Login setUserAuthName={this.setUserAuthName} isLogin={this.isLogin} pathTo={this.pathTo} userName={this.state.userName} />} />
             <Route component={NotFound} />
           </Switch>
         </div>

@@ -9,7 +9,7 @@ const AlertTemplate = ({ options, message, close }) => {
                     <div className="alert alert-info">
                         <button type="button" onClick={close} className="close" data-dismiss="alert" aria-hidden="true">
                             ×</button>
-                        <h4> {message} {message}</h4>
+                        <h4> {message}</h4>
                     </div>
                 )
             }
@@ -28,7 +28,7 @@ const AlertTemplate = ({ options, message, close }) => {
                         <button type="button" onClick={close} className="close" data-dismiss="alert" aria-hidden="true">
                             ×</button>
                         <span className="glyphicon glyphicon-info-sign"></span> <h3>Error</h3>
-                        <h4> {message} {message}</h4>
+                        <h4> {message} </h4>
                     </div>
                 )
             }

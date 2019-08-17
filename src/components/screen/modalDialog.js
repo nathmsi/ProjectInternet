@@ -17,10 +17,13 @@ const modalDialog = ({ show, handleClose, handleSubmit, title, Body, children })
             <ModalHeader closeButton>
                 <ModalTitle> <h2>{title}</h2> </ModalTitle>
             </ModalHeader>
-            <ModalBody>
-                {Body}
-                {children}
-            </ModalBody>
+            {
+                Body !== '' &&
+                <ModalBody>
+                    {Body}
+                    {children}
+                </ModalBody>
+            }
             <ModalFooter>
                 <Button variant="secondary" onClick={handleClose} >Close</Button>
                 <Button variant="primary" onClick={handleSubmit} > Confirmate </Button>

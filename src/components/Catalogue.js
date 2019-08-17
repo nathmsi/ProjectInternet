@@ -7,6 +7,9 @@ import Modal from './screen/modalDialog'
 
 import { ServerAPI } from "../api/db"
 
+import { withRouter } from 'react-router-dom';
+import { withAlert } from 'react-alert'
+
 
 class Catalogue extends Component {
 
@@ -79,9 +82,10 @@ class Catalogue extends Component {
           goToPanier
         })
       } else {
-        alert('this object not available in stock')
+        this.props.alert.show('this object not available in stock')
       }
     } else {
+      this.props.alert.show('You need to Login before')
       this.props.history.push('/login')
     }
   }
@@ -229,5 +233,6 @@ class Catalogue extends Component {
 
 
 
-
-export default Catalogue;
+export default withRouter(
+  withAlert()(Catalogue)
+)
