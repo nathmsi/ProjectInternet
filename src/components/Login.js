@@ -198,7 +198,7 @@ class Login extends Component {
     try {
       this.setState({ isLoading: true })
       const authProvider = new firebase.auth.GoogleAuthProvider()
-      await firebaseApp
+      await firebaseApp()
         .auth()
         .signInWithPopup(authProvider)
         .then(async authData => {
@@ -231,7 +231,7 @@ class Login extends Component {
     try {
       this.setState({ isLoading: true })
       const authProvider = new firebase.auth.TwitterAuthProvider()
-      firebaseApp
+      await firebaseApp()
         .auth()
         .signInWithPopup(authProvider)
         .then(async authData => {

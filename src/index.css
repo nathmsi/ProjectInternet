@@ -40,66 +40,84 @@ ul.header li a {
 
 
 .computerList {
-	flex: 1 1 100%;
+	/* flex: 1 1 100%;
 	align-self: flex-end;
-	max-height: calc(92vh - 300px);
+  max-height: calc(92vh - 300px);
 	overflow-y: scroll;
-	-webkit-overflow-scrolling:touch;
+  -webkit-overflow-scrolling:touch; */
+  height: 850px;
+  overflow:auto;
 }
 
 .computerUpdateList {
-	flex: 1 1 100%;
+	/* flex: 1 1 100%;
 	align-self: flex-end;
 	max-height: calc(110vh - 300px);
 	overflow-y: scroll;
-	-webkit-overflow-scrolling:touch;
+  -webkit-overflow-scrolling:touch; */
+  height: 1100px;
+  overflow:auto;
 }
 
 .panierScrool {
-  flex: 1 1 100%;
+  /* flex: 1 1 100%;
 	align-self: flex-end;
 	max-height: calc(100VH - 300px);
 	overflow-y: scroll;
-	-webkit-overflow-scrolling:touch;
+  -webkit-overflow-scrolling:touch; */
+  height: 1100px;
+  overflow:auto;
 }
 
 .blogScrool {
-  max-height: calc(78VH - 300px);
-  overflow-y: scroll;
+  /* max-height: calc(78VH - 300px);
+  overflow-y: scroll; */
+
+  height: 1100px;
+  overflow:auto;
 }
 
 .Accountscroll {
-  flex: 1 1 100%;
+  /* flex: 1 1 100%;
 	align-self: flex-end;
 	max-height: calc(105vh - 300px);
 	overflow-y: scroll;
-	-webkit-overflow-scrolling:touch;
+	-webkit-overflow-scrolling:touch; */
 }
 
 
 .OrderScrool {
-  flex: 1 1 100%;
+  /* flex: 1 1 100%;
 	align-self: flex-end;
 	max-height: calc(59VH - 300px);
 	overflow-y: scroll;
-	-webkit-overflow-scrolling:touch;
+  -webkit-overflow-scrolling:touch; */
+  
+  height: 480px;
+  overflow:auto;
 }
 
 .GroupGestionScroll {
-  flex: 1 1 100%;
+  /* flex: 1 1 100%;
 	align-self: flex-end;
 	max-height: calc(35VH - 300px);
 	overflow-y: scroll;
-	-webkit-overflow-scrolling:touch;
+  -webkit-overflow-scrolling:touch; */
+  
+  height: 120px;
+  overflow:auto;
 }
 
 
 .AccountOrderScrool {
-  flex: 1 1 100%;
+  /* flex: 1 1 100%;
 	align-self: flex-end;
 	max-height: calc(40VH - 300px);
 	overflow-y: scroll;
-	-webkit-overflow-scrolling:touch;
+  -webkit-overflow-scrolling:touch; */
+  
+  height: 240px;
+  overflow:auto;
 }
 
 hr.message-inner-separator
