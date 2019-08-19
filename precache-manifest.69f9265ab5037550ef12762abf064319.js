@@ -4,8 +4,8 @@ self.__precacheManifest = [
     "url": "/ProjectInternet/static/media/1563376457306imac.a5b524ff.jpg"
   },
   {
-    "revision": "df07dde115b2b25a8ee3",
-    "url": "/ProjectInternet/static/css/main.916bf4c5.chunk.css"
+    "revision": "e1aa59e795d5f0971fa0",
+    "url": "/ProjectInternet/static/css/main.680d22aa.chunk.css"
   },
   {
     "revision": "bbff46fc84d4b43a4b18",
@@ -16,8 +16,8 @@ self.__precacheManifest = [
     "url": "/ProjectInternet/static/media/logo2.a3066e6e.png"
   },
   {
-    "revision": "3945e174fdc374ed7cee",
-    "url": "/ProjectInternet/static/js/2.a8f866bb.chunk.js"
+    "revision": "d0024a1a9f8249668bf0",
+    "url": "/ProjectInternet/static/js/2.bae61079.chunk.js"
   },
   {
     "revision": "2586cca637377c5725e46d3523a1c1c3",
@@ -88,8 +88,8 @@ self.__precacheManifest = [
     "url": "/ProjectInternet/static/media/1563376448461macair.83baead5.jpg"
   },
   {
-    "revision": "df07dde115b2b25a8ee3",
-    "url": "/ProjectInternet/static/js/main.741c901a.chunk.js"
+    "revision": "e1aa59e795d5f0971fa0",
+    "url": "/ProjectInternet/static/js/main.abb52695.chunk.js"
   },
   {
     "revision": "a44913fb3739eeac889e786f20f0a608",
@@ -172,11 +172,11 @@ self.__precacheManifest = [
     "url": "/ProjectInternet/static/media/shopping-cart.0d84005e.png"
   },
   {
-    "revision": "3945e174fdc374ed7cee",
+    "revision": "d0024a1a9f8249668bf0",
     "url": "/ProjectInternet/static/css/2.0ea59791.chunk.css"
   },
   {
-    "revision": "7aea7d54fea7ea6c64dab5581056cfca",
+    "revision": "184c3b1543d67adf386c88961a0267cd",
     "url": "/ProjectInternet/index.html"
   }
 ];
