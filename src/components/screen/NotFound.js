@@ -1,7 +1,7 @@
 import React from "react";
 
 const NotFound = () => {
-    document.title = 'NotFound / Car Sale'
+    document.title = 'NotFound / Computer Sale'
     return (
         <div className="container">
                 <div class="hero-unit text-center">

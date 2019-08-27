@@ -185,16 +185,22 @@ const Element = ({ element, deleteGroupParticipant, addGroupParticipant, deleteG
             <span className="badge badge-primary badge-pill text-right">{element.participants.length}</span>  &nbsp;
             participants
         </div>
-          <div className='GroupGestionScroll'>
-            {participantsList}
-          </div>
+          {
+            participantsList.length !== 0 &&
+            <div className='GroupGestionScroll'>
+              {participantsList}
+            </div>
+          }
           <div className="p-2 mb-2 bg-secondary text-white" onClick={() => selectRequest(element._id)} >
             <span className="badge badge-primary badge-pill pull-right">{element.request.length}</span>  &nbsp;
             Requests
         </div>
-          <div className='GroupGestionScroll'>
-            {RequestsList}
-          </div>
+          {
+            RequestsList.length !== 0 &&
+            <div className='GroupGestionScroll'>
+              {RequestsList}
+            </div>
+          }
         </div>
       </div>
       <br />

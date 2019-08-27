@@ -8,6 +8,14 @@ import firebase from 'firebase/app'
 import 'firebase/auth'
 import { firebaseApp } from '../base'
 
+// screen
+import Signin from './screen/SignIn'
+import Register from './screen/Register'
+
+
+import "../styles/Login.css";
+
+
 
 //api
 import { ServerAPI } from "../api/db"
@@ -15,645 +23,443 @@ import { ServerAPI } from "../api/db"
 class Login extends Component {
 
 
-  state = {
-    username: '',
-    password: '',
-    email: '',
-    code: '',
-    usernameU: '',
-    passwordU: '',
-    selected: 'login',
-    codeConf: '',
-    isLoading: false,
-  }
-
-  componentDidMount = async ()=>{
-    document.title = 'Login / Car Sale'
-    await this.getUserAuth()
-  }
-
-  getUserAuth = async () => {
-    try {
-      let userAuth = await ServerAPI('/users/level', 'get')
-      let userName = await ServerAPI('/users/username', 'get')
-      if (userAuth === 'manager' || userAuth === 'client' || userAuth === 'creator') {
-        console.log('session Login  : ' + userAuth)
-        this.props.alert.show('You are already login ' + userName)
-        this.props.pathTo('/Catalogue')
-      }
-    }
-    catch (err) {
-      console.log('session error : ' + err)
-    }
-  }
-
-
-  updateInputValuePassword = (event) => {
-    const { value } = event.target
-    this.setState({ password: value })
-  }
-  updateInputValueUsername = (event) => {
-    const { value } = event.target
-    this.setState({ username: value })
-  }
-
-  updateInputValueemail = (event) => {
-    const { value } = event.target
-    this.setState({ email: value })
-  }
-
-  updateInputValuecodeConf = (event) => {
-    const { value } = event.target
-    this.setState({ codeConf: value })
-  }
-
-
-  updateInputValuePasswordU = (event) => {
-    const { value } = event.target
-    this.setState({ passwordU: value })
-  }
-  updateInputValueUsernameU = (event) => {
-    const { value } = event.target
-    this.setState({ usernameU: value })
-  }
-
-  forgotPassword = async () => {
-    try {
-      this.setState({ isLoading: true })
-
-      let code = Math.floor((Math.random() * 10000) + 999);
-      let response = JSON.parse(await ServerAPI('/users/forgot', 'POST', {
-        email: this.state.email,
-        code,
-        username: this.state.username
-      }))
-      //alert(response.message)
-      this.props.alert.show(response.message)
-      if (response.success === true) {
-        this.setState({ code: code.toString(), selected: 'confcode', isLoading: false })
-      } else {
-        this.setState({  isLoading: false })
-      }
-    } catch (err) {
-      console.log(err)
-      this.setState({ selected: 'login', isLoading: false })
+    state = {
+        username: '',
+        password: '',
+        email_: '',
+        code: '',
+        username1: '',
+        password1: '',
+        password12: '',
+        selected: 'login',
+        codeConf: '',
+        isLoading: false,
+        isConnected: false
     }
 
-  }
-
-  checkcode = () => {
-    this.setState({ isLoading: true })
-    const { codeConf, code } = this.state
-
-    if (codeConf === code && codeConf !== '') {
-      this.setState({ selected: 'changpassword' })
-      this.setState({ isLoading: false })
-    } else {
-      this.props.alert.error('wrong code ')
-      this.setState({ isLoading: false })
+    componentDidMount = async () => {
+        document.title = 'Login / Car Sale'
+        await this.getUserAuth()
     }
-  }
 
-  newpassword = async () => {
-    try {
-      this.setState({ isLoading: true })
-      const { passwordU, password } = this.state
-      if (passwordU !== '') {
-        if (password === passwordU) {
-          let result = JSON.parse(await ServerAPI('/users/newPassword', 'POST', {
-            email: this.state.email,
-            code: this.state.code,
-            username: this.state.username,
-            password: passwordU
-          }))
-          //alert(result.message)
-          this.props.alert.show('result ' + result.message)
-          try {
-            if (result.success) {
-              this.setState({ selected: 'login' })
-              this.setState({ isLoading: false })
+    getUserAuth = async () => {
+        try {
+            let userAuth = await ServerAPI('/users/level', 'get')
+            console.log('session Login  : ' + userAuth)
+            //let userName = await ServerAPI('/users/username', 'get')
+            if (userAuth === 'manager' || userAuth === 'client' || userAuth === 'creator') {
+                //this.props.alert.show('You are already login ' + userName)
+                this.props.pathTo('/Catalogue')
             } else {
-              //alert('wrong')
-              this.props.alert.error('wrong')
-              this.setState({ isLoading: false })
+                this.setState({ isConnected: true })
+                this.props.setUserAuthName('basic', 'Visitor')
             }
-          } catch (err) {
+        }
+        catch (err) {
+            console.log('session error : ' + err)
+        }
+    }
+
+
+
+    handleChange = event => {
+        const { name, value } = event.target
+        this.setState({ [name]: value })
+    }
+
+
+    forgotPassword = async () => {
+        try {
+            this.setState({ isLoading: true })
+
+            let code = Math.floor((Math.random() * 10000) + 999);
+            let response = JSON.parse(await ServerAPI('/users/forgot', 'POST', {
+                email: this.state.email_,
+                code,
+                username: this.state.username
+            }))
+            //alert(response.message)
+            this.props.alert.show(response.message)
+            if (response.success === true) {
+                this.setState({ code: code.toString(), selected: 'confcode', isLoading: false })
+            } else {
+                this.setState({ isLoading: false })
+            }
+        } catch (err) {
             console.log(err)
-            this.setState({ isLoading: false })
-          }
-        } else {
-          this.props.alert.error('confirmation password not matching')
-          this.setState({ isLoading: false })
+            this.setState({ selected: 'login', isLoading: false })
         }
-      } else {
-        //alert('set new password')
-        this.props.alert.show('set new password')
-        this.setState({ isLoading: false })
-      }
-    } catch (err) {
-      console.log(err)
-      this.setState({ selected: 'login', isLoading: false })
+
     }
-  }
 
-
-
-  ///////////// login //////////////////////////////
-  handleLogin = async (userName, pass) => {
-    try {
-    if (userName !== '' && pass !== '') {
-      this.setState({ isLoading: true })
-
-
-      let res = await ServerAPI('/users/login', 'POST', {
-        'username': userName,
-        'password': pass
-      })
-      console.log(res)
-      if (res === 'notAuthorized' || res === 'Bad Request' || res === 'Unauthorized' || res === null) {
-        this.props.alert.error('this account not registered you need to registr before')
-        this.setState({ isLoading: false })
-      } else {
-        this.props.alert.success('welcome ' + userName,{
-          timeout : 1200
-        })
-        this.props.setUserAuthName(res, userName)
-        this.setState({ isLoading: false })
-        this.props.history.push('/Catalogue')
-      }
-
-    } else {
-      this.props.alert.error('missing username or password')
-      this.setState({ isLoading: false })
-    }
-  } catch (err) {
-    console.log(err)
-    this.setState({ selected: 'login', isLoading: false })
-  }
-  }
-
-
-
-  handleLoginGoogle = async () => {
-    try {
-      this.setState({ isLoading: true })
-      const authProvider = new firebase.auth.GoogleAuthProvider()
-      await firebaseApp()
-        .auth()
-        .signInWithPopup(authProvider)
-        .then(async authData => {
-          this.setState({ isLoading: true })
-          let res = await ServerAPI('/users/login', 'POST', {
-            'username': authData.additionalUserInfo.profile.email,
-            'password': authData.user.uid
-          })
-          if (res === 'Unauthorized') {
-            this.handleRegister(authData.additionalUserInfo.profile.email, authData.user.uid, authData.additionalUserInfo.profile.email, authData.user.uid)
-          } else {
-            this.props.alert.success('welcome ' + authData.additionalUserInfo.profile.email)
-            this.props.setUserAuthName(res, authData.additionalUserInfo.profile.email)
-            this.setState({ isLoading: false })
-            this.props.history.push('/Catalogue')
-          }
-        })
-        .catch(err => {
-          this.setState({ isLoading: false })
-          console.log(err)
-        })
-    }
-    catch (err) {
-      this.setState({ isLoading: false })
-      console.log(err)
-    }
-  }
-
-  handleLoginTwitter = async () => {
-    try {
-      this.setState({ isLoading: true })
-      const authProvider = new firebase.auth.TwitterAuthProvider()
-      await firebaseApp()
-        .auth()
-        .signInWithPopup(authProvider)
-        .then(async authData => {
-          let res = await ServerAPI('/users/login', 'POST', {
-            'username': authData.additionalUserInfo.username,
-            'password': authData.credential.accessToken
-          })
-          if (res === 'Unauthorized') {
-            this.handleRegister(authData.additionalUserInfo.username, authData.credential.accessToken, '', authData.credential.accessToken)
-            this.setState({ isLoading: false })
-          } else {
-            this.props.alert.success('welcome ' + authData.additionalUserInfo.username )
-            this.props.setUserAuthName(res, authData.additionalUserInfo.username)
-            this.setState({ isLoading: false })
-            this.props.history.push('/Catalogue')
-          }
-        })
-        .catch(err => {
-          console.log(err)
-          this.setState({ isLoading: false })
-        })
-    }
-    catch (err) {
-      this.setState({ isLoading: false })
-      console.log(err)
-    }
-  }
-
-
-
-  ///////////// register //////////////////////////////
-  handleRegister = async (userName, pass, email, passConf) => {
-    if (userName !== '' && pass !== '' && email !== '' && passConf !== '') {
-      if (passConf === pass) {
+    checkcode = () => {
         this.setState({ isLoading: true })
-        let res = await ServerAPI('/users/register', 'POST', {
-          'username': userName,
-          'password': pass,
-          'level': 'client',
-          'email': email
-        })
+        const { codeConf, code } = this.state
 
-        if (res === 'denied') {
-          this.props.alert.error('this account already registered')
-          this.setState({ isLoading: false })
+        if (codeConf === code && codeConf !== '') {
+            this.setState({ selected: 'changpassword' })
+            this.setState({ isLoading: false })
+        } else {
+            this.props.alert.error('wrong code ')
+            this.setState({ isLoading: false })
         }
-        else {
-          this.props.setUserAuthName(res, userName)
-          this.setState({ isLoading: false })
-          this.props.history.push('/Catalogue')
-        }
-      } else {
-        this.props.alert.error('problem password or username  not correct ')
-        this.setState({ isLoading: false })
-      }
-
-    } else {
-      this.props.alert.error('missing username , password or email')
-      this.setState({ isLoading: false })
     }
-  }
+
+    newpassword = async () => {
+        try {
+            this.setState({ isLoading: true })
+            const { password1, password12 } = this.state
+            if (password1 !== '') {
+                if (password1 === password12) {
+                    let result = JSON.parse(await ServerAPI('/users/newPassword', 'POST', {
+                        email: this.state.email_,
+                        code: this.state.code,
+                        username: this.state.username,
+                        password: password1
+                    }))
+                    try {
+                        if (result.success) {
+                            this.props.alert.show(result.message)
+                            this.setState({ selected: 'login' })
+                            this.setState({ isLoading: false, selected: 'login' })
+                        } else {
+                            //alert('wrong')
+                            this.props.alert.error('wrong')
+                            this.props.alert.show(result.message)
+                            this.setState({ isLoading: false, selected: 'login' })
+                        }
+                    } catch (err) {
+                        console.log(err)
+                        this.setState({ isLoading: false, selected: 'login' })
+                    }
+                } else {
+                    this.props.alert.error('confirmation password not matching')
+                    this.setState({ isLoading: false })
+                }
+            } else {
+                //alert('set new password')
+                this.props.alert.show('set new password')
+                this.setState({ isLoading: false, selected: 'login' })
+            }
+        } catch (err) {
+            console.log(err)
+            this.setState({ selected: 'login', isLoading: false })
+        }
+    }
+
+
+
+    ///////////// login //////////////////////////////
+    handleLogin = async (userName, pass) => {
+        try {
+            if (userName !== '' && pass !== '') {
+                this.setState({ isLoading: true })
+
+
+                let res = await ServerAPI('/users/login', 'POST', {
+                    'username': userName,
+                    'password': pass
+                })
+                if (res === 'client' || res === 'manager' || res === 'creator') {
+                    console.log( 'login : ' + userName + ' userAuth : ' + res )
+                    this.props.alert.success('welcome ' + userName)
+                    this.props.setUserAuthName(res, userName)
+                    this.props.getCountPanier()
+                    this.setState({ isLoading: false })
+                    this.props.history.push('/Catalogue')
+                } else {
+                    console.log( 'error : ' + res )
+                    this.props.alert.error('Username or password not correct')
+                    this.setState({ isLoading: false })
+                }
+
+            } else {
+                this.props.alert.error('missing username or password')
+                this.setState({ isLoading: false })
+            }
+        } catch (err) {
+            console.log(err)
+            this.setState({ selected: 'login', isLoading: false })
+        }
+    }
+
+
+
+    handleLoginGoogle = async () => {
+        try {
+            this.setState({ isLoading: true })
+            const authProvider = new firebase.auth.GoogleAuthProvider()
+            let firebaseapp = firebaseApp()
+            if (firebaseapp !== 'error') {
+                await firebaseapp
+                    .auth()
+                    .signInWithPopup(authProvider)
+                    .then(async authData => {
+                        this.setState({ isLoading: true })
+                        let res = await ServerAPI('/users/login', 'POST', {
+                            'username': authData.additionalUserInfo.profile.email,
+                            'password': authData.user.uid
+                        })
+                        if (res === 'Unauthorized') {
+                            this.setState({
+                                username1: authData.additionalUserInfo.profile.email,
+                                password1: authData.user.uid,
+                                password12: authData.user.uid,
+                                email_: authData.additionalUserInfo.profile.email
+                            })
+                            this.handleRegister()
+                        } else {
+                            this.props.alert.success('welcome ' + authData.additionalUserInfo.profile.email)
+                            this.props.getCountPanier()
+                            this.props.setUserAuthName(res, authData.additionalUserInfo.profile.email)
+                            this.setState({ isLoading: false })
+                            this.props.history.push('/Catalogue')
+                        }
+                    })
+                    .catch(err => {
+                        this.setState({ isLoading: false })
+                        console.log(err)
+                    })
+            } else {
+                this.props.alert.error('we have a problem to access to google')
+                this.setState({ isLoading: false })
+            }
+        }
+        catch (err) {
+            this.setState({ isLoading: false })
+            console.log(err)
+        }
+    }
+
+    handleLoginTwitter = async () => {
+        try {
+            this.setState({ isLoading: true })
+            const authProvider = new firebase.auth.TwitterAuthProvider()
+            let firebaseapp = firebaseApp()
+            if (firebaseapp !== 'error') {
+                await firebaseapp
+                    .auth()
+                    .signInWithPopup(authProvider)
+                    .then(async authData => {
+                        let res = await ServerAPI('/users/login', 'POST', {
+                            'username': authData.additionalUserInfo.username,
+                            'password': authData.credential.accessToken
+                        })
+                        if (res === 'Unauthorized') {
+                            this.setState({
+                                username1: authData.additionalUserInfo.username,
+                                password1: authData.credential.accessToken,
+                                password12: authData.credential.accessToken,
+                                email_: authData.additionalUserInfo.profile.email
+                            })
+                            this.handleRegister()
+                            this.setState({ isLoading: false })
+                        } else {
+                            this.props.alert.success('welcome ' + authData.additionalUserInfo.username)
+                            this.props.setUserAuthName(res, authData.additionalUserInfo.username)
+                            this.setState({ isLoading: false })
+                            this.props.history.push('/Catalogue')
+                        }
+                    })
+                    .catch(err => {
+                        console.log(err)
+                        this.setState({ isLoading: false })
+                    })
+            } else {
+                this.props.alert.error('we have a problem to access to google')
+                this.setState({ isLoading: false })
+            }
+        }
+        catch (err) {
+            this.setState({ isLoading: false })
+            console.log(err)
+        }
+    }
+
+
+
+    ///////////// register //////////////////////////////
+    handleRegister = async () => {
+        const { username1, password1, password12, email_ } = this.state
+        if (username1 !== '' && password1 !== '' && email_ !== '' && password12 !== '') {
+            if (password1 === password12) {
+                this.setState({ isLoading: true })
+                let res = await ServerAPI('/users/register', 'POST', {
+                    'username': username1,
+                    'password': password1,
+                    'level': 'client',
+                    'email': email_
+                })
+
+                if (res === 'denied') {
+                    this.props.alert.error('this account already registered')
+                    this.setState({ isLoading: false })
+                }
+                else {
+                    this.props.getCountPanier()
+                    this.props.setUserAuthName(res, username1)
+                    this.setState({ isLoading: false })
+                    this.props.history.push('/Catalogue')
+                }
+            } else {
+                this.props.alert.error('problem password or username  not correct ')
+                this.setState({ isLoading: false })
+            }
+
+        } else {
+            this.props.alert.error('missing username , password or email')
+            this.setState({ isLoading: false })
+        }
+    }
+
+    handleSelect = (selected) => this.setState({ selected })
+
+
+
+    getColor_register = (selected) => (selected === "register" ? `buttonRadius btn btn-lg btn-primary btn-block text-uppercase ` : `buttonRadius btn btn-lg btn-light btn-block text-uppercase `)
+    getColor_login = (selected) => (selected === "login" ? `buttonRadius btn btn-lg btn-primary btn-block text-uppercase ` : `buttonRadius btn btn-lg btn-light btn-block text-uppercase `)
 
 
 
 
+    render() {
+        const { username, password, username1, selected } = this.state
 
+        return (
+            <LoadingOverlay
+                active={this.state.isLoading}
+                spinner
+                text={<h2 className='text-dark'>Please wait a few time ...</h2>}
+            >
+                {
+                    this.state.isConnected === true
+                    &&
+                    <div className='container '>
+                        <div className="row">
+                            <div className="col ">
+                                <div className="col">
+                                    {/* {
+                                    selected === 'register' &&
+                                    <Register username={username1} password1={this.state.password1} password12={this.state.password12} email_={this.state.email_} handleRegister={this.handleRegister}
+                                        handleChange={this.handleChange} handleSelect={this.handleSelect} />
+                                } */}
+                                    {
+                                        selected === 'login' &&
+                                        <Signin username={username} password={password} handleLogin={this.handleLogin} handleLoginGoogle={this.handleLoginGoogle}
+                                            handleLoginTwitter={this.handleLoginTwitter}
+                                            handleChange={this.handleChange} handleSelect={this.handleSelect} />
+                                    }
+                                    {
+                                        selected === 'forgot_Password' &&
+                                        <Forgot username={username} email_={this.state.email_} handleChange={this.handleChange}
+                                            forgotPassword={this.forgotPassword} handleSelect={this.handleSelect} />
+                                    }
+                                    {
+                                        selected === 'confcode' &&
+                                        <ConfCode codeConf={this.state.codeConf} handleChange={this.handleChange}
+                                            checkcode={this.checkcode} handleSelect={this.handleSelect} />
+                                    }
+                                    {
+                                        selected === 'changpassword' &&
+                                        <ChangPassword password1={this.state.password1} password12={this.state.password12} handleChange={this.handleChange}
+                                            newpassword={this.newpassword} handleSelect={this.handleSelect} />
+                                    }
+                                </div>
+                            </div>
+                            <div className="col">
+                                <div className="col">
+                                    <Register username={username1} password1={this.state.password1} password12={this.state.password12} email_={this.state.email_} handleRegister={this.handleRegister}
+                                        handleChange={this.handleChange} handleSelect={this.handleSelect} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </LoadingOverlay>
+        )
+    }
+}
 
-
-
-  render() {
-
-    if (this.state.selected === 'login') {
-      return (
-        <LoadingOverlay
-          active={this.state.isLoading}
-          spinner
-          text={<h2 className='text-dark'>Please wait a few time ...</h2>}
-        >
-          <div>
-            <hr className="style1" />
-            <div className="container  border bg-light">
-              <h2 className="h4 text-center py-4">Login</h2>
-              <div className="grey-text">
-                <div className="row ">
-                  <div className="col-3">
-                    <h4 className="input-group-addon text-center">username </h4>
-                  </div>
-                  <div className="col-9">
-                    <input type='text' value={this.state.username} name='username' className="form-control" onChange={this.updateInputValueUsername} />
-                  </div>
-                </div>
-
-
-                <div className="row ">
-                  <div className="col-3">
-                    <h4 className="input-group-addon text-center"> password </h4>
-                  </div>
-                  <div className="col-9">
-                    <input type='password' value={this.state.password} name='password' className="form-control" onChange={this.updateInputValuePassword} />
-                  </div>
-                </div>
-
-              </div>
-
-              <div className="row">
-                <div className="col-3">
-                </div>
-                <div className="col-9">
-                  <button
-                    className="btn btn-primary btn-lg btn-block"
-                    onClick={() => { this.handleLogin(this.state.username, this.state.password) }}
-                  >Login</button>
-                </div>
-              </div>
-
-              <div className="row">
-                <div className="col-3">
-                </div>
-                <div className="col-9">
-                  <button
-                    className="btn btn-warning btn-lg btn-block"
-                    onClick={() => this.setState({ selected: 'register' })}
-                  >Register</button>
-                </div>
-              </div>
-
-              <br />
-
-              <div className="container">
-
-                <div className="row">
-                  <div className="col">
-                  </div>
-                  <div className="col">
-                    <button
-                      className="btn btn-link"
-                      onClick={() => this.setState({ selected: 'forgot' })}
-                    >Forgot my password</button>
-                  </div>
-                  <div className="col">
-                    <button className="btn btn-danger" type="button" onClick={this.handleLoginGoogle}>
-                      Sign in with Google+
-                    </button>
-                  </div>
-                  <div className="col">
-                    <button className="btn btn-primary" type="button" onClick={this.handleLoginTwitter}>
-                      Sign in with Twitter
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <br />
-
-            </div>
-          </div></LoadingOverlay>
-      )
-    } else if (this.state.selected === 'forgot') {
-      return (
-        <LoadingOverlay
-          active={this.state.isLoading}
-          spinner
-          text='wait ...'
-        >
-          <div>
-            <hr className="style1" />
-            <div className="container border bg-light">
-              <div className="grey-text">
+const Forgot = ({ handleChange, username, email_, forgotPassword, handleSelect }) => {
+    return (
+        <div className="card card-signin my-5">
+            <div className="card-body">
                 <p className="h4 text-center py-4 text-center">Forgot Password </p>
-
-                <div className="row ">
-                  <div className="col-4">
-                    <h4 className="input-group-addon text-center"> email </h4>
-                  </div>
-                  <div className="col-8">
-                    <input type='email' value={this.state.email} name='email' className="form-control" onChange={this.updateInputValueemail} />
-                  </div>
+                <div className="form-label-group">
+                    Email
+                <input type='email' value={email_} name='email_' className="form-control" onChange={handleChange} />
                 </div>
-
-                <div className="row ">
-                  <div className="col-4">
-                    <h4 className="input-group-addon text-center"> uername </h4>
-                  </div>
-                  <div className="col-8">
-                    <input type='email' value={this.state.username} name='email' className="form-control" onChange={this.updateInputValueUsername} />
-                  </div>
+                <div className="form-label-group">
+                    Username
+                <input type='email' value={username} name='username' className="form-control" onChange={handleChange} />
                 </div>
+                <hr className="my-4" />
 
-
-
-              </div>
-
-              <div className="row">
-                <div className="col-4">
-                </div>
-                <div className="col-8">
-                  <button
+                <button
                     className="btn  btn-primary  btn-lg btn-block"
-                    onClick={this.forgotPassword}
-                  > Submit </button>
-                </div>
-              </div>
-
-              <div className="row">
-                <div className="col-4">
-                </div>
-                <div className="col-8">
-                  <button
+                    onClick={forgotPassword}
+                > Submit </button>
+                <button
                     className="btn btn-link"
-                    onClick={() => this.setState({ selected: 'login' })}
-                  >Login</button>
-                </div>
-              </div>
-
-              <br />
-
-
+                    onClick={() => handleSelect('login')}
+                >Login</button>
             </div>
-          </div></LoadingOverlay>
-      )
-    }
-    else if (this.state.selected === 'confcode') {
-      return (
-        <LoadingOverlay
-          active={this.state.isLoading}
-          spinner
-          text='wait ...'
-        >
-          <div>
-            <hr className="style1" />
-            <div className="container border bg-light">
-              <div className="grey-text">
-                <p className="h4 text-center py-4"> Confirmation code send Email address </p>
+        </div>
+    )
+}
 
-                <div className="row ">
-                  <div className="col-4">
-                    <h4 className="input-group-addon"> code  </h4>
-                  </div>
-                  <div className="col-8">
-                    <input type='email' value={this.state.codeConf} name='codeConf' className="form-control" onChange={this.updateInputValuecodeConf} />
-                  </div>
+const ConfCode = ({ handleChange, codeConf, checkcode, handleSelect }) => {
+    return (
+        <div className="card card-signin my-5">
+            <div className="card-body">
+                <p className="h4 text-center py-4 text-center">Confirmation code send Email address </p>
+                <div className="form-label-group">
+                    Enter the code confirmation
+                <input type='email' value={codeConf} name='codeConf' className="form-control" onChange={handleChange} />
                 </div>
-
-
-              </div>
-
-              <div className="row">
-                <div className="col-4">
-                </div>
-                <div className="col-8">
-                  <button
+                <hr className="my-4" />
+                <button
                     className="btn  btn-primary  btn-lg btn-block"
-                    onClick={this.checkcode}
-                  > Submit </button>
-                </div>
-              </div>
-
-              <div className="row">
-                <div className="col-4">
-                </div>
-                <div className="col-8">
-                  <button
+                    onClick={checkcode}
+                > Submit </button>
+                <button
                     className="btn btn-link"
-                    onClick={() => this.setState({ selected: 'login' })}
-                  >Login</button>
-                </div>
-              </div>
-              <br />
-
-
+                    onClick={() => handleSelect('login')}
+                >Login</button>
             </div>
-          </div></LoadingOverlay>
-      )
-    }
-    else if (this.state.selected === 'changpassword') {
-      return (
-        <LoadingOverlay
-          active={this.state.isLoading}
-          spinner
-          text='wait ...'
-        >
-          <div>
-            <hr className="style1" />
-            <div className="container border bg-light">
-              <div className="grey-text">
-                <p className="h4 text-center py-4"> Chang password </p>
+        </div>
+    )
+}
 
-                <div className="row ">
-                  <div className="col-4">
-                    <h4 className="input-group-addon  text-center">new password </h4>
-                  </div>
-                  <div className="col-8">
-                    <input type='password' value={this.state.password} name='usernameU' className="form-control" onChange={this.updateInputValuePassword} />
-                  </div>
+const ChangPassword = ({ handleChange, password1, password12, handleSelect, newpassword }) => {
+    return (
+        <div className="card card-signin my-5">
+            <div className="card-body">
+                <p className="h4 text-center py-4 text-center">Confirmation code send Email address </p>
+                <div className="form-label-group">
+                    Password
+                <input type='password' value={password1} name='password1' className="form-control" onChange={handleChange} />
                 </div>
 
-                <div className="row ">
-                  <div className="col-4">
-                    <h4 className="input-group-addon  text-center">new password confirmation </h4>
-                  </div>
-                  <div className="col-8">
-                    <input type='password' value={this.state.passwordU} name='passwordU' className="form-control" onChange={this.updateInputValuePasswordU} />
-                  </div>
+                <div className="form-label-group">
+                    Confirmation Password
+                <input type='password' value={password12} name='password12' className="form-control" onChange={handleChange} />
                 </div>
+                <hr className="my-4" />
+                <button
+                    className="btn  btn-primary  btn-lg btn-block"
+                    onClick={newpassword}
+                > Submit </button>
 
-              </div>
-
-              <div className="row">
-                <div className="col-4">
-                </div>
-                <div className="col-8">
-                  <button
-                    className="btn btn-warning btn-lg btn-block"
-                    onClick={this.newpassword}
-                  >Chang password</button>
-                </div>
-              </div>
-
-              <div className="row">
-                <div className="col-4">
-                </div>
-                <div className="col-8">
-                  <button
+                <button
                     className="btn btn-link"
-                    onClick={() => this.setState({ selected: 'login' })}
-                  >Login</button>
-                </div>
-              </div>
-
-              <br />
-
-
+                    onClick={() => handleSelect('login')}
+                >Login</button>
             </div>
-          </div>
-        </LoadingOverlay>
-      )
-    }
-    else {
-      return (
-        <LoadingOverlay
-          active={this.state.isLoading}
-          spinner
-          text='wait ...'
-        >
-          <div>
-            <hr className="style1" />
-            <div className="container border bg-light">
-              <div className="grey-text">
-                <p className="h4 text-center py-4">Sign up</p>
-
-                <div className="row ">
-                  <div className="col-4">
-                    <h4 className="input-group-addon  text-center"> email </h4>
-                  </div>
-                  <div className="col-8">
-                    <input type='email' value={this.state.email} name='email' className="form-control" onChange={this.updateInputValueemail} />
-                  </div>
-                </div>
-
-
-                <div className="row ">
-                  <div className="col-4">
-                    <h4 className="input-group-addon  text-center">username </h4>
-                  </div>
-                  <div className="col-8">
-                    <input type='text' value={this.state.usernameU} name='usernameU' className="form-control" onChange={this.updateInputValueUsernameU} />
-                  </div>
-                </div>
-
-                <div className="row ">
-                  <div className="col-4">
-                    <h4 className="input-group-addon  text-center">password </h4>
-                  </div>
-                  <div className="col-8">
-                    <input type='password' value={this.state.password} name='usernameU' className="form-control" onChange={this.updateInputValuePassword} />
-                  </div>
-                </div>
-
-                <div className="row ">
-                  <div className="col-4">
-                    <h4 className="input-group-addon  text-center">confirmation </h4>
-                  </div>
-                  <div className="col-8">
-                    <input type='password' value={this.state.passwordU} name='passwordU' className="form-control" onChange={this.updateInputValuePasswordU} />
-                  </div>
-                </div>
-
-              </div>
-
-              <div className="row">
-                <div className="col-4">
-                </div>
-                <div className="col-8">
-                  <button
-                    className="btn btn-warning btn-lg btn-block"
-                    onClick={() => { this.handleRegister(this.state.usernameU, this.state.passwordU, this.state.email, this.state.password) }}
-                  >Register</button>
-                </div>
-              </div>
-
-              <div className="row">
-                <div className="col-4">
-                </div>
-                <div className="col-8">
-                  <button
-                    className="btn btn-link"
-                    onClick={() => this.setState({ selected: 'login' })}
-                  >Login</button>
-                </div>
-              </div>
-
-              <br />
-
-
-            </div>
-          </div>
-        </LoadingOverlay>
-      )
-    }
-  };
+        </div>
+    )
 }
 
 export default withRouter(
-  withAlert()(Login)
+    withAlert()(Login)
 )

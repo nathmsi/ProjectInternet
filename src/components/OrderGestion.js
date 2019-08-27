@@ -30,7 +30,7 @@ class OrderGestion extends Component {
 
     async componentDidMount() {
         try {
-            document.title = 'OrderGestion / Car Sale'
+            document.title = 'OrderGestion / Computer Sale'
             let account = JSON.parse(await ServerAPI('/users/account/', 'get'))
 
             this.setState({ userAuth: account.level, username: account.username })
@@ -236,10 +236,7 @@ class OrderGestion extends Component {
                 spinner
                 text={<h2 className='text-dark'>Please wait a few time ...</h2>}
             >
-                {
-                    this.state.isActive === false &&
-                    (
-                        <>
+                
                             <div className="row">
                                 <div className="col-2">
                                     <h4 className="input-group-addon text-center bg-secondary text-white"> username </h4>
@@ -336,10 +333,6 @@ class OrderGestion extends Component {
                                     </tbody>
                                 </table>
                             </div>
-                        </>
-                    )
-                }
-
             </LoadingOverlay>
         );
 

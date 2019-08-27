@@ -22,7 +22,7 @@ class UserGestion extends Component {
 
   async componentDidMount() {
     try {
-      document.title = 'UserGestion / Car Sale'
+      document.title = 'UserGestion / Computer Sale'
       let account = JSON.parse(await ServerAPI('/users/account/', 'get'))
       if (account.level === 'creator') {
         this.getData()
@@ -54,6 +54,7 @@ class UserGestion extends Component {
     if (key !== this.state.myID) {
       await ServerAPI('/users/delete', 'POST', { id: key })
       this.getData()
+      this.props.alert.success('User delete Successfuly key : ' + key)
     } else {
       this.props.alert.error(this.state.username + ' is your Account cannot update')
     }
@@ -66,6 +67,7 @@ class UserGestion extends Component {
       await ServerAPI('/users/level', 'POST', { id: key, level })
       this.getData()
       this.setState({ isActive: false })
+      this.props.alert.success('Level updating Successfuly to ' + level)
     } else {
       this.props.alert.error(this.state.username + ' is your Account cannot update')
     }
@@ -92,7 +94,7 @@ class UserGestion extends Component {
         text={<h2 className='text-dark'>Please wait a few time ...</h2>}
       >
         
-            <div className='cards computerUpdateList'>
+            <div className='cards'>
               {users}
             </div>
           

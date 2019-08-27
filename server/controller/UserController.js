@@ -37,6 +37,30 @@ router.post('/register', function (req, res) {
         } else {
             passport.authenticate("local")(req, res, function () {
                 console.log('register user : ' + req.user.username)
+                var transporter = nodemailer.createTransport({
+                    service: 'gmail',
+                    auth: {
+                        user: 'nmsika@g.jct.ac.il',
+                        pass: process.env.KEY_GMAIL
+                    }
+                });
+
+                var mailOptions = {
+                    to: req.body.email,
+                    from: 'nmsika@g.jct.ac.il',
+                    subject: 'Your registered to Computer Sale',
+                    text: 'Hello,\n\n' +
+                        'This is a confirmation that the account '+ req.body.username + ' with email : ' + user.email + ' has just been Created.\n' +
+                        'link to login to your account \n' + 'http://localhost:3000/Login'
+                };
+                transporter.sendMail(mailOptions, function (error, info) {
+                    if (error) {
+                        console.log(error);
+                    } else {
+                        console.log('Email register sent: ' + info.response);
+                    }
+                });
+
                 res.status(200).send(req.user.level);
             })
         }
@@ -117,7 +141,15 @@ router.get("/panier", function (req, res) {
     if (req.isAuthenticated()) {
         res.send(req.user.panier)
     } else {
-        res.send("notAuthorized")
+        res.send([])
+    }
+})
+
+router.get("/panier/count", function (req, res) {
+    if (req.isAuthenticated()) {
+        res.send(req.user.panier.length.toString())
+    } else {
+        res.send("0")
     }
 })
 
@@ -241,7 +273,7 @@ router.post('/orders/update', function (req, res) {
 
 // GET ALL USERS
 router.get('/', function (req, res) {
-    if (req.isAuthenticated() && (req.user.level === 'manager' || req.user.level === 'creator')) {
+    if (req.isAuthenticated() && (req.user.level === 'manager' || req.user.level === 'creator' || req.user.level === 'client')) {
         User.find({}, function (err, users) {
             if (err) return res.status(500).send("There was a problem finding the users.");
             res.status(200).send(users);

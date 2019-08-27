@@ -35,6 +35,7 @@ class App extends Component {
     password: '',
     isActive: true,
     isLoading: false,
+    CountPanier : "0" 
   }
 
   async componentDidMount() {
@@ -62,8 +63,9 @@ class App extends Component {
     this.setState({ isLoading: true })
     this.setState({ userName: 'visitor', userAuth: 'basic' })
     await ServerAPI('/users/logout', 'get')
+    console.log('logout user ')
+    this.getCountPanier()
     this.props.history.push('/Login')
-    this.setState({ isLoading: false })
   }
 
   setUserAuthName = (userAuth, userName) => {
@@ -83,31 +85,36 @@ class App extends Component {
     }
   }
 
+  getCountPanier = async() =>{
+    let CountPanier = await ServerAPI('/users/panier/count', 'get')
+     this.setState( { CountPanier } )
+  }
+
 
   render() {
 
-    const { userAuth, userName } = this.state
+    const { userAuth, userName , CountPanier } = this.state
 
     return (
       <div className="backgroungStyle" >
-        <NavBar handleLogout={this.handleLogout} userAuth={userAuth} userName={userName} />
+        <NavBar handleLogout={this.handleLogout} userAuth={userAuth} userName={userName} CountPanier={CountPanier} getCountPanier={this.getCountPanier} />
         <div className="content" >
           <Switch>
             <Route exact path="/" render={() => <Home pathTo={this.pathTo} isLogin={this.isLogin}/>} />
-            <Route exact path="/Catalogue" component={Catalogue} />
+            <Route exact path="/Catalogue"  render={() => <Catalogue   getCountPanier={this.getCountPanier} />} />
             <Route exact path="/UserGestion" component={UserGestion} />
             <Route exact path="/OrderGestion" component={OrderGestion} />
             <Route exact path="/CatalogueGestion" component={CatalogueUserGestion} />
             <Route exact path="/About" component={About} />
             <Route exact path="/contact" component={Contact} />
-            <Route exact path="/Panier" component={Panier} />
+            <Route exact path="/Panier"  render={() => <Panier   getCountPanier={this.getCountPanier} />} />
             <Route exact path="/Account" component={Account} />
             <Route exact path="/Blog" component={Blog} />
-            <Route exact path="/Login" render={() => <Login setUserAuthName={this.setUserAuthName} isLogin={this.isLogin} pathTo={this.pathTo} userName={this.state.userName} />} />
+            <Route exact path="/Login" render={() => <Login setUserAuthName={this.setUserAuthName} getCountPanier={this.getCountPanier} isLogin={this.isLogin} pathTo={this.pathTo} userName={this.state.userName} />} />
             <Route component={NotFound} />
           </Switch>
         </div>
-        <Footer />
+      <Footer />
       </div>
     )
 

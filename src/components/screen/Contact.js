@@ -12,7 +12,7 @@ class Contact extends Component {
         message: ''
     }
     componentDidMount = () => {
-        document.title = 'Contact / Car Sale'
+        document.title = 'Contact / Computer Sale'
     }
 
 

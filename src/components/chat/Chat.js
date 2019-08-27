@@ -123,7 +123,7 @@ class ChatApp extends React.Component {
                                         {Listmessages}
                                     </TransitionGroup>
                                     {
-                                        messages.length > 10 ?
+                                        FileterMessages.length > 10 ?
                                             <button onClick={this.props.getMoreMessage} type="button" className="btn btn-default btn-sm">
                                                 getMoreMessage </button>
                                             :

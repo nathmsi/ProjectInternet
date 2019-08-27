@@ -1,12 +1,23 @@
 
 
 body {
-  background-image: url('./img/frontSite.jpg');
-  height: 100vh;
+  /* background: #007bff;
+  background: linear-gradient(to right, #0062E6, #33AEFF); */
+  /* background-image: url('./img/frontSite.jpg'); */
+
+  /* height: 100vh;
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
+  overflow-y: scroll; */
+
+  background: url('./img/frontSite.jpg') no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  background-size: cover;
+  -o-background-size: cover;
   overflow-y: scroll;
+
 }
 
 h1, h2, p, ul, li {
@@ -45,7 +56,7 @@ ul.header li a {
   max-height: calc(92vh - 300px);
 	overflow-y: scroll;
   -webkit-overflow-scrolling:touch; */
-  height: 850px;
+  height: 680px;
   overflow:auto;
 }
 
@@ -60,13 +71,13 @@ ul.header li a {
 }
 
 .panierScrool {
-  /* flex: 1 1 100%;
+  flex: 1 1 100%;
 	align-self: flex-end;
 	max-height: calc(100VH - 300px);
 	overflow-y: scroll;
-  -webkit-overflow-scrolling:touch; */
-  height: 1100px;
-  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+  /* height: 1100px;
+  overflow:auto; */
 }
 
 .blogScrool {
@@ -77,9 +88,10 @@ ul.header li a {
   overflow:auto;
 }
 
+
 .Accountscroll {
-  /* flex: 1 1 100%;
-	align-self: flex-end;
+   flex: 1 1 100%;
+/*	align-self: flex-end;
 	max-height: calc(105vh - 300px);
 	overflow-y: scroll;
 	-webkit-overflow-scrolling:touch; */
@@ -93,7 +105,7 @@ ul.header li a {
 	overflow-y: scroll;
   -webkit-overflow-scrolling:touch; */
   
-  height: 480px;
+  height: 340px;
   overflow:auto;
 }
 
@@ -116,7 +128,12 @@ ul.header li a {
 	overflow-y: scroll;
   -webkit-overflow-scrolling:touch; */
   
-  height: 240px;
+  height: 215px;
+  overflow:auto;
+}
+
+.OrderScroolUser {
+  height: 50px;
   overflow:auto;
 }
 
@@ -132,3 +149,5 @@ hr.message-inner-separator
     background-image: -ms-linear-gradient(left,rgba(0,0,0,0),rgba(0,0,0,0.15),rgba(0,0,0,0));
     background-image: -o-linear-gradient(left,rgba(0,0,0,0),rgba(0,0,0,0.15),rgba(0,0,0,0));
 }
+
+

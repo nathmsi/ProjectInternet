@@ -3,7 +3,7 @@ import React from "react";
 
 const Home = ({ isLogin, pathTo }) => {
   let ifLogin = isLogin()
-  document.title = 'Home / Car Sale'
+  document.title = 'Home / Computer Sale'
   return (
     <div className="container">
       <h1 className="text-center" >

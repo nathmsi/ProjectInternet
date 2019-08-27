@@ -24,12 +24,13 @@ class MyAcount extends Component {
     isLoading: true,
     isActive: true,
     isGoogleAuth: false,
-    mulertImage: ''
+    mulertImage: '',
+    SelectedOptiion: 'account'
   }
 
   componentDidMount = async () => {
     try {
-      document.title = 'Myaccount / Car Sale'
+      document.title = 'Myaccount / Computer Sale'
       await this.getSession()
       if (this.state.userAuth === 'manager' || this.state.userAuth === 'client' || this.state.userAuth === 'creator') {
         await this.getAccount()
@@ -186,6 +187,14 @@ class MyAcount extends Component {
 
   }
 
+  handleSelect = (value) => {
+    this.setState(
+      {
+        SelectedOptiion: value
+      }
+    )
+  }
+
 
 
 
@@ -193,9 +202,10 @@ class MyAcount extends Component {
 
   render() {
     const { orders, username, level, phone, address, newpassword, newpasswordC, email, oldpassword, userAuth } = this.state
-    let user, changepassword = <></>
+    let user = <></>
     let Orders = <></>
     let levelInput = <></>
+    let accountElement = <></>
 
     if (((userAuth === 'manager') || (userAuth === 'client') || (userAuth === 'creator'))) {
 
@@ -204,40 +214,29 @@ class MyAcount extends Component {
         .map(key => <Order key={key} total={orders[key].total} index={key} id={orders[key].order} deleteOrder={this.deleteOrder} />)
 
 
-      if (userAuth === 'manager') {
-        levelInput = <div className="row bg-white">
-          <div className="col-2">
-            <h3 className="input-group-addon text-center ">level </h3>
+      if (userAuth === 'creator') {
+        levelInput =
+          <div className="form-label-group">
+            Level
+                        <input type='text' className="inputPassword form-control" value={level || ''} name='level' onChange={this.updateInputValueLevel} />
           </div>
-          <div className="col-10">
-            <input type='text' value={level || ''} name='level' className="form-control" onChange={this.updateInputValueLevel} />
-          </div>
-        </div>
       }
 
+      accountElement = <>
+        <img src={this.requireImage(this.state.mulertImage)} alt='upload-' width="150" height="150" className='process_image text-center rounded-circle' />
+        <button className="btn btn-link" onClick={() => this.handleSelect('Order')}>Last Orders</button> <br />
+        <input type='file' className='process_upload-btn text-center ' onChange={(e) => this.uploadImage(e)} />  <br />
+      </>
+
+
       if (!this.state.isGoogleAuth) {
+        user =
+          <div className="form-label-group">
+            Username
+        <input type='text' value={username || ''} name='username' className="inputPassword form-control" onChange={this.updateInputValueUsername} />
+          </div>
 
-        user = <div className="row bg-white">
-          <div className="col-2">
-            <h3 className="input-group-addon text-center ">username </h3>
-          </div>
-          <div className="col-10">
-            <input type='text' value={username || ''} name='username' className="form-control" onChange={this.updateInputValueUsername} />
-          </div>
-        </div>
 
-        changepassword =
-          <div className="row bg-white">
-            <div className="col-2">
-              <h3 className="input-group-addon text-center "> Change Password  </h3>
-            </div>
-            <div className="col-10">
-              <input type='password' value={oldpassword || ''} placeholder='old password' name='password' className="form-control" onChange={this.updateInputValueoldpassword} />
-              <input type='password' value={newpassword || ''} placeholder='new password' name='password' className="form-control" onChange={this.updateInputValuePassword} />
-              <input type='password' value={newpasswordC || ''} placeholder='confirm new password' name='password' className="form-control" onChange={this.updateInputValuePasswordC} />
-              <button className='btn btn-success ' onClick={this.handleChangePassword} > Change password </button>
-            </div>
-          </div>
       }
     }
 
@@ -247,96 +246,82 @@ class MyAcount extends Component {
         spinner
         text={<h2 className='text-dark'>Please wait a few time ...</h2>}
       >
-        {
-          this.state.isActive === false  &&
-          (
-              <div className="container">
+        <div className='container '>
+          <div className=' container'>
+            <div className="row">
+              <div className="col">
+                <div className="card card-signin my-5">
+                  <div className="card-body">
 
-                <h1 className="text-center ">My account</h1>
+                    {
+                      this.state.SelectedOptiion === 'Password'
+                      &&
 
-                <div className="grey-text">
-                  <br />
+                      <div className="form-label-group">
+                        <h1 className="text-center h1-title" >Change My Password</h1>
+                        old password <input type='password' value={oldpassword || ''} placeholder='old password' name='password' className="inputPassword form-control" onChange={this.updateInputValueoldpassword} />
+                        new password<input type='password' value={newpassword || ''} placeholder='new password' name='password' className="inputPassword form-control" onChange={this.updateInputValuePassword} />
+                        confirm new password <input type='password' value={newpasswordC || ''} placeholder='confirm new password' name='password' className="inputPassword form-control" onChange={this.updateInputValuePasswordC} />
+                        <button className="btn btn-success btn-lg btn-block" onClick={this.handleChangePassword} > Change password </button>
+                        <button className="btn btn-link" onClick={() => this.handleSelect('account')}>Back</button>
+                      </div>
+                    }
 
-                  <div className="row">
-                    <div className="col-4 text-center">
-                      <img src={this.requireImage(this.state.mulertImage)} alt='upload-' width="300" height="300" className='process_image text-center rounded-circle' />
-                    </div>
-                    <div className="col-8 ">
-                      <input type='file' className='process_upload-btn text-center ' onChange={(e) => this.uploadImage(e)} />
-                    </div>
-                  </div>
+                    {
+                      this.state.SelectedOptiion === 'account'
+                      &&
+                      <>
+                        <h1 className="text-center h1-title" >My Account</h1>
+                        {accountElement}
+                        {user}
+                        {levelInput}
+                        <div className="form-label-group">
+                          Phone
+                    <input type='text' value={phone || ''} name='phone' className="inputPassword form-control" onChange={this.updateInputValuePhone} />
+                        </div>
+                        <div className="form-label-group">
+                          Address
+                    <input type='text' value={address || ''} name='address' className="inputPassword form-control" onChange={this.updateInputValueAdress} />
+                        </div>
+                        <div className="form-label-group">
+                          Email
+                    <input type='email' value={email || ''} name='email' className="inputPassword form-control" onChange={this.updateInputValueemail} />
+                        </div>
+                        <button className="btn btn-link" onClick={() => this.handleSelect('Password')}>Change Password</button>
+                      </>
+                    }
 
-                  <br /><br />
+                    {
+                      this.state.SelectedOptiion === 'Order'
+                      &&
+                      <>
+                        <h1 className="text-center h1-title" >My Order</h1>
+                        <div className="form-label-group">
+                          <h4>Shoping Cart </h4>
+                          count element {this.state.panier.length}  &nbsp;  &nbsp;
+                           <button className='btn btn-success text-center ' onClick={this.deletePanier} > Delete Panier </button>
+                        </div>
+                        <div className="form-label-group">
+                          <h4>my last orders</h4>
+                          <div className=" AccountOrderScrool">
+                            {Orders}
+                          </div>
+                        </div>
+                        <button className="btn btn-link" onClick={() => this.handleSelect('account')}>Back</button>
+                      </>
+                    }
 
-                  {user}
-                  {levelInput}
-                  <div className="row bg-white">
-                    <div className="col-2">
-                      <h3 className="input-group-addon text-center "> phone </h3>
-                    </div>
-                    <div className="col-10">
-                      <input type='text' value={phone || ''} name='phone' className="form-control" onChange={this.updateInputValuePhone} />
-                    </div>
-                  </div>
-
-                  <div className="row bg-white">
-                    <div className="col-2">
-                      <h3 className="input-group-addon text-center "> address </h3>
-                    </div>
-                    <div className="col-10">
-                      <input type='text' value={address || ''} name='address' className="form-control" onChange={this.updateInputValueAdress} />
-                    </div>
-                  </div>
-
-                  <div className="row bg-white">
-                    <div className="col-2">
-                      <h3 className="input-group-addon text-center "> email </h3>
-                    </div>
-                    <div className="col-10">
-                      <input type='email' value={email || ''} name='email' className="form-control" onChange={this.updateInputValueemail} />
-                    </div>
-                  </div>
-
-
-                  {changepassword}
-
-                  <div className="row bg-white">
-                    <div className="col-2">
-                      <h3 className="input-group-addon text-center ">Shoping Cart </h3>
-                    </div>
-                    <div className="col-10 bg-white">
-                      count element {this.state.panier.length} <br />
-                      <button className='btn btn-success text-center ' onClick={this.deletePanier} > Delete Panier </button>
-                    </div>
-
-                  </div>
-
+                    <button className="btn btn-primary btn-lg btn-block" onClick={() => { this.handleapplicate() }}  >Save</button>
 
 
-                  <div className="row bg-white">
-                    <div className="col-2">
-                      <h3 className="input-group-addon text-center "> my last orders </h3>
-                    </div>
-                    <div className="col-10 AccountOrderScrool">
-                      {Orders}
-                    </div>
-                  </div>
-
-                </div>
-                <div className="row ">
-                  <div className="col-2">
-                  </div>
-                  <div className="col-10">
-                    <button
-                      className="btn btn-primary btn-lg btn-block"
-                      onClick={() => { this.handleapplicate() }}
-                    >Save</button>
                   </div>
                 </div>
-                <br /><br />
               </div>
-            )
-        }
+
+            </div>
+          </div>
+
+        </div>
       </LoadingOverlay>
     )
 
@@ -347,7 +332,7 @@ class MyAcount extends Component {
 
 const Order = ({ index, total, deleteOrder }) => {
   return (
-    <div className='container border bg-white'>
+    <div className='container  '>
       Order {(parseInt(index) + 1)} <br />
       <strong> Total =>   {total} $ </strong>
       <button className='btn btn-danger ' onClick={() => deleteOrder(index)} > - Delete </button>

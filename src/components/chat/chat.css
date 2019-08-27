@@ -62,7 +62,7 @@ body, .box > *, textarea, input {
 	/*border: 5px solid red;*/
 	box-sizing: border-box;
 	align-self: flex-end;
-	max-height: calc(100vh - 310px);
+	max-height: calc(80vh - 310px);
 	flex-direction: column-reverse;
 	display: flex;
 	overflow-y: scroll;

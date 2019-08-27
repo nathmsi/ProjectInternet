@@ -6,6 +6,10 @@ import UpdateComputer from "./UpdateComputer";
 
 import { ServerAPI } from "../api/db"
 
+import { withRouter } from 'react-router-dom';
+import { withAlert } from 'react-alert'
+
+
 class CatalogueGestion extends Component {
 
   constructor(props) {
@@ -21,7 +25,7 @@ class CatalogueGestion extends Component {
 
   async componentDidMount() {
     try {
-      document.title = 'CatalogueGestion / Car Sale'
+      document.title = 'CatalogueGestion / Computer Sale'
       this._isMounted = true;
       let userAuth = await ServerAPI('/users/level', 'get')
       if (userAuth === 'manager' || userAuth === 'creator') {
@@ -66,9 +70,9 @@ class CatalogueGestion extends Component {
       MemorySize: computer.MemorySize,
       count: computer.count
     })
-
     let myData = await this.getData()
     this.setState({ isActive: false, computers: myData })
+    this.props.alert.show('Computer ' + computer.name + ' Add successfully')
   }
 
   removeComputers = async key => {
@@ -76,6 +80,7 @@ class CatalogueGestion extends Component {
     await ServerAPI('/computers/delete', 'POST', { id: key })
     let myData = await this.getData()
     this.setState({ isActive: false, computers: myData })
+    this.props.alert.show('Computer ' + key + ' Remove successfully')
   }
 
   updateComputers = async computer => {
@@ -94,6 +99,7 @@ class CatalogueGestion extends Component {
     })
     let myData = await this.getData()
     this.setState({ isActive: false, computers: myData })
+    this.props.alert.show('Computer ' + computer.name + ' Update successfully')
   }
 
   handleChangeCountRemove = async (id) => {
@@ -102,6 +108,7 @@ class CatalogueGestion extends Component {
       await ServerAPI('/computers/stock/delete', 'POST', { id })
       let myData = await this.getData()
       this.setState({ isActive: false, computers: myData })
+      this.props.alert.show('Computer ' + id + ' Stock -1')
     } catch (err) {
       console.log(err)
       this.setState({ isActive: false })
@@ -115,6 +122,7 @@ class CatalogueGestion extends Component {
       await ServerAPI('/computers/stock/add', 'POST', { id })
       let myData = await this.getData()
       this.setState({ isActive: false, computers: myData })
+      this.props.alert.show('Computer ' + id + ' Stock +1')
     } catch (err) {
       console.log(err)
       this.setState({ isActive: false })
@@ -143,18 +151,10 @@ class CatalogueGestion extends Component {
         spinner
         text={<h2 className='text-dark'>Please wait a few time ...</h2>}
       >
-
-        {
-          this.state.isActive === false &&
-          (
-
             <div className='cards computerUpdateList'>
               {addComputers}
               {updateComputers}
             </div>
-          )
-        }
-
       </LoadingOverlay>
     );
 
@@ -167,4 +167,6 @@ class CatalogueGestion extends Component {
 
 
 
-export default CatalogueGestion;
+export default withRouter(
+  withAlert()(CatalogueGestion)
+)

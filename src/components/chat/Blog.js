@@ -29,7 +29,7 @@ class Blog extends React.Component {
 
     componentDidMount = async () => {
         try {
-            document.title = 'Blog / Car Sale'
+            document.title = 'Blog / Computer Sale'
             let account = JSON.parse(await ServerAPI('/users/account/', 'get'))
             if (account.level === 'manager' || account.level === 'client' || account.level === 'creator') {
                 const groups = JSON.parse(await this.dbGroupsList())
@@ -169,7 +169,12 @@ class Blog extends React.Component {
         });
         this.socket.on('server:connection/' + groupSelect, data => {
             data.messages.forEach(message => {
-                message.user = this.state.users[message.idUser]
+                if(this.state.users[message.idUser] !== undefined)
+                    message.user = this.state.users[message.idUser]
+                else{
+                    message.user = { username : '' , imageUser : ''}
+                }
+                
             })
             this.setState({ userOnline: data.onlines, messages: data.messages })
         });
@@ -216,7 +221,7 @@ class Blog extends React.Component {
                 text={<h2 className='text-dark'>Please wait a few time ...</h2>}
             >
                 {
-                    (flag === true && this.state.isLoading === false ) ?
+                    (flag === true ) ?
                         (
                             <div className="row">
                                 <div className="col-3  container bg-light">

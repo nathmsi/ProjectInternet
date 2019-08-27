@@ -31,7 +31,7 @@ class Catalogue extends Component {
 
   async componentWillMount() {
     try {
-      document.title = 'Catalogue / Car Sale'
+      document.title = 'Catalogue / Computer Sale'
       const userAuth = await ServerAPI('/users/level', 'get')
       const computers = JSON.parse(await ServerAPI('/computers/', 'get'))
       this.setState({ computers: computers, computersSelected: computers, userAuth })
@@ -144,9 +144,11 @@ class Catalogue extends Component {
     this.setState({ isActive: true })
     await ServerAPI('/users/panier/add', 'POST', { id: this.state.idSelect })
     if (this.state.goToPanier) {
+      await this.props.getCountPanier()
       this.props.history.push('/panier')
     }
     else {
+      await this.props.getCountPanier()
       this.setState({ isActive: false, show: false })
     }
   }
@@ -165,16 +167,9 @@ class Catalogue extends Component {
       <LoadingOverlay
         active={this.state.isActive}
         spinner
-        text={<h2 className='text-dark'>Please wait a few time ...</h2>}
+        text={<h2 className=' text-dark'>Please wait a few time ...</h2>}
       >
-        {
-          this.state.isActive === false &&
-          (
-            <>
             <div className="container">
-              <hr className="style1" />
-
-
               <div className="row">
                 <div className="col-2">
                   <h4 className="input-group-addon">Brand </h4>
@@ -213,15 +208,12 @@ class Catalogue extends Component {
 
               </div>
             </div>
-
             <hr className="style1" />
             <div className='cards computerList'>
               {computers}
             </div>
             < Modal show={this.state.show} handleClose={this.handleClose} handleSubmit={this.handlesubmitModal} title={"Confirmation add to shopping cart"} Body={""} />
-            </>
-          )
-        }
+          
       </LoadingOverlay>
     );
 

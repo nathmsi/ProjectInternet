@@ -35,7 +35,7 @@ class Panier extends Component {
 
   async componentDidMount() {
     try {
-      document.title = 'ShoppingCart / Car Sale'
+      document.title = 'ShoppingCart / Computer Sale'
       await this.getSession()
       if (this.state.userAuth === 'manager' || this.state.userAuth === 'client' || this.state.userAuth === 'creator') {
         await this.getData()
@@ -73,6 +73,7 @@ class Panier extends Component {
   removePanierElement = async key => {
     this.setState({ isActive: true })
     await ServerAPI('/users/panier/delete', 'POST', { id: key })
+    await this.props.getCountPanier()
     this.getPanier()
     this.setState({ isActive: false })
   }
@@ -91,6 +92,7 @@ class Panier extends Component {
   handleChangeCountRemove = async (id) => {
     this.setState({ isActive: true })
     await ServerAPI('/users/panier/deleteOne', 'POST', { id })
+    await this.props.getCountPanier()
     this.getPanier()
     this.setState({ isActive: false })
   }
@@ -98,6 +100,7 @@ class Panier extends Component {
   handleChangeCountAdd = async (id) => {
     this.setState({ isActive: true })
     await ServerAPI('/users/panier/add', 'POST', { id })
+    await this.props.getCountPanier()
     this.getPanier()
     this.setState({ isActive: false })
   }
@@ -136,6 +139,7 @@ class Panier extends Component {
             day, month, years, hours, minutes
           }
         })
+        await this.props.getCountPanier()
         await this.getPanier()
         this.setState({ isActive: false })
       } else {
@@ -230,49 +234,53 @@ class Panier extends Component {
         spinner
         text={<h2 className='text-dark'>Please wait a few time ...</h2>}
       >
-              <div className='panierScrool bg-light'>
-                <table className="table table-bordred table-striped  bg-light">
-                  <thead>
-                    <tr>
-                      <th align="center">image</th>
-                      <th align="center">Name</th>
-                      <th align="center">Price</th>
-                      <th align="center">Count</th>
-                      <th align="center">Subtotal</th>
-                      <th align="center">Delete</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {cards_}
-                    {totalCount}
-                  </tbody>
-                </table>
-              </div>
+        <div className="card card-signin my-5">
+          <div className="card-body">
+            <div className='panierScrool bg-light'>
+              <table className="table table-bordred table-striped  bg-light">
+                <thead>
+                  <tr>
+                    <th align="center">image</th>
+                    <th align="center">Name</th>
+                    <th align="center">Price</th>
+                    <th align="center">Count</th>
+                    <th align="center">Subtotal</th>
+                    <th align="center">Delete</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cards_}
+                  {totalCount}
+                </tbody>
+              </table>
+            </div>
 
 
-              {
-                !this.state.paymentActive ?
-                  <></>
-                  :
-                  (
-                    < Modal show={this.state.show} handleClose={this.handleClose} handleSubmit={this.handlePurshase}
-                      // eslint-disable-next-line
-                      title={"Confirmation Checkout" + "  Total price is : " + this.state.total + '$'}  >
-                      <div>
-                        <PaypalButton
-                          client={CLIENT}
-                          env={ENV}
-                          commit={true}
-                          currency={'USD'}
-                          total={this.state.total}
-                          onSuccess={this.onSuccess}
-                          onError={this.onError}
-                          onCancel={this.onCancel}
-                        />
-                      </div>
-                    </Modal>
-                  )
-              }
+            {
+              !this.state.paymentActive ?
+                <></>
+                :
+                (
+                  < Modal show={this.state.show} handleClose={this.handleClose} handleSubmit={this.handlePurshase}
+                    // eslint-disable-next-line
+                    title={"Confirmation Checkout" + "  Total price is : " + this.state.total + '$'}  >
+                    <div>
+                      <PaypalButton
+                        client={CLIENT}
+                        env={ENV}
+                        commit={true}
+                        currency={'USD'}
+                        total={this.state.total}
+                        onSuccess={this.onSuccess}
+                        onError={this.onError}
+                        onCancel={this.onCancel}
+                      />
+                    </div>
+                  </Modal>
+                )
+            }
+          </div>
+        </div>
 
 
       </LoadingOverlay>

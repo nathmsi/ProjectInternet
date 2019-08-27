@@ -1,7 +1,7 @@
 import React from "react";
 
 const About  = () =>{
-  document.title = 'About / Car Sale'
+  document.title = 'About / Computer Sale'
     return (
       <div className="">
 
@@ -23,7 +23,7 @@ const About  = () =>{
               <br />
               <small>Engeniering</small>
             </h3>
-            <p>Founder of Site Premium Flower</p>
+            <p>Founder of Site Computer Sale</p>
           </div>
 
           <div className="col-lg-6 text-center col-sm-6 mb-5">
@@ -31,7 +31,7 @@ const About  = () =>{
              <br />
               <small>Engeniering</small>
             </h3>
-            <p>Founder of Site Premium Flower</p>
+            <p>Founder of Site Computer Sale</p>
           </div>
 
         </div>

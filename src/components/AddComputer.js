@@ -1,6 +1,9 @@
 import React, { Component } from 'react'
+import { withRouter } from 'react-router-dom';
+import { withAlert } from 'react-alert'
 
-export default class AddComputer extends Component {
+
+class AddComputer extends Component {
 
     state = {
         name: '',
@@ -12,11 +15,11 @@ export default class AddComputer extends Component {
         OperatingSystem: '',
         capacity: '',
         MemorySize: '',
-        count : ''
+        count: ''
     }
 
     requireImage = () => {
-            return require(`../img/default.jpg`)
+        return require(`../img/default.jpg`)
     }
 
     handleChange = event => {
@@ -26,13 +29,28 @@ export default class AddComputer extends Component {
 
     handleSubmit = event => {
         event.preventDefault()
-        const car = { ...this.state }
-        this.props.AddComputer(car)
-        // Reset
-        Object.keys(car).forEach(item => {
-            car[item] = ''
-        })
-        this.setState({ ...car })
+        const computer = { ...this.state }
+        if (
+            computer.name !== '' &&
+            computer.price !== '' &&
+            computer.brand !== '' &&
+            computer.cpu !== '' &&
+            computer.sizeScreen !== '' &&
+            computer.OperatingSystem !== '' &&
+            computer.capacity !== '' &&
+            computer.MemorySize !== '' &&
+            computer.count
+        ) {
+            this.props.AddComputer(computer)
+            // Reset
+            Object.keys(computer).forEach(item => {
+                computer[item] = ''
+            })
+            this.setState({ ...computer })
+        } else {
+            this.props.alert.error('Missing field to add computer')
+        }
+
     }
 
     render() {
@@ -94,3 +112,8 @@ export default class AddComputer extends Component {
         )
     }
 }
+
+export default withRouter(
+    withAlert()(AddComputer)
+  )
+  

@@ -10,13 +10,12 @@ import AlertTemplate from './components/screen/AlertTemplate'
 
 import "./index.css";
 
-
 // optional cofiguration
 const options = {
   // you can also just use 'bottom center'
   position: positions.TOP_CENTER,
-  timeout: 4000,
-  offset: '30px',
+  timeout: 2500,
+  offset: '20px',
   transition: transitions.FADE
 }
 

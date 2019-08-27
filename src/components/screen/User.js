@@ -13,39 +13,30 @@ const User = ({ details, deleteUser, updateUserLevel }) => {
 
 
     return (
-
         <div className='card'>
             <div className='recette'>
-                <h2>username : <strong>{details.username}</strong></h2>
+                <br />
+                <h2 className='h1-title' >{details.username}</h2>  <br />
                 <ul className='liste-agredients'>
-                    id => <strong>{details._id}</strong> <br />
-                    level => <strong>{details.level}</strong> <br />
-                    phone => <strong>{details.phone}</strong> <br />
-                    address => <strong>{details.address}</strong> <br />
-                    email => <strong>{details.email}</strong> <br />
-                    panier => <br />
-                    <div className="AccountOrderScrool" >
+                    id : <strong>{details._id}</strong> <br />
+                    level : <strong>{details.level}</strong> <br />
+                    phone : <strong>{details.phone}</strong> <br />
+                    address : <strong>{details.address}</strong> <br />
+                    email : <strong>{details.email}</strong> <br />
+                    panier : <br />
+                    <div className="OrderScroolUser" >
                         {panier}
                     </div>
-                    orders =>  <br />
-                    <div className="AccountOrderScrool" >
+                    orders :  <br />
+                    <div className="OrderScroolUser" >
                         {orders}
                     </div>
                 </ul>
-            </div>
-            <div className='container'>
-                <div className='col-sm-4'>
-                    <button className='btn btn-danger btn-outline-dark' onClick={() => deleteUser(details._id)}
-                    >Delete</button>
-                </div>
-                <div className='col-sm-4'>
-                    <button className='btn btn-warning btn-outline-dark' onClick={() => updateUserLevel(details._id, 'manager')}
-                    >Set Manager</button>
-                </div>
-                <div className='col-sm-4'>
-                    <button className='btn btn-success btn-outline-dark' onClick={() => updateUserLevel(details._id, 'client')}
-                    >Set Client</button>
-                </div>
+                <button className='btn btn-warning btn-lg' onClick={() => updateUserLevel(details._id, 'manager')} > Set Manager </button>
+                &nbsp;&nbsp;&nbsp;
+                <button className='btn btn-info btn-lg' onClick={() => updateUserLevel(details._id, 'client')} > Set Client </button>
+                &nbsp;&nbsp;&nbsp;
+                <button className='btn btn-danger btn-lg' onClick={() => deleteUser(details._id)}> Delete User </button>
             </div>
         </div>
     )

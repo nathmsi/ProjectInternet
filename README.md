@@ -15,19 +15,16 @@ npm install
 
 Create a `.env` file for environment variables in your server. 
 
-<<<<<<< HEAD
 ### Firebase 
 REACT_APP_API_KEY=*******************************  \n
 REACT_APP_AUTHDOMAIN=*******************************  \n
 REACT_APP_DATABASEURL=******************************* \n
-=======
 ##### Firebase 
 ```
 REACT_APP_API_KEY=*******************************  
 REACT_APP_AUTHDOMAIN=******************************* 
 REACT_APP_DATABASEURL=*******************************
 ```
->>>>>>> c24da57e45fa4adcf1fe4c31037cac2b058d6548
 
 
 ##### paypal 
