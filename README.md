@@ -15,10 +15,6 @@ npm install
 
 Create a `.env` file for environment variables in your server. 
 
-### Firebase 
-REACT_APP_API_KEY=*******************************  \n
-REACT_APP_AUTHDOMAIN=*******************************  \n
-REACT_APP_DATABASEURL=******************************* \n
 ##### Firebase 
 ```
 REACT_APP_API_KEY=*******************************  
